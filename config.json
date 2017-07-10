@@ -1,0 +1,148 @@
+[{
+    "tab": "Zugangsdaten",
+    "key": "merchantId",
+    "label": "Händler-ID",
+    "type": "text",
+    "default": ""
+},
+  {
+    "tab": "Zugangsdaten",
+    "key": "mwsAccessKey",
+    "label": "MWS Access Key",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Zugangsdaten",
+    "key": "mwsSecretAccessKey",
+    "label": "MWS Secret Access Key",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Zugangsdaten",
+    "key": "accountCountry",
+    "label": "Land des Amazon Payments Accounts",
+    "type": "dropdown",
+    "possibleValues": {
+      "DE": "DE",
+      "UK": "UK",
+      "US": "US"
+    },
+    "default": "DE"
+  },
+  {
+    "tab": "Zugangsdaten",
+    "key": "loginClientId",
+    "label": "Login Client ID",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "status",
+    "label": "Status",
+    "type": "checkbox",
+    "default": "0"
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "sandbox",
+    "label": "Sandbox aktivieren",
+    "type": "checkbox",
+    "default": "0"
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "hideButtons",
+    "label": "Buttons verstecken (debug)",
+    "type": "checkbox",
+    "default": "0"
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "authorizationMode",
+    "label": "Art der Autorisierung",
+    "type": "dropdown",
+    "possibleValues": {
+      "default": "während des Checkouts, spätestens innerhalb von 24h (Standard)",
+      "fast_auth": "unbedingt während des Checkouts (z.B. Download-Produkte)",
+      "manually": "Ereignisaktion/manuell"
+    }
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "captureMode",
+    "label": "Art des Zahlungseinzugs",
+    "type": "dropdown",
+    "possibleValues": {
+      "after_auth": "direkt nach der Autorisierung",
+      "manually": "Ereignisaktion/manuell"
+    }
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "closeOroOnCompleteCapture",
+    "label": "Amazon Pay Vorgang bei komplettem Zahlungseinzug abschließen",
+    "type": "checkbox",
+    "default": "true"
+  },
+  {
+    "tab": "Grundeinstellungen",
+    "key": "submitOrderIds",
+    "label": "Plenty-Auftragsnummer an Amazon übertragen",
+    "type": "checkbox",
+    "default": "true"
+  },
+  {
+    "tab": "Style",
+    "key": "payButtonSize",
+    "label": "Größe des Amazon Pay Buttons",
+    "type": "dropdown",
+    "possibleValues": {
+      "small": "klein",
+      "medium": "mittel",
+      "large": "groß",
+      "x-large": "sehr groß"
+    },
+    "default": "medium"
+  },
+  {
+    "tab": "Style",
+    "key": "payButtonColor",
+    "label": "Farbe des Amazon Pay Buttons",
+    "type": "dropdown",
+    "possibleValues": {
+      "Gold": "Amazon-Gelb",
+      "LightGray": "Hellgrau",
+      "DarkGray": "Dunkelgrau"
+    },
+    "default": "Gold"
+  },
+  {
+    "tab": "Style",
+    "key": "loginButtonSize",
+    "label": "Größe des Amazon-Login-Buttons",
+    "type": "dropdown",
+    "possibleValues": {
+      "small": "klein",
+      "medium": "mittel",
+      "large": "groß",
+      "x-large": "sehr groß"
+    },
+    "default": "medium"
+  },
+  {
+    "tab": "Style",
+    "key": "loginButtonColor",
+    "label": "Farbe des Amazon-Login-Buttons",
+    "type": "dropdown",
+    "possibleValues": {
+      "Gold": "Amazon-Gelb",
+      "LightGray": "Hellgrau",
+      "DarkGray": "Dunkelgrau"
+    },
+    "default": "Gold"
+  }
+
+]

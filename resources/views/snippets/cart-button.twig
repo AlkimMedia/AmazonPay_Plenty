@@ -1,0 +1,42 @@
+{% if error == 'AmazonRejected' %}
+    <div class="alert alert-danger">Ihre Zahlung wurde von Amazon Pay abgelehnt - bitte verwenden Sie daher eine andere
+        Zahlungsart.
+    </div>
+    <script type="text/javascript">
+        var amazonPayAction = 'logout';
+    </script>
+{% endif %}
+<style>
+    #amzCartButton {
+        margin-bottom: 10px;
+    }
+
+    #amzCartButton img {
+        max-width: 100%;
+    }
+</style>
+<div id="amzCartButton" class="amzCartButton"></div>
+
+<!-- TODO: move to some better place -->
+<script type="text/javascript">
+    var amazonLoginAndPay = {
+        config: {
+            payButtonSize: '{{ config('AmazonLoginAndPay.payButtonSize') }}',
+            payButtonColor: '{{ config('AmazonLoginAndPay.payButtonColor') }}',
+            loginButtonSize: '{{ config('AmazonLoginAndPay.loginButtonSize') }}',
+            loginButtonColor: '{{ config('AmazonLoginAndPay.loginButtonColor') }}',
+            popup: true,
+            clientId: '{{ config('AmazonLoginAndPay.loginClientId') }}',
+            merchantId: '{{ config('AmazonLoginAndPay.merchantId') }}'
+        }
+    }
+</script>
+<!--<script src="{{ plugin_path('AmazonLoginAndPay') }}/js/amz-main.js"></script>-->
+<script src="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main.js"></script>
+{% if config('AmazonLoginAndPay.sandbox') == "true" %}
+    <script async="async"
+            src='https://static-eu.payments-amazon.com/OffAmazonPayments/eur/sandbox/lpa/js/Widgets.js'></script>
+{% else %}
+    <script async="async" src='https://static-eu.payments-amazon.com/OffAmazonPayments/eur/lpa/js/Widgets.js'></script>
+{% endif %}
+

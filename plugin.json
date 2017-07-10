@@ -1,0 +1,52 @@
+{
+  "name": "AmazonLoginAndPay",
+  "namespace": "AmazonLoginAndPay",
+  "marketplaceName": {
+    "de": "Amazon Pay Plugin für Ihren Plentymarkets-Shop – powered by Alkim Media (Certified Developer Amazon Pay)",
+    "en": "Amazon Pay plugin for your Plentymarkets shop – powered by Alkim Media (Certified Developer Amazon Pay)"
+  },
+  "description": "Mit Amazon Pay können sich Millionen Amazon Kunden mit ihrem Amazon-Login in Ihrem Plentymarkets-Shop einloggen und mit den Adress- und Zahlungsinformationen aus ihrem Amazon-Kundenkonto bezahlen. Das geht schnell, ist einfach und sicher. Der komplette Bezahlvorgang findet ausschließlich in Widgets in Ihrem Online-Shop statt – ohne Weiterleitung auf eine andere Website.\n\nIhre Vorteile\nLoyale Kunden\nBieten Sie Ihren Kunden einen einfachen Login. Die Käufer werden zu Ihren Kunden und Sie können Ihre Produkte direkt an sie vermarkten.\nMobiloptimiert\nUnsere Buttons und Widgets sind Desktop-, Tablet- und Mobiloptimiert. Erzielen Sie Verkäufe, die Ihnen ohne Mobiloptimierung entgingen.\n\nSchutz vor Zahlungsausfällen\nReduzieren Sie Kosten und schützen Sie Ihr Unternehmen mit dem bewährten Schutz vor Zahlungsausfällen von Amazon. Dieser Service ist für Sie kostenlos.\n\nChance: höhere Konversion, mehr Umsatz\nAmazon Payments kann Ihnen helfen, Umsätze mit Kunden zu erzielen, die aufgrund komplizierterer Anmelde- und Bezahloptionen sonst nicht bei Ihnen eingekauft hätten. Zusätzlich profitieren Sie vom Amazon Pay Schutz vor Zahlungsausfall.\n\nReine Zahlungsabwicklung\n Amazon Pay bietet reine Zahlungsabwicklung. Als Händler übermitteln Sie nur den abzuwickelnden Betrag.",
+  "shortDescription": {
+    "de": "Mit Amazon Pay können sich Millionen Amazon Kunden in Ihrem Plentymarkets-Shop mit den Adress- und Zahlungsinformationen aus ihrem Amazon-Kundenkonto einloggen und bezahlen. Das geht schnell, ist einfach und sicher.",
+    "en": ""
+  },
+  "type": "payment",
+  "version": "0.1.0",
+  "licence": "",
+  "pluginIcon": "icon_plugin_xs.png",
+  "price": 0.0,
+  "keywords": [
+    "amazon",
+    "official",
+    "plentymarkets",
+    "payment"
+  ],
+  "author": "alkim media",
+  "authorIcon": "icon_author_xs.png",
+  "email": "info@alkim.de",
+  "phone": "",
+  "serviceProvider": "AmazonLoginAndPay\\Providers\\AmzServiceProvider",
+  "containers": [],
+  "dataProviders": [
+    {
+      "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderCartButton",
+      "name": "Amazon Login & Pay - Button",
+      "description": "Amazon Login & Pay - Button"
+    },
+    {
+      "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderOrderConfirmation",
+      "name": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite",
+      "description": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite"
+    }
+  ],
+  "javaScriptFiles": [
+    "main.js"
+  ],
+  "require": [],
+  "dependencies": {
+    "amzn/amazon-pay-sdk-php": "dev-psrlogpath"
+  },
+  "runOnBuild": [
+    "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable"
+  ]
+}

@@ -1,0 +1,25 @@
+<div>
+    {% if shippingOptions is empty %}
+        <div class="alert alert-warning">
+            Versand an diese Adresse nicht m&ouml;glich.
+        </div>
+    {% else %}
+        <ul class="shipping-method-list">
+            {% for key,shippingOption in shippingOptions %}
+                <li class="shipping-method-list-item" data-id="{{ shippingOption.parcelServicePresetId }}">
+                    <input
+                            type="radio"
+                            id="ShippingProfileID{{ shippingOption.parcelServicePresetId }}"
+                            name="ShippingProfileID"
+                            value="{{ shippingOption.parcelServicePresetId }}"
+                            {% if shippingOption.parcelServicePresetId == basket.shippingProfileId %} checked="checked" {% endif %}
+                    />
+                    <label for="ShippingProfileID{{ shippingOption.parcelServicePresetId }}">
+                        {{ shippingOption.parcelServiceName }} - {{ shippingOption.parcelServicePresetName }}
+                        ({{ shippingOption.shippingAmount | formatMonetary('EUR') }})
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>

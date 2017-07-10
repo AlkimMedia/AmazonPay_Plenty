@@ -1,0 +1,31 @@
+<style>
+    table {
+        border: 1px solid #ccc;
+        font-size: 10px;
+        border-collapse: collapse;
+        font-family: Verdana, Arial, sans-serif;
+    }
+
+    td {
+        padding: 2px;
+        border: 1px solid #ccc;
+    }
+
+    tr:nth-child(odd) td {
+        background: #eee;
+    }
+</style>
+<table cellspacing="0">
+    <tr>
+        {% for k,v in transactions.0 %}
+            <td>{{ k }}</td>
+        {% endfor %}
+    </tr>
+    {% for key,transaction in transactions %}
+        <tr>
+            {% for k,v in transaction %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>

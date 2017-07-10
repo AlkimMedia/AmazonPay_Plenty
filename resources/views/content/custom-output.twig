@@ -1,0 +1,9 @@
+{% if output != '' %}
+    {{ output|raw }}
+{% endif %}
+{% if warning != '' %}
+    <div class="alert alert-warning">{{ warning }}</div>
+{% endif %}
+{% if error != '' %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% endif %}

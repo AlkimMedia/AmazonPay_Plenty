@@ -1,0 +1,98 @@
+<div class="order-items-table">
+    <div class="line head">
+        <!--<div class="image">
+            Bild
+        </div>-->
+        <div class="name">
+            Name
+        </div>
+        <div class="single-price">
+            Einzelpreis
+        </div>
+        <div class="quantity">
+            Menge
+        </div>
+        <div class="final-price">
+            Summe
+        </div>
+    </div>
+    {% for key,item in items %}
+    <div class="line">
+        <!--<div class="image">
+            <img src="{{ item.image }}"/>
+        </div>-->
+        <div class="name">
+            {{ item.name }}
+        </div>
+        <div class="single-price">
+            {{ item.price  | formatMonetary('EUR') }}
+        </div>
+        <div class="quantity">
+            {{ item.quantity }}
+        </div>
+        <div class="final-price">
+            {{ item.final_price  | formatMonetary('EUR') }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="order-details-table">
+    <div>
+        <dl>
+            <dt>
+                Artikelsumme, netto
+            </dt>
+            <dd>
+                {{ basket.itemSumNet  | formatMonetary('EUR') }}
+            </dd>
+
+            <dt>
+                Artikelsumme
+            </dt>
+            <dd>
+                {{ basket.itemSum  | formatMonetary('EUR') }}
+            </dd>
+            <dt>
+                Versandkosten, netto
+            </dt>
+            <dd>
+                {{ basket.shippingAmountNet  | formatMonetary('EUR') }}
+            </dd>
+
+            <dt>
+                Versandkosten
+            </dt>
+            <dd>
+                {{ basket.shippingAmount  | formatMonetary('EUR') }}
+            </dd>
+            <dt>
+                Summe, netto
+            </dt>
+            <dd>
+                {{ basket.basketAmountNet  | formatMonetary('EUR') }}
+            </dd>
+            {% if basket.couponDiscount != 0 %}
+                <dt>
+                    Gutschein
+                </dt>
+                <dd>
+                    {{ basket.couponDiscount | formatMonetary('EUR') }}
+                </dd>
+            {% endif %}
+            <dt>
+                MwSt.
+            </dt>
+            <dd>
+                {{ basket.vat  | formatMonetary('EUR') }}
+            </dd>
+            <dt>
+                <strong>Summe</strong>
+            </dt>
+            <dd>
+                {{ basket.basketAmount  | formatMonetary('EUR') }}
+            </dd>
+        </dl>
+    </div>
+</div>
+
