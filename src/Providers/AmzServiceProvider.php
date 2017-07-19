@@ -25,7 +25,7 @@ class AmzServiceProvider extends ServiceProvider
 {
     public $transactionHelper;
 
-    public function boot(AlkimAmazonLoginAndPayHelper $paymentHelper,
+    public function boot(AlkimAmazonLoginAndPayHelper $helper,
                          AmzCheckoutHelper $checkoutHelper,
                          PaymentMethodContainer $payContainer,
                          Dispatcher $eventDispatcher,
@@ -36,35 +36,52 @@ class AmzServiceProvider extends ServiceProvider
 
         $this->transactionHelper = $transactionHelper;
         // Create the ID of the payment method if it doesn't exist yet
-        $paymentHelper->createMopIfNotExistsAndReturnId();
+        $helper->createMopIfNotExistsAndReturnId();
 
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
-            function (ExecutePayment $event) use ($paymentHelper, $transactionHelper, $paymentRepository, $checkoutHelper) {
+            function (ExecutePayment $event) use ($helper, $transactionHelper, $paymentRepository, $checkoutHelper) {
+                $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
                 $orderId = $event->getOrderId();
-                if ($paymentHelper->getFromConfig('submitOrderIds') == 'true') {
-                    $amount = $paymentHelper->getOrderTotal($orderId);
+                $helper->log(__CLASS__, __METHOD__, 'execute payment - submit order id config value', $helper->getFromConfig('submitOrderIds'));
+                if ($helper->getFromConfig('submitOrderIds') == 'true') {
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id pre', '');
+                    $amount = $helper->getOrderTotal($orderId);
                     $return = $checkoutHelper->doCheckoutActions($amount, $orderId);
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id', ['order' => $orderId, 'return' => $return]);
                     if (!empty($return["redirect"]) && $return["redirect"] != 'place-order') {
                         $event->setType('redirectUrl');
                         $event->setValue($return["redirect"]);
                     }
                 } else {
-                    if ($amazonAuthId = $paymentHelper->getFromSession('amazonAuthId')) {
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
+                    if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
                         if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
                             if ($transaction->paymentId) {
                                 if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
-                                    $paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                    $paymentHelper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
-                                    $paymentHelper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
-                                    $paymentHelper->setToSession('amazonAuthId', '');
+                                    $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
+                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
+                                    $helper->setToSession('amazonAuthId', '');
                                 }
                             }
+                            $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);
+                            if ($captures = $transactionHelper->getCaptureTransactionsFromOrderRef($orderReference)) {
+                                if (is_array($captures)) {
+                                    foreach ($captures as $capture) {
+                                        if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
+                                            $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
+                                        }
+                                    }
+                                }
+                            }
+
                         }
-                    } elseif ($orderReference = $paymentHelper->getFromSession('amzCheckoutOrderReference')) {
-                        $paymentHelper->setOrderIdToAmazonTransactions($orderReference, $orderId);
+                    } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
+                        $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
-                    $paymentHelper->log(__CLASS__, __METHOD__, 'execute payment', ['auth' => $amazonAuthId, 'transaction' => $transaction, 'orderId' => $orderId, 'payment' => $payment]);
+
                 }
 
 

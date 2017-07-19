@@ -14,7 +14,7 @@ class AmzRouteServiceProvider extends RouteServiceProvider
         $router->get('amazon-login-processing', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonLoginProcessingAction');
         $router->get('amazon-checkout-proceed', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonCheckoutProceedAction');
         $router->get('amazon-ajax-handle', 'AmazonLoginAndPay\Controllers\AjaxController@handle');
-        $router->get('data-test', 'AmazonLoginAndPay\Controllers\AjaxController@dataTest');
+        //$router->get('data-test', 'AmazonLoginAndPay\Controllers\AjaxController@dataTest');
         $router->get('amazon-cron', 'AmazonLoginAndPay\Controllers\AjaxController@cron');
         $router->post('amazon-ipn', 'AmazonLoginAndPay\Controllers\AjaxController@ipn');
     }

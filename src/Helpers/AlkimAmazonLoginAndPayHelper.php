@@ -223,6 +223,7 @@ class AlkimAmazonLoginAndPayHelper
     public function assignPlentyPaymentToPlentyOrder(Payment $payment, int $orderId)
     {
         $order = $this->orderRepository->findOrderById($orderId);
+        $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
         if (!is_null($order) && $order instanceof Order) {
             $this->paymentOrderRelationRepository->createOrderRelation($payment, $order);
         }
@@ -298,13 +299,16 @@ class AlkimAmazonLoginAndPayHelper
         $this->log(__CLASS__, __METHOD__, 'finished set order status', ['order' => $order, 'status' => $status]);
     }
 
-    public function resetSession()
+    public function resetSession($keepBasket = false)
     {
         $this->setToSession('amazonCheckoutError', '');
         $this->setToSession('amzOrderReference', '');
         $this->setToSession('amazonAuthId', '');
         $this->setToSession('amzCheckoutOrderReference', '');
-
+        $this->setToSession('amzInvalidPaymentOrderReference', '');
+        if (!$keepBasket) {
+            $this->setToSession('amzCheckoutBasket', '');
+        }
     }
 
     public function setToSession($key, $value)

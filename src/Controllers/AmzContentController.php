@@ -6,6 +6,7 @@ use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
+use AmazonLoginAndPay\Services\BasketService;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
@@ -19,13 +20,15 @@ class AmzContentController extends Controller{
     public $helper;
     public $transactionHelper;
     public $checkoutHelper;
+    public $basketService;
 
-    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper)
+    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, BasketService $basketService)
     {
         $this->response = $response;
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
         $this->checkoutHelper = $checkoutHelper;
+        $this->basketService = $basketService;
     }
 
     public function amazonCheckoutAction(Twig $twig)
@@ -59,11 +62,24 @@ class AmzContentController extends Controller{
 
     public function amazonCheckoutProceedAction(Twig $twig)
     {
-        if ($this->helper->getFromConfig('submitOrderIds') != 'true') {
-            $return = $this->checkoutHelper->doCheckoutActions();
+        $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+        $walletOnly = $this->helper->getFromSession('amzInvalidPaymentOrderReference') == $orderReferenceId;
+        $this->helper->log(__CLASS__, __METHOD__, 'is wallet only?', $walletOnly);
+        if ($this->helper->getFromConfig('submitOrderIds') != 'true' || $walletOnly) {
+            $amount = null;
+            if ($walletOnly) {
+                $amount = $this->transactionHelper->getAmountFromOrderRef($orderReferenceId);
+            }
+            $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly);
+            $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', $return);
             if (!empty($return["redirect"])) {
                 return $this->response->redirectTo($return["redirect"]);
             }
+        } else {
+            $basketItems = $this->basketService->getBasketItems();
+            $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session', $basketItems);
+            $this->helper->setToSession('amzCheckoutBasket', $basketItems);
+            $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session - done', $basketItems);
         }
         return $this->response->redirectTo('place-order');
     }

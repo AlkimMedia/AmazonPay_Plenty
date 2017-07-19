@@ -1,23 +1,24 @@
 <?php
-/** @noinspection PhpUndefinedNamespaceInspection */
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Services\BasketService;
 use AmazonLoginAndPay\Services\CheckoutService;
+use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Frontend\Contracts\Checkout;
+use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 
 class AmzCheckoutHelper
 {
-    public static $config;
     public $checkoutService;
     public $basketService;
     public $checkout;
     public $helper;
     public $transactionHelper;
     public $basketItemRepository;
+    public $orderRepository;
 
-    public function __construct(BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, BasketService $basketService, CheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
+    public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, BasketService $basketService, CheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
     {
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
@@ -25,6 +26,7 @@ class AmzCheckoutHelper
         $this->basketService = $basketService;
         $this->checkout = $checkout;
         $this->basketItemRepository = $basketItemRepository;
+        $this->orderRepository = $orderRepository;
     }
 
     public function getShippingOptionsList()
@@ -49,6 +51,7 @@ class AmzCheckoutHelper
             $item["quantity"] = $basketItem["quantity"];
             $item["final_price"] = $item["price"] * $item["quantity"];
             $item["image"] = '';
+            $item["variationId"] = $basketItem["variationId"];
             $return[] = $item;
 
         }
@@ -107,29 +110,36 @@ class AmzCheckoutHelper
         $this->checkout->setShippingProfileId($id);
     }
 
-    public function doCheckoutActions($amount = null, $orderId = 0)
+    public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false)
     {
         $return = [
             'redirect' => ''
         ];
-        $this->setPaymentMethod();
+        $successTarget = ($this->helper->getFromConfig('submitOrderIds') == 'true' ? 'confirmation' : 'place-order');
+        if (!$walletOnly) {
+            $this->setPaymentMethod();
+            $successTarget = 'place-order';
+        }
         if ($amount === null) {
             $basket = $this->getBasketData();
             $amount = $basket["basketAmount"];
         }
-        $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $amount, 0);
-        $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
-        $constraint = $constraints["Constraint"]["ConstraintID"];
-        if (!empty($constraint)) {
-            $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
-            $return["redirect"] = 'amazon-checkout';
-            return $return;
+        $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+        if (!$walletOnly) {
+            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, $orderId);
+            $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
+            $constraint = $constraints["Constraint"]["ConstraintID"];
+            if (!empty($constraint)) {
+                $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
+                $return["redirect"] = 'amazon-checkout';
+                return $return;
+            }
         }
-        $this->transactionHelper->confirmOrderReference($this->helper->getFromSession('amzOrderReference'), true, $orderId);
+        $this->transactionHelper->confirmOrderReference($orderReferenceId, true, $orderId);
         $this->helper->log(__CLASS__, __METHOD__, 'checkout auth mode', $this->helper->getFromConfig('authorizationMode'));
         if ($this->helper->getFromConfig('authorizationMode') != 'manually') {
-            $this->helper->log(__CLASS__, __METHOD__, 'try to authorize', $this->helper->getFromSession('amzOrderReference'));
-            $response = $this->transactionHelper->authorize($this->helper->getFromSession('amzOrderReference'), $amount, 0);
+            $this->helper->log(__CLASS__, __METHOD__, 'try to authorize', $orderReferenceId);
+            $response = $this->transactionHelper->authorize($orderReferenceId, $amount, 0);
             $this->helper->log(__CLASS__, __METHOD__, 'amazonCheckoutAuthorizeResult', $response);
             if (is_array($response) && !empty($response["AuthorizeResult"])) {
                 $details = $response["AuthorizeResult"]["AuthorizationDetails"];
@@ -138,21 +148,33 @@ class AmzCheckoutHelper
                     $reason = $details["AuthorizationStatus"]["ReasonCode"];
                     if ($reason == 'TransactionTimedOut') {
                         if ($this->helper->getFromConfig('authorizationMode') == 'fast_auth') {
-                            $this->transactionHelper->cancelOrder($this->helper->getFromSession('amzOrderReference'));
+                            $this->transactionHelper->cancelOrder($orderReferenceId);
+                            if (!empty($orderId)) {
+                                $this->cancelOrder($orderId);
+                                $this->restoreBasket();
+                            }
+                            $this->helper->resetSession();
                             $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
                             $return["redirect"] = 'basket';
                             return $return;
                         } else {
-                            $response = $this->transactionHelper->authorize($this->helper->getFromSession('amzOrderReference'), $amount);
+                            $response = $this->transactionHelper->authorize($orderReferenceId, $amount);
                             $details = $response["AuthorizeResult"]["AuthorizationDetails"];
                             $this->helper->setToSession('amazonAuthId', $details["AmazonAuthorizationId"]);
                             $this->helper->setToSession('paymentWarningTimeout', 1);
                         }
                     } elseif ($reason == 'InvalidPaymentMethod') {
+                        $this->helper->setToSession('amzInvalidPaymentOrderReference', $orderReferenceId);
                         $return["redirect"] = 'amazon-checkout-wallet';
                         return $return;
                     } else {
                         //Hard Decline / AmazonRejected
+                        $this->helper->log(__CLASS__, __METHOD__, 'AmazonRejected', ['orderID' => $orderId]);
+                        if (!empty($orderId)) {
+                            $this->cancelOrder($orderId);
+                            $this->restoreBasket();
+                        }
+                        $this->helper->resetSession();
                         $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
                         $return["redirect"] = 'basket';
                         return $return;
@@ -164,13 +186,17 @@ class AmzCheckoutHelper
                     }
                 }
             } else {
+                if (!empty($orderId)) {
+                    $this->cancelOrder($orderId);
+                    $this->restoreBasket();
+                }
                 $this->helper->setToSession('amazonCheckoutError', 'UnknownError');
                 $return["redirect"] = 'basket';
                 return $return;
             }
         }
-        $this->helper->setToSession('amzCheckoutOrderReference', $this->helper->getFromSession('amzOrderReference'));
-        $return["redirect"] = 'place-order';
+        $this->helper->setToSession('amzCheckoutOrderReference', $orderReferenceId);
+        $return["redirect"] = $successTarget;
         return $return;
     }
 
@@ -222,6 +248,36 @@ class AmzCheckoutHelper
     "basketRebateType": 0,
 
          */
+    }
+
+    public function cancelOrder($orderId)
+    {
+        $this->helper->log(__CLASS__, __METHOD__, 'cancel order', $orderId);
+        $orderRepo = $this->orderRepository;
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+        $response = $authHelper->processUnguarded(
+            function () use ($orderRepo, $orderId) {
+                return $orderRepo->cancelOrder($orderId, ['message' => 'Amazon Pay']);
+            }
+        );
+        $this->helper->log(__CLASS__, __METHOD__, 'cancelled order', $response);
+    }
+
+    public function restoreBasket()
+    {
+        $basketItems = $this->helper->getFromSession('amzCheckoutBasket');
+        $this->helper->log(__CLASS__, __METHOD__, 'restore basket items', $basketItems);
+        if (!empty($basketItems)) {
+            foreach ($basketItems as $item) {
+                $basketItem = $this->basketItemRepository->addBasketItem([
+                    'variationId' => $item["variationId"],
+                    'quantity' => $item["quantity"]
+                ]);
+                $this->helper->log(__CLASS__, __METHOD__, 'added basket item', $basketItem);
+            }
+            $this->helper->setToSession('amzCheckoutBasket', []);
+        }
     }
 
 

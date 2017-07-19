@@ -11,7 +11,7 @@
     "en": ""
   },
   "type": "payment",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "licence": "",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -37,6 +37,11 @@
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderOrderConfirmation",
       "name": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite",
       "description": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite"
+    },
+    {
+      "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderJavascript",
+      "name": "Amazon Login & Pay - JavaScript",
+      "description": "Amazon Login & Pay - JavaScript"
     }
   ],
   "javaScriptFiles": [

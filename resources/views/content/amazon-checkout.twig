@@ -32,18 +32,23 @@
                 <h2>Versandart</h2>
                 <div id="shippingOptionsListWr" class="amz-border-box"></div>
             </div>
-        {% endif %}
-        <div class="amz-checkout-box">
-            <h2>Zusammenfassung</h2>
-            <div class="amz-border-box">
-                <div id="orderDetailsWr">
 
-                </div>
-                <div class="amz-checkout-order-button-wr">
-                    <a href="amazon-checkout-proceed" class="btn btn-primary">Bestellen</a>
+            <div class="amz-checkout-box">
+                <h2>Zusammenfassung</h2>
+                <div class="amz-border-box">
+                    <div id="orderDetailsWr">
+
+                    </div>
+                    <div class="amz-checkout-order-button-wr">
+                        <a href="amazon-checkout-proceed" class="btn btn-primary">Bestellen</a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <div class="amz-checkout-order-button-wr wallet-only">
+                <a href="amazon-checkout-proceed" class="btn btn-primary">Bestellen</a>
+            </div>
+        {% endif %}
         <script type="text/javascript">
             var amazonLoginAndPay = {
                 config: {

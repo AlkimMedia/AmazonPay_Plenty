@@ -441,4 +441,23 @@ class AmzTransactionHelper
             //TODO: AlkimAmazonTransactions::doAuthorizationAfterDecline($orderRef);
         }
     }
+
+    public function getAmountFromOrderRef($orderReferenceId)
+    {
+        $oroArr = $this->amzTransactionRepository->getTransactions([
+            ['orderReference', '=', $orderReferenceId],
+            ['type', '=', 'order_ref']
+        ]);
+        $oro = $oroArr[0];
+        return $oro->amount;
+    }
+
+    public function getCaptureTransactionsFromOrderRef($orderReferenceId)
+    {
+        $transactions = $this->amzTransactionRepository->getTransactions([
+            ['orderReference', '=', $orderReferenceId],
+            ['type', '=', 'capture']
+        ]);
+        return $transactions;
+    }
 }
