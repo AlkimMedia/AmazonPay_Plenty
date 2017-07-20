@@ -11,8 +11,8 @@
     "en": ""
   },
   "type": "payment",
-  "version": "0.1.1",
-  "licence": "",
+  "version": "0.1.2",
+  "licence": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
   "keywords": [
@@ -23,8 +23,8 @@
   ],
   "author": "alkim media",
   "authorIcon": "icon_author_xs.png",
-  "email": "info@alkim.de",
-  "phone": "",
+  "email": "plentymarkets@alkim.de",
+  "phone": "+49 33971 604480",
   "serviceProvider": "AmazonLoginAndPay\\Providers\\AmzServiceProvider",
   "containers": [],
   "dataProviders": [

@@ -30,7 +30,7 @@ class AmzTransactionHelper
         $requestParameters['amazon_order_reference_id'] = $orderRef;
         $requestParameters['amount'] = $amount;
         $requestParameters['currency_code'] = 'EUR';
-        $requestParameters['platform_id'] = 'AYJ786YBX3WE4'; //TODO
+        $requestParameters['platform_id'] = 'A1SGXK19QKIYNB';
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['store_name'] = $this->helper->getWebstoreName();
         if (!empty($orderId)) {

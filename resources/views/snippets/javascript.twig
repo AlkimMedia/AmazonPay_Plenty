@@ -1,6 +1,9 @@
 <style>
     .amzPayButton {
         margin: 10px 0;
+    {%  if config('AmazonLoginAndPay.hideButtons') == "true" %} display: none !important;
+    {%  endif %}
+
     }
 
     .amzPayButton img {
@@ -19,6 +22,8 @@
     .amz-checkout-order-button-wr.wallet-only {
         margin: 1em 0;
     }
+
+
 </style>
 <script type="text/javascript">
     var amazonLoginAndPay = {
