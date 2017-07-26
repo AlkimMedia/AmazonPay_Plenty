@@ -37,6 +37,10 @@ class AjaxController extends Controller
         $action = $this->request->get('action');
         $this->helper->log(__CLASS__, __METHOD__, 'ajax handle action', ['action' => $action, 'orderReference' => $this->helper->getFromSession('amzOrderReference')]);
         switch ($action) {
+            case 'setAccessToken':
+                $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
+                return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => '']);
+                break;
             case 'setOrderReference':
                 $this->helper->setToSession('amzOrderReference', $this->request->get('orderReference'));
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $this->helper->getFromSession('amzOrderReference')]);
@@ -49,7 +53,6 @@ class AjaxController extends Controller
                 break;
             case 'setShippingProfileId':
                 $this->checkoutHelper->setShippingProfile($this->request->get('id'));
-                return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $this->request->get('id')]);
             case 'getOrderDetails':
                 $templateData = ['basket' => $this->checkoutHelper->getBasketData(), 'items' => $this->checkoutHelper->getBasketItems()];
                 $this->helper->log(__CLASS__, __METHOD__, 'basket list template data', $templateData);

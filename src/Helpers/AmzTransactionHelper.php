@@ -48,7 +48,7 @@ class AmzTransactionHelper
             [
                 'config' => $this->helper->getCallConfig(),
                 'action' => $action,
-                'paramters' => $parameters
+                'parameters' => $parameters
             ]
         );
         $this->helper->log(__CLASS__, __METHOD__, 'call result ' . $action, ['config' => $this->helper->getCallConfig(), 'action' => $action, 'parameters' => $parameters, 'result' => $result]);

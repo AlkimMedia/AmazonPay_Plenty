@@ -1,7 +1,7 @@
 <div>
     {% if shippingOptions is empty %}
         <div class="alert alert-warning">
-            Versand an diese Adresse nicht m&ouml;glich.
+            {{ trans("AmazonLoginAndPay::AmazonPay.addressNotValid") }}
         </div>
     {% else %}
         <ul class="shipping-method-list">

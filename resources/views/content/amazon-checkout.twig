@@ -1,52 +1,48 @@
 {% extends getPartial('page-design') %}
 {% block PageBody %}
     <div class="container-max">
-        <h1>Amazon Checkout</h1>
+        <h1>{{ trans("AmazonLoginAndPay::AmazonPay.checkoutPageCaption") }}</h1>
         {% if (error != '') or (walletOnly == 1) %}
             <div class="alert alert-danger">
                 {% if (error == 'InvalidPaymentMethod') or (error == 'TransactionTimeout') or (walletOnly == 1) %}
-                    Bitte w&auml;hlen Sie eine andere Zahlungsart
+                    {{ trans("AmazonLoginAndPay::AmazonPay.pleaseChangePaymentMethod") }}
                 {% else %}
                     {{ error }}
                 {% endif %}
             </div>
         {% endif %}
-        <!--<div><b>ID</b>: {{ userData.user_id }}</div>
-    <div><b>Name</b>: {{ userData.name }}</div>
-    <div><b>Postal code</b>: {{ userData.postal_code }}</div>
-    <div><b>Email</b>: {{ userData.email }}</div>
-    Place this code in your HTML where you would like the address widget to appear.
--->
         {% if walletOnly != 1 %}
             <div class="amz-checkout-box">
-                <h2>Lieferadresse</h2>
+                <h2>{{ trans("AmazonLoginAndPay::AmazonPay.shippingAddressCaption") }}</h2>
                 <div id="addressBookWidgetDiv"></div>
             </div>
         {% endif %}
         <div class="amz-checkout-box">
-            <h2>Zahlungsart</h2>
+            <h2>{{ trans("AmazonLoginAndPay::AmazonPay.paymentMethodCaption") }}</h2>
             <div id="walletWidgetDiv"></div>
         </div>
         {% if walletOnly != 1 %}
             <div class="amz-checkout-box">
-                <h2>Versandart</h2>
+                <h2>{{ trans("AmazonLoginAndPay::AmazonPay.shippingMethodCaption") }}</h2>
                 <div id="shippingOptionsListWr" class="amz-border-box"></div>
             </div>
 
             <div class="amz-checkout-box">
-                <h2>Zusammenfassung</h2>
+                <h2>{{ trans("AmazonLoginAndPay::AmazonPay.summaryCaption") }}</h2>
                 <div class="amz-border-box">
                     <div id="orderDetailsWr">
 
                     </div>
                     <div class="amz-checkout-order-button-wr">
-                        <a href="amazon-checkout-proceed" class="btn btn-primary">Bestellen</a>
+                        <a href="amazon-checkout-proceed"
+                           class="btn btn-primary">{{ trans("AmazonLoginAndPay::AmazonPay.orderButtonCaption") }}</a>
                     </div>
                 </div>
             </div>
         {% else %}
             <div class="amz-checkout-order-button-wr wallet-only">
-                <a href="amazon-checkout-proceed" class="btn btn-primary">Bestellen</a>
+                <a href="amazon-checkout-proceed"
+                   class="btn btn-primary">{{ trans("AmazonLoginAndPay::AmazonPay.orderButtonCaption") }}</a>
             </div>
         {% endif %}
         <script type="text/javascript">

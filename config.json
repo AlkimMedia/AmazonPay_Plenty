@@ -61,6 +61,14 @@
   },
   {
     "tab": "Grundeinstellungen",
+    "key": "usePopup",
+    "label": "Wenn möglich Amazon-Login in Popup",
+    "type": "checkbox",
+    "default": "0"
+  },
+
+  {
+    "tab": "Grundeinstellungen",
     "key": "authorizationMode",
     "label": "Art der Autorisierung",
     "type": "dropdown",

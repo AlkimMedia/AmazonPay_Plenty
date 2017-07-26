@@ -4,16 +4,16 @@
             Bild
         </div>-->
         <div class="name">
-            Name
+            {{ trans("AmazonLoginAndPay::AmazonPay.articleNameCaption") }}
         </div>
         <div class="single-price">
-            Einzelpreis
+            {{ trans("AmazonLoginAndPay::AmazonPay.articlePriceCaption") }}
         </div>
         <div class="quantity">
-            Menge
+            {{ trans("AmazonLoginAndPay::AmazonPay.articleQuantityCaption") }}
         </div>
         <div class="final-price">
-            Summe
+            {{ trans("AmazonLoginAndPay::AmazonPay.articleSumCaption") }}
         </div>
     </div>
     {% for key,item in items %}
@@ -37,57 +37,64 @@
     {% endfor %}
 </div>
 
+
 <div class="order-details-table">
     <div>
         <dl>
             <dt>
-                Artikelsumme, netto
+                {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
+                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
             </dt>
             <dd>
                 {{ basket.itemSumNet  | formatMonetary('EUR') }}
             </dd>
 
             <dt>
-                Artikelsumme
+                {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
+                ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
             </dt>
             <dd>
                 {{ basket.itemSum  | formatMonetary('EUR') }}
             </dd>
             <dt>
-                Versandkosten, netto
+                {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
+                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
             </dt>
             <dd>
                 {{ basket.shippingAmountNet  | formatMonetary('EUR') }}
             </dd>
 
             <dt>
-                Versandkosten
+                {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
+                ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
             </dt>
             <dd>
                 {{ basket.shippingAmount  | formatMonetary('EUR') }}
             </dd>
             <dt>
-                Summe, netto
+                {{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
+                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
             </dt>
             <dd>
                 {{ basket.basketAmountNet  | formatMonetary('EUR') }}
             </dd>
             {% if basket.couponDiscount != 0 %}
                 <dt>
-                    Gutschein
+                    {{ trans("AmazonLoginAndPay::AmazonPay.basketCoupon") }}
                 </dt>
                 <dd>
                     {{ basket.couponDiscount | formatMonetary('EUR') }}
                 </dd>
             {% endif %}
             <dt>
-                MwSt.
+                {{ trans("AmazonLoginAndPay::AmazonPay.basketVAT") }}
             </dt>
             <dd>
                 {{ basket.vat  | formatMonetary('EUR') }}
             </dd>
             <dt>
-                <strong>Summe</strong>
+                <strong>{{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})</strong>
             </dt>
             <dd>
                 {{ basket.basketAmount  | formatMonetary('EUR') }}

@@ -1,6 +1,5 @@
 {% if error == 'AmazonRejected' %}
-    <div class="alert alert-danger">Ihre Zahlung wurde von Amazon Pay abgelehnt - bitte verwenden Sie daher eine andere
-        Zahlungsart.
+    <div class="alert alert-danger">{{ trans("AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo") }}
     </div>
     <script type="text/javascript">
         var amazonPayAction = 'logout';
