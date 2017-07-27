@@ -2,8 +2,7 @@
 
 namespace AmazonLoginAndPay\Models;
 
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Plugin\DataBase\Contracts\Model;
+use Plenty\Modules\Plugin\DataBase\Contracts\Model;
 
 /**
  * Class AmzTransaction
@@ -54,7 +53,7 @@ class AmzTransaction extends Model
     /**
      * @return string
      */
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'AmazonLoginAndPay::AmzTransaction';
     }

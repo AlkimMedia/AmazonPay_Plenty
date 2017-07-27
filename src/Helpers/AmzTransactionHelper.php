@@ -6,7 +6,7 @@ use AmazonLoginAndPay\Models\AmzTransaction;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Plugin\Libs\Contracts\LibraryCallContract;
-use Plenty\Plugin\ConfigRepository;
+
 
 class AmzTransactionHelper
 {
@@ -139,6 +139,7 @@ class AmzTransactionHelper
                 'amountRefunded' => 0
             ];
             $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $data]);
+            $plentyPayment = null;
             try {
                 $plentyPayment = $this->helper->createPlentyPayment(($data["status"] == 'Declined' ? 0 : $amount), ($data["status"] == 'Open' ? 'approved' : ($data["status"] == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"]);
             } catch (\Exception $e) {
@@ -197,7 +198,7 @@ class AmzTransactionHelper
                 'amount' => $amount,
                 'amountRefunded' => 0
             ];
-
+            $plentyRefund = null;
             try {
                 $plentyRefund = $this->helper->createPlentyPayment($amount, 'refunded', date('Y-m-d H-i-s'), 'Rueckzahlung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'debit');
             } catch (\Exception $e) {
@@ -296,14 +297,39 @@ class AmzTransactionHelper
         }
 
         if ($transaction->status == 'Declined') {
+
             $reason = (string)$details["AuthorizationStatus"]["ReasonCode"];
             if ($reason == 'AmazonRejected') {
                 $this->cancelOrder($transaction->orderReference);
             }
             $this->helper->updatePlentyPayment($transaction->paymentId, 'refused', 'comment - test', 0);
-            //AlkimAmazonHandler::authorizationDeclinedAction($authId, $reason);
+            $this->authorizationDeclinedAction($transaction, $reason);
         }
     }
+
+    public function authorizationDeclinedAction(AmzTransaction $transaction, $reason)
+    {
+        if ($transaction->status == 'Declined') {
+            $informed = false;
+            if ($reason == 'InvalidPaymentMethod') {
+                if (!$transaction->adminInformed) {
+                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('softDeclineStatus'));
+                }
+                $informed = true;
+            } elseif ($reason == 'AmazonRejected') {
+                if (!$transaction->adminInformed) {
+                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('hardDeclineStatus'));
+                }
+                $informed = true;
+            }
+
+            if ($informed) {
+                $transaction->adminInformed = true;
+                $this->amzTransactionRepository->updateTransaction($transaction);
+            }
+        }
+    }
+
 
     public function capture($authId, $amount)
     {
@@ -345,7 +371,7 @@ class AmzTransactionHelper
             ];
 
             $orderId = $this->getOrderIdFromOrderRef($orderRef);
-
+            $plentyPayment = null;
             try {
                 $plentyPayment = $this->helper->createPlentyPayment($amount, 'captured', date('Y-m-d H-i-s'), 'Zahlungseinzug: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"]);
             } catch (\Exception $e) {

@@ -55,7 +55,7 @@ class AmzCheckoutHelper
             $return[] = $item;
 
         }
-        $this->helper->log(__CLASS__, __METHOD__, 'basket items', [$item, $basketItems]);
+        $this->helper->log(__CLASS__, __METHOD__, 'basket items', [$return, $basketItems]);
         return $return;
     }
 

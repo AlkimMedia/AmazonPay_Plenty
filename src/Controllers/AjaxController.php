@@ -59,6 +59,7 @@ class AjaxController extends Controller
                 return $twig->render('AmazonLoginAndPay::snippets.order-details', $templateData);
 
         }
+        return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'No action found']);
     }
 
     public function dataTest(Twig $twig)
@@ -123,7 +124,6 @@ class AjaxController extends Controller
 
     public function ipn(Twig $twig, Migrate $migrate)
     {
-        $output = '';
         $key = $this->request->get('key');
         //TODO: Check key
         $requestBody = $this->request->getContent();

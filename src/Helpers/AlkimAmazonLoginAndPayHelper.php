@@ -3,6 +3,7 @@ namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
+use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
@@ -183,9 +184,6 @@ class AlkimAmazonLoginAndPayHelper
             $payment = $this->paymentRepository->getPaymentById($id);
             if ($payment) {
                 $payment->status = $this->mapStatus($status);
-                if ($comment !== null) {
-                    //TODO
-                }
 
                 if ($amount !== null) {
                     $payment->amount = (float)$amount;
@@ -262,6 +260,7 @@ class AlkimAmazonLoginAndPayHelper
             $street = trim($address["AddressLine2"]);
             $company = trim($address["AddressLine1"]);
         } else {
+            $company = '';
             $street = trim($address["AddressLine1"]);
         }
 
@@ -285,6 +284,7 @@ class AlkimAmazonLoginAndPayHelper
 
     public function getCountryId($countryIso2)
     {
+        /** @var CountryRepositoryContract $countryContract */
         $countryContract = pluginApp(CountryRepositoryContract::class);
         $country = $countryContract->getCountryByIso($countryIso2, 'isoCode2');
         $this->log(__CLASS__, __METHOD__, 'get country id', [$countryIso2, $country]);
@@ -294,9 +294,22 @@ class AlkimAmazonLoginAndPayHelper
     public function setOrderStatus($orderId, $status)
     {
         $this->log(__CLASS__, __METHOD__, 'try to set order status', ['order' => $orderId, 'status' => $status]);
-        $order = ['statusId' => $status];
-        $this->orderRepository->updateOrder($order, $orderId);
-        $this->log(__CLASS__, __METHOD__, 'finished set order status', ['order' => $order, 'status' => $status]);
+        $order = ['statusId' => (float)$status];
+        $response = '';
+        try {
+            $orderRepo = $this->orderRepository;
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $response = $authHelper->processUnguarded(
+                function () use ($orderRepo, $order, $orderId) {
+                    return $orderRepo->updateOrder($order, $orderId);
+                }
+            );
+        } catch (\Exception $e) {
+            $this->log(__CLASS__, __METHOD__, 'set order status failed', [$e, $e->getMessage()], true);
+        }
+
+        $this->log(__CLASS__, __METHOD__, 'finished set order status', ['order' => $response, 'status' => $status]);
     }
 
     public function resetSession($keepBasket = false)

@@ -11,7 +11,7 @@
     "en": "The official Amazon Pay plugin developed by alkim media (Certified Developer Amazon Pay)."
   },
   "type": "payment",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -49,7 +49,7 @@
   ],
   "require": [],
   "dependencies": {
-    "amzn/amazon-pay-sdk-php": "dev-psrlogpath"
+    "amzn/amazon-pay-sdk-php": "3.1.0"
   },
   "runOnBuild": [
     "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable"

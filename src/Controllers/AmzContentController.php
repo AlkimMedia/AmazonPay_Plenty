@@ -2,7 +2,6 @@
 
 namespace AmazonLoginAndPay\Controllers;
 
-use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
@@ -48,11 +47,9 @@ class AmzContentController extends Controller{
     }
 
 
-    public function amazonLoginProcessingAction(Twig $twig, AmzTransactionRepositoryContract $amzTransactionRepository, Request $request, ConfigRepository $configRepository)
+    public function amazonLoginProcessingAction(Request $request, ConfigRepository $configRepository)
     {
         $this->configRepo = $configRepository;
-        //$newTransaction = $amzTransactionRepository->createTransaction(['orderReference' => 'test']);
-        //$callResult = AlkimAmazonLoginAndPayHelper::call('GetOrderReferenceDetails', ['amazon_order_reference_id' => 'whatever'], $libCall, $this->configRepo);
         $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $request->get('access_token')]);
         $this->helper->setToSession('amzUserData', $userData);
         $this->helper->setToSession('amzUserToken', $request->get('access_token'));
@@ -60,7 +57,7 @@ class AmzContentController extends Controller{
         return $this->response->redirectTo('amazon-checkout');
     }
 
-    public function amazonCheckoutProceedAction(Twig $twig)
+    public function amazonCheckoutProceedAction()
     {
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
         $walletOnly = $this->helper->getFromSession('amzInvalidPaymentOrderReference') == $orderReferenceId;
