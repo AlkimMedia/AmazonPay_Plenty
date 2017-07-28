@@ -91,14 +91,14 @@
   {
     "tab": "Grundeinstellungen",
     "key": "softDeclineStatus",
-    "label": "Auftragsstatus bei Ablehnung des Zahlungmittels, Kundenaktion notwendig (Soft Decline)",
+    "label": "Auftragsstatus bei Ablehnung des Zahlungmittels, Kundenaktion notwendig (vorläufig abgelehnte Zahlungen)",
     "type": "text",
     "default": ""
   },
   {
     "tab": "Grundeinstellungen",
     "key": "hardDeclineStatus",
-    "label": "Auftragsstatus bei vollständiger Ablehnung der Zahlung mit Amazon Pay (Hard Decline)",
+    "label": "Auftragsstatus bei vollständiger Ablehnung der Zahlung mit Amazon Pay (endgültig abgelehnte Zahlungen)",
     "type": "text",
     "default": ""
   },
