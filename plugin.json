@@ -11,7 +11,7 @@
     "en": "The official Amazon Pay plugin developed by alkim media (Certified Developer Amazon Pay)."
   },
   "type": "payment",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -42,6 +42,11 @@
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderJavascript",
       "name": "Amazon Login & Pay - JavaScript",
       "description": "Amazon Login & Pay - JavaScript"
+    },
+    {
+      "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderPaymentLogo",
+      "name": "Amazon Login & Pay - Logo",
+      "description": "Amazon Login & Pay - Logo"
     }
   ],
   "javaScriptFiles": [

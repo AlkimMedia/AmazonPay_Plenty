@@ -1,8 +1,8 @@
 <?php
 namespace AmazonLoginAndPay\Helpers;
 
-use AmazonLoginAndPay\Services\BasketService;
-use AmazonLoginAndPay\Services\CheckoutService;
+use AmazonLoginAndPay\Services\AmzBasketService;
+use AmazonLoginAndPay\Services\AmzCheckoutService;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Frontend\Contracts\Checkout;
@@ -18,7 +18,7 @@ class AmzCheckoutHelper
     public $basketItemRepository;
     public $orderRepository;
 
-    public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, BasketService $basketService, CheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
+    public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, AmzBasketService $basketService, AmzCheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
     {
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
@@ -130,6 +130,10 @@ class AmzCheckoutHelper
             $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
             $constraint = $constraints["Constraint"]["ConstraintID"];
             if (!empty($constraint)) {
+                if (!empty($orderId)) {
+                    $this->cancelOrder($orderId);
+                    $this->restoreBasket();
+                }
                 $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
                 $return["redirect"] = 'amazon-checkout';
                 return $return;

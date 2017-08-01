@@ -54,6 +54,7 @@ class AjaxController extends Controller
             case 'setShippingProfileId':
                 $this->checkoutHelper->setShippingProfile($this->request->get('id'));
             case 'getOrderDetails':
+                $this->checkoutHelper->setAddresses();
                 $templateData = ['basket' => $this->checkoutHelper->getBasketData(), 'items' => $this->checkoutHelper->getBasketItems()];
                 $this->helper->log(__CLASS__, __METHOD__, 'basket list template data', $templateData);
                 return $twig->render('AmazonLoginAndPay::snippets.order-details', $templateData);

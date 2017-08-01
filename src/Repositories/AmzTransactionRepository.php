@@ -2,27 +2,20 @@
 
 namespace AmazonLoginAndPay\Repositories;
 
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Exceptions\ValidationException;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
-use AmazonLoginAndPAy\Validators\AmzTransactionValidator;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Frontend\Services\AccountService;
+use Plenty\Exceptions\ValidationException;
+use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 
 
 class AmzTransactionRepository implements AmzTransactionRepositoryContract
 {
 
     public $helper;
-    private $accountService;
 
-    public function __construct(AccountService $accountService, AlkimAmazonLoginAndPayHelper $helper)
+    public function __construct(AlkimAmazonLoginAndPayHelper $helper)
     {
-        $this->accountService = $accountService;
         $this->helper = $helper;
     }
 
@@ -78,14 +71,6 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
     }
 
 
-    /**
-     * Get the current contact ID
-     * @return int
-     */
-    public function getCurrentContactId()
-    {
-        return $this->accountService->getAccountContactId();
-    }
 
     /**
      * List all items of the To Do list
