@@ -43,6 +43,7 @@ class AmzTransactionHelper
 
     public function call($action, $parameters)
     {
+        $startTime = microtime(true);
         $result = $this->callLib->call(
             'AmazonLoginAndPay::amz_client_call',
             [
@@ -51,7 +52,9 @@ class AmzTransactionHelper
                 'parameters' => $parameters
             ]
         );
-        $this->helper->log(__CLASS__, __METHOD__, 'call result ' . $action, ['config' => $this->helper->getCallConfig(), 'action' => $action, 'parameters' => $parameters, 'result' => $result]);
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+        $this->helper->log(__CLASS__, __METHOD__, 'call result ' . $action, ['startTime' => $startTime, 'endTime' => $endTime, 'duration' => $duration, 'config' => $this->helper->getCallConfig(), 'action' => $action, 'parameters' => $parameters, 'result' => $result]);
         return $result;
     }
 
@@ -463,9 +466,9 @@ class AmzTransactionHelper
         $transaction->status = (string)$details["OrderReferenceStatus"]["State"];
         $transaction->lastChange = (string)$details["OrderReferenceStatus"]["LastUpdateTimestamp"];
         $this->amzTransactionRepository->updateTransaction($transaction);
-        if ($transaction->status == 'Open') {
+        /*if ($transaction->status == 'Open') {
             //TODO: AlkimAmazonTransactions::doAuthorizationAfterDecline($orderRef);
-        }
+        }*/
     }
 
     public function getAmountFromOrderRef($orderReferenceId)
