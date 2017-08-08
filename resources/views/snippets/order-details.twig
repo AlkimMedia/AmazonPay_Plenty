@@ -1,105 +1,111 @@
-<div class="order-items-table">
-    <div class="line head">
-        <!--<div class="image">
-            Bild
-        </div>-->
-        <div class="name">
-            {{ trans("AmazonLoginAndPay::AmazonPay.articleNameCaption") }}
-        </div>
-        <div class="single-price">
-            {{ trans("AmazonLoginAndPay::AmazonPay.articlePriceCaption") }}
-        </div>
-        <div class="quantity">
-            {{ trans("AmazonLoginAndPay::AmazonPay.articleQuantityCaption") }}
-        </div>
-        <div class="final-price">
-            {{ trans("AmazonLoginAndPay::AmazonPay.articleSumCaption") }}
-        </div>
+{% if items is empty %}
+    <div class="alert alert-warning">
+        {{ trans("AmazonLoginAndPay::AmazonPay.unknownError") }}
     </div>
-    {% for key,item in items %}
-    <div class="line">
-        <!--<div class="image">
-            <img src="{{ item.image }}"/>
-        </div>-->
-        <div class="name">
-            {{ item.name }}
+{% else %}
+    <div class="order-items-table">
+        <div class="line head">
+            <!--<div class="image">
+                Bild
+            </div>-->
+            <div class="name">
+                {{ trans("AmazonLoginAndPay::AmazonPay.articleNameCaption") }}
+            </div>
+            <div class="single-price">
+                {{ trans("AmazonLoginAndPay::AmazonPay.articlePriceCaption") }}
+            </div>
+            <div class="quantity">
+                {{ trans("AmazonLoginAndPay::AmazonPay.articleQuantityCaption") }}
+            </div>
+            <div class="final-price">
+                {{ trans("AmazonLoginAndPay::AmazonPay.articleSumCaption") }}
+            </div>
         </div>
-        <div class="single-price">
-            {{ item.price  | formatMonetary('EUR') }}
-        </div>
-        <div class="quantity">
-            {{ item.quantity }}
-        </div>
-        <div class="final-price">
-            {{ item.final_price  | formatMonetary('EUR') }}
-        </div>
+        {% for key,item in items %}
+            <div class="line">
+                <!--<div class="image">
+                <img src="{{ item.image }}"/>
+            </div>-->
+                <div class="name">
+                    {{ item.name }}
+                </div>
+                <div class="single-price">
+                    {{ item.price  | formatMonetary('EUR') }}
+                </div>
+                <div class="quantity">
+                    {{ item.quantity }}
+                </div>
+                <div class="final-price">
+                    {{ item.final_price  | formatMonetary('EUR') }}
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
 
-<div class="order-details-table">
-    <div>
-        <dl>
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
-                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
-            </dt>
-            <dd>
-                {{ basket.itemSumNet  | formatMonetary('EUR') }}
-            </dd>
-
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
-                ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
-            </dt>
-            <dd>
-                {{ basket.itemSum  | formatMonetary('EUR') }}
-            </dd>
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
-                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
-            </dt>
-            <dd>
-                {{ basket.shippingAmountNet  | formatMonetary('EUR') }}
-            </dd>
-
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
-                ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
-            </dt>
-            <dd>
-                {{ basket.shippingAmount  | formatMonetary('EUR') }}
-            </dd>
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
-                ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
-            </dt>
-            <dd>
-                {{ basket.basketAmountNet  | formatMonetary('EUR') }}
-            </dd>
-            {% if basket.couponDiscount != 0 %}
+    <div class="order-details-table">
+        <div>
+            <dl>
                 <dt>
-                    {{ trans("AmazonLoginAndPay::AmazonPay.basketCoupon") }}
+                    {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
                 </dt>
                 <dd>
-                    {{ basket.couponDiscount | formatMonetary('EUR') }}
+                    {{ basket.itemSumNet  | formatMonetary('EUR') }}
                 </dd>
-            {% endif %}
-            <dt>
-                {{ trans("AmazonLoginAndPay::AmazonPay.basketVAT") }}
-            </dt>
-            <dd>
-                {{ basket.vat  | formatMonetary('EUR') }}
-            </dd>
-            <dt>
-                <strong>{{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
-                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})</strong>
-            </dt>
-            <dd>
-                {{ basket.basketAmount  | formatMonetary('EUR') }}
-            </dd>
-        </dl>
-    </div>
-</div>
 
+                <dt>
+                    {{ trans("AmazonLoginAndPay::AmazonPay.basketValue") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
+                </dt>
+                <dd>
+                    {{ basket.itemSum  | formatMonetary('EUR') }}
+                </dd>
+                <dt>
+                    {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
+                </dt>
+                <dd>
+                    {{ basket.shippingAmountNet  | formatMonetary('EUR') }}
+                </dd>
+
+                <dt>
+                    {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
+                </dt>
+                <dd>
+                    {{ basket.shippingAmount  | formatMonetary('EUR') }}
+                </dd>
+                <dt>
+                    {{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
+                    ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
+                </dt>
+                <dd>
+                    {{ basket.basketAmountNet  | formatMonetary('EUR') }}
+                </dd>
+                {% if basket.couponDiscount != 0 %}
+                    <dt>
+                        {{ trans("AmazonLoginAndPay::AmazonPay.basketCoupon") }}
+                    </dt>
+                    <dd>
+                        {{ basket.couponDiscount | formatMonetary('EUR') }}
+                    </dd>
+                {% endif %}
+                <dt>
+                    {{ trans("AmazonLoginAndPay::AmazonPay.basketVAT") }}
+                </dt>
+                <dd>
+                    {{ basket.vat  | formatMonetary('EUR') }}
+                </dd>
+                <dt>
+                    <strong>{{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
+                        ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})</strong>
+                </dt>
+                <dd>
+                    {{ basket.basketAmount  | formatMonetary('EUR') }}
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+{% endif %}

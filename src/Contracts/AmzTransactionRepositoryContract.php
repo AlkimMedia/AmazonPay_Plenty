@@ -26,9 +26,7 @@ interface AmzTransactionRepositoryContract
 
     /**
      * Update transaction
-     *
-     * @param int $id
-     * @param array $data
+     * @param AmzTransaction $transaction
      * @return AmzTransaction
      */
     public function updateTransaction(AmzTransaction $transaction);

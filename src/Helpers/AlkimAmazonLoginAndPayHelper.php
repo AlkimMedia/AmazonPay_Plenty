@@ -180,6 +180,7 @@ class AlkimAmazonLoginAndPayHelper
 
     public function updatePlentyPayment($id, $status, $comment = null, $amount = null, $orderId = null)
     {
+
         try {
             $payment = $this->paymentRepository->getPaymentById($id);
             if ($payment) {
@@ -195,7 +196,7 @@ class AlkimAmazonLoginAndPayHelper
                     $payment->unaccountable = 0;
                 }
                 $payment->updateOrderPaymentStatus = true;
-                $this->log(__CLASS__, __METHOD__, 'before updatePayment', ['payment' => $payment, 'orderId' => $orderId]);
+                $this->log(__CLASS__, __METHOD__, 'before updatePayment', ['payment' => $payment, 'orderId' => $orderId, 'comment' => $comment]);
                 $result = $this->paymentRepository->updatePayment($payment);
                 $this->log(__CLASS__, __METHOD__, 'after updatePayment', ['result' => $result, 'orderId' => $orderId]);
                 if ($orderId !== null) {
@@ -236,7 +237,13 @@ class AlkimAmazonLoginAndPayHelper
 
     public function createAddress($data)
     {
-        $addressObj = $this->addressRepo->createAddress($data);
+        $addressObj = null;
+        try {
+            $addressObj = $this->addressRepo->createAddress($data);
+        } catch (\Exception $e) {
+            $this->log(__CLASS__, __METHOD__, 'address creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->log(__CLASS__, __METHOD__, 'address created', [$data, $addressObj]);
         return $addressObj;
     }
 
@@ -279,6 +286,7 @@ class AlkimAmazonLoginAndPayHelper
         $finalAddress["town"] = $city;
         $finalAddress["countryId"] = $this->getCountryId($countryCode);
         $finalAddress["phone"] = $phone;
+        $this->log(__CLASS__, __METHOD__, 'formatted address', [$finalAddress]);
         return $finalAddress;
     }
 

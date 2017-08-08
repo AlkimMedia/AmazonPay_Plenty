@@ -32,6 +32,11 @@ class AjaxController extends Controller
         $this->amzTransactionRepo = $amzTransactionRepo;
     }
 
+    /**
+     * @param Twig $twig
+     * @return string
+     */
+
     public function handle(Twig $twig)
     {
         $action = $this->request->get('action');
@@ -47,7 +52,13 @@ class AjaxController extends Controller
                 break;
             case 'getShippingList':
                 $this->checkoutHelper->setAddresses();
-                $templateData = ['shippingOptions' => $this->checkoutHelper->getShippingOptionsList(), 'basket' => $this->checkoutHelper->getBasketData()];
+                $templateData = ['shippingOptions' => [], 'basket' => []];
+                try {
+                    $templateData['shippingOptions'] = $this->checkoutHelper->getShippingOptionsList();
+                    $templateData['basket'] = $this->checkoutHelper->getBasketData();
+                } catch (\Exception $e) {
+                    $this->helper->log(__CLASS__, __METHOD__, 'getShippingList data fetch failed', [$e, $e->getMessage()], true);
+                }
                 $this->helper->log(__CLASS__, __METHOD__, 'shipping list template data', $templateData);
                 return $twig->render('AmazonLoginAndPay::snippets.shipping-list', $templateData);
                 break;
@@ -55,7 +66,13 @@ class AjaxController extends Controller
                 $this->checkoutHelper->setShippingProfile($this->request->get('id'));
             case 'getOrderDetails':
                 $this->checkoutHelper->setAddresses();
-                $templateData = ['basket' => $this->checkoutHelper->getBasketData(), 'items' => $this->checkoutHelper->getBasketItems()];
+                $templateData = ['items' => [], 'basket' => []];
+                try {
+                    $templateData['items'] = $this->checkoutHelper->getBasketItems();
+                    $templateData['basket'] = $this->checkoutHelper->getBasketData();
+                } catch (\Exception $e) {
+                    $this->helper->log(__CLASS__, __METHOD__, 'getOrderDetails data fetch failed', [$e, $e->getMessage()], true);
+                }
                 $this->helper->log(__CLASS__, __METHOD__, 'basket list template data', $templateData);
                 return $twig->render('AmazonLoginAndPay::snippets.order-details', $templateData);
 

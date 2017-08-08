@@ -42,20 +42,26 @@ class AmzCheckoutHelper
 
     public function getBasketItems()
     {
-        $basketItems = $this->basketService->getBasketItems();
-        $return = [];
-        foreach ($basketItems as $basketItem) {
-            $item = [];
-            $item["name"] = $basketItem["name"];
-            $item["price"] = $basketItem["price"];
-            $item["quantity"] = $basketItem["quantity"];
-            $item["final_price"] = $item["price"] * $item["quantity"];
-            $item["image"] = '';
-            $item["variationId"] = $basketItem["variationId"];
-            $return[] = $item;
 
+        $return = [];
+        try {
+            $basketItems = $this->basketService->getBasketItems();
+
+            foreach ($basketItems as $basketItem) {
+                $item = [];
+                $item["name"] = $basketItem["name"];
+                $item["price"] = $basketItem["price"];
+                $item["quantity"] = $basketItem["quantity"];
+                $item["final_price"] = $item["price"] * $item["quantity"];
+                $item["image"] = '';
+                $item["variationId"] = $basketItem["variationId"];
+                $return[] = $item;
+                $this->helper->log(__CLASS__, __METHOD__, 'basket items', [$return, $basketItems]);
+            }
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems failed', [$e, $e->getMessage()], true);
         }
-        $this->helper->log(__CLASS__, __METHOD__, 'basket items', [$return, $basketItems]);
+
         return $return;
     }
 
@@ -71,14 +77,22 @@ class AmzCheckoutHelper
 
     public function setShippingAddress($orderReferenceDetails = null)
     {
+        $this->helper->log(__CLASS__, __METHOD__, 'set shipping address - start', []);
         if ($orderReferenceDetails === null) {
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getFromSession('amzUserToken'));
         }
+        $formattedShippingAddress = null;
+        $shippingAddressObject = null;
+        try {
+            $shippingAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
+            $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress);
+            $shippingAddressObject = $this->helper->createAddress($formattedShippingAddress);
+            $this->checkout->setCustomerShippingAddressId($shippingAddressObject->id);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'set shipping address failed', [$e, $e->getMessage()], true);
+        }
 
-        $shippingAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
-        $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress);
-        $shippingAddressObject = $this->helper->createAddress($formattedShippingAddress);
-        $this->checkout->setCustomerShippingAddressId($shippingAddressObject->id);
+
 
         $this->helper->log(__CLASS__, __METHOD__, 'shipping address', [
             'shippingAddressArray' => $formattedShippingAddress,
@@ -92,12 +106,17 @@ class AmzCheckoutHelper
         if ($orderReferenceDetails === null) {
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getFromSession('amzUserToken'));
         }
-        $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
-        $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress);
-        $formattedInvoiceAddress["email"] = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
-        $invoiceAddressObject = $this->helper->createAddress($formattedInvoiceAddress);
-        $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
-
+        $formattedInvoiceAddress = null;
+        $invoiceAddressObject = null;
+        try {
+            $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
+            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress);
+            $formattedInvoiceAddress["email"] = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            $invoiceAddressObject = $this->helper->createAddress($formattedInvoiceAddress);
+            $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage()], true);
+        }
         $this->helper->log(__CLASS__, __METHOD__, 'invoice address', [
             'invoiceAddressArray' => $formattedInvoiceAddress,
             'invoiceAddress' => $invoiceAddressObject,
@@ -206,20 +225,30 @@ class AmzCheckoutHelper
 
     public function setPaymentMethod()
     {
-        $paymentMethodId = $this->helper->createMopIfNotExistsAndReturnId();
-        $this->checkout->setPaymentMethodId($paymentMethodId);
-        $this->helper->log(__CLASS__, __METHOD__, 'paymentMethodId', ['id' => $paymentMethodId]);
+        $this->helper->log(__CLASS__, __METHOD__, 'try to set payment method', []);
+        try {
+            $paymentMethodId = $this->helper->createMopIfNotExistsAndReturnId();
+            $this->checkout->setPaymentMethodId($paymentMethodId);
+            $this->helper->log(__CLASS__, __METHOD__, 'paymentMethodId', ['id' => $paymentMethodId]);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'set payment method failed', [$e, $e->getMessage()], true);
+        }
     }
 
     public function getBasketData()
     {
-        $basket = $this->basketService->getBasket();
-        $this->helper->log(__CLASS__, __METHOD__, 'basket', [$basket]);
-        $returnBasket = $basket->toArray();
-        $basketAmount = $returnBasket["basketAmount"];
-        $basketNetAmount = $returnBasket["basketAmountNet"];
-        $returnBasket["vat"] = $basketAmount - $basketNetAmount;
-        $this->helper->log(__CLASS__, __METHOD__, '$returnBasket', [$returnBasket]);
+        $returnBasket = [];
+        try {
+            $basket = $this->basketService->getBasket();
+            $this->helper->log(__CLASS__, __METHOD__, 'basket', [$basket]);
+            $returnBasket = $basket->toArray();
+            $basketAmount = $returnBasket["basketAmount"];
+            $basketNetAmount = $returnBasket["basketAmountNet"];
+            $returnBasket["vat"] = $basketAmount - $basketNetAmount;
+            $this->helper->log(__CLASS__, __METHOD__, '$returnBasket', [$returnBasket]);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'getBasketData failed', [$e, $e->getMessage()], true);
+        }
         return $returnBasket;
 
         /*

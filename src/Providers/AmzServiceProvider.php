@@ -12,7 +12,6 @@ use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
 use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
-use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
 use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\ServiceProvider;
 
@@ -22,14 +21,13 @@ class AmzServiceProvider extends ServiceProvider
 
     public function boot(AlkimAmazonLoginAndPayHelper $helper,
                          AmzCheckoutHelper $checkoutHelper,
-                         PaymentMethodContainer $payContainer,
                          Dispatcher $eventDispatcher,
                          AmzTransactionHelper $transactionHelper,
                          EventProceduresService $eventProceduresService,
                          PaymentRepositoryContract $paymentRepository)
     {
 
-        $helper->log(__CLASS__, __METHOD__, 'boot', []);
+
         $this->transactionHelper = $transactionHelper;
         // Create the ID of the payment method if it doesn't exist yet
         $helper->createMopIfNotExistsAndReturnId();
@@ -168,16 +166,12 @@ class AmzServiceProvider extends ServiceProvider
 
     /**
      * Register the service provider.
-     * @param AlkimAmazonLoginAndPayHelper $helper
      */
 
     public function register()
     {
-        $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
-        $helper->log(__CLASS__, __METHOD__, 'register', []);
         $this->getApplication()->register(AmzRouteServiceProvider::class);
         $this->getApplication()->bind(AmzTransactionRepositoryContract::class, AmzTransactionRepository::class);
         $this->getApplication()->bind(AmzCaptureProcedure::class);
-        $helper->log(__CLASS__, __METHOD__, 'registered', []);
     }
 }
