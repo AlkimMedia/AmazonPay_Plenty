@@ -310,7 +310,7 @@ class AlkimAmazonLoginAndPayHelper
             $authHelper = pluginApp(AuthHelper::class);
             $response = $authHelper->processUnguarded(
                 function () use ($orderRepo, $order, $orderId) {
-                    return $orderRepo->updateOrder($order, $orderId);
+                    return $orderRepo->updateOrder($order, (int)$orderId);
                 }
             );
         } catch (\Exception $e) {
