@@ -334,7 +334,6 @@ class AlkimAmazonLoginAndPayHelper
 
     public function setToSession($key, $value)
     {
-        $this->log(__CLASS__, __METHOD__, 'Set to session: ' . $key, ['value' => $value]);
         $this->session->getPlugin()->setValue($key, $value);
     }
 
