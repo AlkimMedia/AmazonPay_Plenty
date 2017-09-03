@@ -108,8 +108,7 @@ class AlkimAmazonLoginAndPayHelper
         $paymentProperties = [];
         $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, $comment);
         $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
-        //$paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_ORIGIN, Payment::ORIGIN_PLUGIN);
-        //$paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_ACCOUNT_OF_RECEIVER, $paypalPaymentData['id']); //TODO IBAN BIC empfänger property
+
 
         $payment->properties = $paymentProperties;
         $payment = $this->paymentRepository->createPayment($payment);

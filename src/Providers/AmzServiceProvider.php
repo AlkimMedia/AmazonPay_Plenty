@@ -27,7 +27,6 @@ class AmzServiceProvider extends ServiceProvider
                          PaymentRepositoryContract $paymentRepository)
     {
 
-
         $this->transactionHelper = $transactionHelper;
         // Create the ID of the payment method if it doesn't exist yet
         $helper->createMopIfNotExistsAndReturnId();
@@ -36,90 +35,47 @@ class AmzServiceProvider extends ServiceProvider
         $eventDispatcher->listen(ExecutePayment::class,
             function (ExecutePayment $event) use ($helper, $transactionHelper, $paymentRepository, $checkoutHelper) {
                 $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
-                $orderId = $event->getOrderId();
-                $helper->log(__CLASS__, __METHOD__, 'execute payment - submit order id config value', $helper->getFromConfig('submitOrderIds'));
-                if ($helper->getFromConfig('submitOrderIds') == 'true') {
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id pre', '');
-                    $amount = $helper->getOrderTotal($orderId);
-                    $return = $checkoutHelper->doCheckoutActions($amount, $orderId);
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id', ['order' => $orderId, 'return' => $return]);
-                    if (!empty($return["redirect"]) && $return["redirect"] != 'place-order') {
-                        $event->setType('redirectUrl');
-                        $event->setValue($return["redirect"]);
-                    }
-                } else {
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
-                    if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
-                        if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
-                            if ($transaction->paymentId) {
-                                if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
-                                    $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
-                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
-                                    $helper->setToSession('amazonAuthId', '');
+                if ($event->getMop() == $helper->createMopIfNotExistsAndReturnId()) {
+                    $orderId = $event->getOrderId();
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - submit order id config value', $helper->getFromConfig('submitOrderIds'));
+                    if ($helper->getFromConfig('submitOrderIds') == 'true') {
+                        $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id pre', '');
+                        $amount = $helper->getOrderTotal($orderId);
+                        $return = $checkoutHelper->doCheckoutActions($amount, $orderId);
+                        $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id', ['order' => $orderId, 'return' => $return]);
+                        if (!empty($return["redirect"]) && $return["redirect"] != 'place-order') {
+                            $event->setType('redirectUrl');
+                            $event->setValue($return["redirect"]);
+                        }
+                    } else {
+                        $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
+                        if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
+                            if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
+                                if ($transaction->paymentId) {
+                                    if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
+                                        $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                        $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
+                                        $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
+                                        $helper->setToSession('amazonAuthId', '');
+                                    }
                                 }
-                            }
-                            $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);
-                            if ($captures = $transactionHelper->getCaptureTransactionsFromOrderRef($orderReference)) {
-                                if (is_array($captures)) {
-                                    foreach ($captures as $capture) {
-                                        if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
-                                            $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
+                                $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);
+                                if ($captures = $transactionHelper->getCaptureTransactionsFromOrderRef($orderReference)) {
+                                    if (is_array($captures)) {
+                                        foreach ($captures as $capture) {
+                                            if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
+                                                $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                                $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
+                                            }
                                         }
                                     }
                                 }
                             }
-
+                        } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
+                            $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                         }
-                    } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
-                        $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
-
                 }
-
-
-                /*$transactionHelper->setOrderReferenceDetails($paymentHelper->getFromSession('amzOrderReference'), $amount, $event->getOrderId());
-                $transactionHelper->confirmOrderReference($paymentHelper->getFromSession('amzOrderReference'), true, $event->getOrderId());
-                $paymentHelper->log(__CLASS__, __METHOD__, 'checkout auth mode', $paymentHelper->getFromConfig('authorization_mode'));
-                if ($paymentHelper->getFromConfig('authorization_mode') != 'manually') {
-
-                    $paymentHelper->log(__CLASS__, __METHOD__, 'try to authorize', $paymentHelper->getFromSession('amzOrderReference'));
-                    $response = $transactionHelper->authorize($paymentHelper->getFromSession('amzOrderReference'), $amount, 0);
-                    $paymentHelper->log(__CLASS__, __METHOD__, 'amazonCheckoutAuthorizeResult', $response);
-                    if (is_array($response)) {
-                        $details = $response["AuthorizeResult"]["AuthorizationDetails"];
-                        $status = $details["AuthorizationStatus"]["State"];
-                        $paymentHelper->log(__CLASS__, __METHOD__, 'status', ['status' => $status]);
-                        if ($status == "Declined") {
-                            $reason = $details["AuthorizationStatus"]["ReasonCode"];
-                            if ($reason == 'TransactionTimedOut') {
-
-                                $transactionHelper->authorize($paymentHelper->getFromSession('amzOrderReference'), $amount);
-                            } elseif ($reason == 'InvalidPaymentMethod') {
-
-                            } else {
-                                $transactionHelper->cancelOrder($paymentHelper->getFromSession('amzOrderReference'));
-                                $event->setType('redirectUrl');
-                                $event->setValue('/basket/');
-                                //$this->response->redirectTo('basket');
-                            }
-
-                        } else {
-                            $event->setType('success');
-                            $event->setValue('The payment has been executed successfully!');
-                            if ($paymentHelper->getFromConfig('captureMode') == 'after_auth' && $status == 'Open') {
-                                $transactionHelper->capture($details["AmazonAuthorizationId"], $amount);
-                            }
-                        }
-
-                    } else {
-
-                    }
-
-
-                }*/
-
             }
         );
 

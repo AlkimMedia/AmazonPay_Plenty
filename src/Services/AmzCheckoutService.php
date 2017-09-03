@@ -43,7 +43,9 @@ class AmzCheckoutService
     public function getShippingProfileList()
     {
         $contact = $this->customerService->getContact();
-        return pluginApp(ParcelServicePresetRepositoryContract::class)->getLastWeightedPresetCombinations($this->basketRepository->load(), $contact->classId);
+        /** @var ParcelServicePresetRepositoryContract $repo */
+        $repo = pluginApp(ParcelServicePresetRepositoryContract::class);
+        return $repo->getLastWeightedPresetCombinations($this->basketRepository->load(), $contact->classId);
     }
 
 }

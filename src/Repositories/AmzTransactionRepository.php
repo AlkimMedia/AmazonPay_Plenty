@@ -61,6 +61,7 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
         $transaction->paymentId = (int)$data["paymentId"];
         $this->helper->log(__CLASS__, __METHOD__, 'create transaction - before save', ['data' => $data, 'input' => $transaction]);
         try {
+            /** @var AmzTransaction $response */
             $response = $database->save($transaction);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'create transaction - exception', [$e, $e->getMessage()], true);
@@ -71,14 +72,15 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
     }
 
 
-
     /**
      * List all items of the To Do list
      *
+     * @param array $criteria
      * @return AmzTransaction[]
      */
     public function getTransactions($criteria)
     {
+        /** @var DataBase $database */
         $database = pluginApp(DataBase::class);
         $stmt = $database->query(AmzTransaction::class);
         foreach ($criteria as $c) {

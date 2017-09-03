@@ -6,7 +6,6 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Plenty\Modules\Order\Models\Order;
-use Plenty\Modules\Payment\Models\Payment;
 
 
 class AmzAuthorizeProcedure

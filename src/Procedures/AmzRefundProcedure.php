@@ -5,7 +5,6 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Plenty\Modules\Order\Models\Order;
-use Plenty\Modules\Payment\Models\Payment;
 
 
 class AmzRefundProcedure
@@ -20,8 +19,9 @@ class AmzRefundProcedure
             /** @var Order $order */
             $creditNote = $eventTriggered->getOrder();
             $helper->log(__CLASS__, __METHOD__, 'refundProcedure', $creditNote);
-
+            $orderId = 0;
             $amount = 0;
+            $creditNoteId = 0;
             switch ($creditNote->typeId) {
 
                 case 4: //credit note

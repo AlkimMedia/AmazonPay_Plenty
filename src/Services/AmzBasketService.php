@@ -6,6 +6,7 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 use Plenty\Modules\Basket\Models\Basket;
+use Plenty\Modules\Basket\Models\BasketItem;
 use Plenty\Modules\Item\Item\Contracts\ItemRepositoryContract;
 use Plenty\Modules\Item\ItemImage\Contracts\ItemImageRepositoryContract;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
@@ -26,6 +27,11 @@ class AmzBasketService
 
     /**
      * BasketService constructor.
+     * @param BasketItemRepositoryContract $basketItemRepository
+     * @param AlkimAmazonLoginAndPayHelper $helper
+     * @param VariationRepositoryContract $variationRepository
+     * @param ItemRepositoryContract $itemRepository
+     * @param ItemImageRepositoryContract $itemImageRepository
      */
     public function __construct(BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, VariationRepositoryContract $variationRepository, ItemRepositoryContract $itemRepository, ItemImageRepositoryContract $itemImageRepository)
     {
@@ -42,7 +48,9 @@ class AmzBasketService
      */
     public function getBasket(): Basket
     {
-        return pluginApp(BasketRepositoryContract::class)->load();
+        /** @var BasketRepositoryContract $basketRepository */
+        $basketRepository = pluginApp(BasketRepositoryContract::class);
+        return $basketRepository->load();
     }
 
     /**
@@ -53,6 +61,7 @@ class AmzBasketService
     {
 
 
+        /** @var BasketItem[] $basketItems */
         $basketItems = $this->basketItemRepository->all();
         $this->helper->log(__CLASS__, __METHOD__, 'basket items', $basketItems);
         $return = [];

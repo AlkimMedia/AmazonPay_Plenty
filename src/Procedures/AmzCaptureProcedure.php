@@ -3,12 +3,8 @@ namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Order\Models\Order;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Payment\Models\Payment;
+use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
+use Plenty\Modules\Order\Models\Order;
 
 
 class AmzCaptureProcedure

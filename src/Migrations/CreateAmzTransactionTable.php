@@ -1,10 +1,8 @@
 <?php
 namespace AmazonLoginAndPay\Migrations;
 
-use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
-use /** @noinspection PhpUndefinedNamespaceInspection */
-    Plenty\Modules\Plugin\DataBase\Contracts\Migrate;
+use Plenty\Modules\Plugin\DataBase\Contracts\Migrate;
 
 /**
  * Class CreateAmzTransactionTable
@@ -12,9 +10,8 @@ use /** @noinspection PhpUndefinedNamespaceInspection */
 class CreateAmzTransactionTable
 {
 
-    public function run(Migrate $migrate, AlkimAmazonLoginAndPayHelper $helper)
+    public function run(Migrate $migrate)
     {
         $migrate->createTable(AmzTransaction::class);
-
     }
 }

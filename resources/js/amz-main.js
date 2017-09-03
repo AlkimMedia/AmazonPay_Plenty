@@ -15,7 +15,7 @@ window.onAmazonPaymentsReady = function () {
         language: 'de-DE',
 
         authorization: function () {
-            loginOptions = {
+            var loginOptions = {
                 scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
                 popup: amazonLoginAndPay.config.popup
             };
@@ -47,5 +47,5 @@ window.onAmazonPaymentsReady = function () {
             console.error(error);
         }
     });
-}
+};
 
