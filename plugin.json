@@ -11,6 +11,7 @@
     "en": "The official Amazon Pay plugin developed by alkim media (Certified Developer Amazon Pay)."
   },
   "type": "payment",
+  "categories":["3519"],
   "version": "0.1.9",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
