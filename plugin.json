@@ -2,8 +2,8 @@
   "name": "AmazonLoginAndPay",
   "namespace": "AmazonLoginAndPay",
   "marketplaceName": {
-    "de": "Amazon Pay powered by Alkim Media (Certified Developer Amazon Pay)",
-    "en": "Amazon Pay powered by Alkim Media (Certified Developer Amazon Pay)"
+    "de": "Amazon Pay",
+    "en": "Amazon Pay"
   },
   "description": "The official Amazon Pay plugin for plentymarkets",
   "shortDescription": {
