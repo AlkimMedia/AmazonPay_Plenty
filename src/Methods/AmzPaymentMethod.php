@@ -20,16 +20,7 @@ class AmzPaymentMethod extends PaymentMethodService
      */
     public function isActive(ConfigRepository $configRepository)
     {
-        /** @var bool $active */
-        $active = true;
-        /**
-         * Check the shipping profile ID. The ID can be entered in the config.json.
-         */
-        if ($configRepository->get('AmazonLoginAndPay.status') == 'false') {
-            $active = false;
-        }
-
-        return $active;
+        return false;
     }
 
     /**
@@ -38,7 +29,6 @@ class AmzPaymentMethod extends PaymentMethodService
     public function getName()
     {
         return 'Amazon Pay';
-
     }
 
     /**
@@ -56,4 +46,10 @@ class AmzPaymentMethod extends PaymentMethodService
     {
         return '';
     }
+    
+    public function isExpressCheckout()
+    {
+        return true;
+    }
+    
 }

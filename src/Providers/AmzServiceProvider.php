@@ -6,12 +6,17 @@ use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
+use AmazonLoginAndPay\Methods\AmzPaymentMethod;
 use AmazonLoginAndPay\Procedures\AmzCaptureProcedure;
 use AmazonLoginAndPay\Repositories\AmzTransactionRepository;
+use Plenty\Modules\Basket\Events\Basket\AfterBasketChanged;
+use Plenty\Modules\Basket\Events\Basket\AfterBasketCreate;
+use Plenty\Modules\Basket\Events\BasketItem\AfterBasketItemAdd;
 use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
 use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
+use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
 use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\ServiceProvider;
 
@@ -24,13 +29,20 @@ class AmzServiceProvider extends ServiceProvider
                          Dispatcher $eventDispatcher,
                          AmzTransactionHelper $transactionHelper,
                          EventProceduresService $eventProceduresService,
-                         PaymentRepositoryContract $paymentRepository)
+                         PaymentRepositoryContract $paymentRepository,
+                         PaymentMethodContainer $payContainer)
     {
 
         $this->transactionHelper = $transactionHelper;
         // Create the ID of the payment method if it doesn't exist yet
         $helper->createMopIfNotExistsAndReturnId();
-
+        $payContainer->register('alkim_amazonpay::AMAZONPAY', AmzPaymentMethod::class,
+            [
+                AfterBasketChanged::class,
+                AfterBasketItemAdd::class,
+                AfterBasketCreate::class
+            ]
+        );
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
             function (ExecutePayment $event) use ($helper, $transactionHelper, $paymentRepository, $checkoutHelper) {
