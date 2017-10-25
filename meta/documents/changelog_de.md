@@ -1,6 +1,10 @@
+# Release Notes für Amazon Pay
 
-# Veröffentlichung 0.1.10
+## 0.1.11
 
-#### Erweiterungen:
-  
-**Amazon Pay für plentymarkets**.
+### Gefixt
+
+- mit der Entwicklung von Plenty Schritt halten
+
+## Veröffentlichung 0.1.10
+
