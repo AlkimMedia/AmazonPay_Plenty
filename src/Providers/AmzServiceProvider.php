@@ -18,6 +18,7 @@ use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
 use Plenty\Plugin\Events\Dispatcher;
+use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\ServiceProvider;
 
 class AmzServiceProvider extends ServiceProvider
@@ -30,19 +31,23 @@ class AmzServiceProvider extends ServiceProvider
                          AmzTransactionHelper $transactionHelper,
                          EventProceduresService $eventProceduresService,
                          PaymentRepositoryContract $paymentRepository,
-                         PaymentMethodContainer $payContainer)
+                         PaymentMethodContainer $payContainer,
+                         Request $request)
     {
 
-        $this->transactionHelper = $transactionHelper;
-        // Create the ID of the payment method if it doesn't exist yet
+        if (strpos($request->getUri(), '/logout') !== false) {
+            $helper->setToSession('amazonLogout', 1);
+        }
+
         $helper->createMopIfNotExistsAndReturnId();
         $payContainer->register('alkim_amazonpay::AMAZONPAY', AmzPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
-            ]
-        );
+            ]);
+
+        $this->transactionHelper = $transactionHelper;
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
             function (ExecutePayment $event) use ($helper, $transactionHelper, $paymentRepository, $checkoutHelper) {

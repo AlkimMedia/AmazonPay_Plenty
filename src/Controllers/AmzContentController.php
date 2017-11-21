@@ -6,7 +6,7 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use AmazonLoginAndPay\Services\AmzBasketService;
-use Plenty\Plugin\ConfigRepository;
+use AmazonLoginAndPay\Services\AmzCustomerService;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Http\Response;
@@ -20,14 +20,16 @@ class AmzContentController extends Controller{
     public $transactionHelper;
     public $checkoutHelper;
     public $basketService;
+    public $customerService;
 
-    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService)
+    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService, AmzCustomerService $customerService)
     {
         $this->response = $response;
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
         $this->checkoutHelper = $checkoutHelper;
         $this->basketService = $basketService;
+        $this->customerService = $customerService;
     }
 
     public function amazonCheckoutAction(Twig $twig)
@@ -47,14 +49,34 @@ class AmzContentController extends Controller{
     }
 
 
-    public function amazonLoginProcessingAction(Request $request, ConfigRepository $configRepository)
+    public function amazonLoginProcessingAction(Twig $twig)
     {
-        $this->configRepo = $configRepository;
-        $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $request->get('access_token')]);
-        $this->helper->setToSession('amzUserData', $userData);
-        $this->helper->setToSession('amzUserToken', $request->get('access_token'));
-        /*TODO: decide where to go*/
-        return $this->response->redirectTo('amazon-checkout');
+        return $twig->render('AmazonLoginAndPay::content.amazon-login-processing', []);
+        /*
+        //TODO: decide whether to login or not
+        $loginInfo = $this->customerService->loginWithAmazonUserData($userData);
+        if (!empty($loginInfo["redirect"])) {
+            return $this->response->redirectTo($loginInfo["redirect"]);
+        } else {
+            //TODO: decide where to go
+            return $this->response->redirectTo('amazon-checkout');
+        }
+        */
+    }
+
+    public function amazonConnectAccountsAction(Request $request, Twig $twig)
+    {
+        $userData = $this->helper->getFromSession('amzUserData');
+        if (($email = $request->get('email')) && ($password = $request->get('password'))) {
+            $connectInfo = $this->customerService->connectAccounts($userData, $email, $password);
+            if ($connectInfo["success"]) {
+                return $this->response->redirectTo('amazon-checkout');
+            }
+        }
+        $templateData = [
+            'email' => $userData["email"]
+        ];
+        return $twig->render('AmazonLoginAndPay::content.amazon-connect-accounts', $templateData);
     }
 
     public function amazonCheckoutProceedAction()

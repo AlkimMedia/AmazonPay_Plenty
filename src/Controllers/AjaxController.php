@@ -7,6 +7,7 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
+use AmazonLoginAndPay\Services\AmzCustomerService;
 use Plenty\Modules\Plugin\DataBase\Contracts\Migrate;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
@@ -21,8 +22,9 @@ class AjaxController extends Controller
     public $transactionHelper;
     public $checkoutHelper;
     public $amzTransactionRepo;
+    public $customerService;
 
-    public function __construct(AmzTransactionRepositoryContract $amzTransactionRepo, Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, Request $request, AmzCheckoutHelper $checkoutHelper)
+    public function __construct(AmzTransactionRepositoryContract $amzTransactionRepo, Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, Request $request, AmzCheckoutHelper $checkoutHelper, AmzCustomerService $customerService)
     {
         $this->response = $response;
         $this->request = $request;
@@ -30,6 +32,7 @@ class AjaxController extends Controller
         $this->transactionHelper = $transactionHelper;
         $this->checkoutHelper = $checkoutHelper;
         $this->amzTransactionRepo = $amzTransactionRepo;
+        $this->customerService = $customerService;
     }
 
     /**
@@ -44,7 +47,30 @@ class AjaxController extends Controller
         switch ($action) {
             case 'setAccessToken':
                 $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
-                return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => '']);
+                $redirect = '/amazon-checkout';
+                $cookieStr = '';
+                $header = $this->request->header();
+                if (isset($header['cookie']) && is_array($header['cookie'])) {
+                    $cookieStr = implode('', $header['cookie']);
+                    if (strpos($cookieStr, 'amzLoginType=Login') !== false) {
+                        $redirect = '/my-account';
+                    }
+                }
+                $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->request->get('access_token')]);
+                $this->helper->setToSession('amzUserData', $userData);
+                $this->helper->log(__CLASS__, __METHOD__, 'cookie test', [$cookieStr, $header['cookie'][0], json_decode(json_encode($this->request->header()), true), $this->request->header(), $this->request->header()->cookie, $cookieStr]);
+                if ($this->request->get('do_login')) {
+                    $loginInfo = $this->customerService->loginWithAmazonUserData($userData);
+                    if (!empty($loginInfo["redirect"])) {
+                        $redirect = $loginInfo["redirect"];
+                    } elseif (!$loginInfo["success"]) {
+                        $redirect = '/?amz_login_error';
+                    }
+                } else {
+                    $this->customerService->loginWithAmazonUserData($userData, null, null, true);
+                }
+                $this->helper->setToSession('amazonLogout', 2);
+                return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => json_encode(['redirect' => $redirect])]);
                 break;
             case 'setOrderReference':
                 $this->helper->setToSession('amzOrderReference', $this->request->get('orderReference'));

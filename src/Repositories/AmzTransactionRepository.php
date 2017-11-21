@@ -99,6 +99,7 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
          */
         $database = pluginApp(DataBase::class);
         $transaction->lastUpdate = date('Y-m-d H:i:s');
+        $response = null;
         try {
             $response = $database->save($transaction);
         } catch (\Exception $e) {

@@ -3,7 +3,7 @@
 namespace AmazonLoginAndPay\Methods;
 
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
-use Plenty\Plugin\ConfigRepository;
+
 
 /**
  * Class PayUponPickupPaymentMethod
@@ -15,10 +15,9 @@ class AmzPaymentMethod extends PaymentMethodService
      * Check the configuration if the payment method is active
      * Return true if the payment method is active, else return false
      *
-     * @param ConfigRepository $configRepository
      * @return bool
      */
-    public function isActive(ConfigRepository $configRepository)
+    public function isActive()
     {
         return false;
     }
@@ -29,6 +28,7 @@ class AmzPaymentMethod extends PaymentMethodService
     public function getName()
     {
         return 'Amazon Pay';
+
     }
 
     /**
@@ -46,10 +46,9 @@ class AmzPaymentMethod extends PaymentMethodService
     {
         return '';
     }
-    
+
     public function isExpressCheckout()
     {
         return true;
     }
-    
 }

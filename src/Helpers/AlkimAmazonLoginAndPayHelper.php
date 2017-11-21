@@ -2,7 +2,6 @@
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
-use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
@@ -22,7 +21,6 @@ class AlkimAmazonLoginAndPayHelper
     public static $config;
     public $session;
     public $configRepo;
-    public $addressRepo;
     public $paymentMethodRepository;
     public $paymentRepository;
     public $orderRepository;
@@ -31,7 +29,7 @@ class AlkimAmazonLoginAndPayHelper
     public $webstoreHelper;
     use Loggable;
 
-    public function __construct(WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository, AddressRepositoryContract $addressRepo)
+    public function __construct(WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->paymentRepository = $paymentRepository;
@@ -39,7 +37,6 @@ class AlkimAmazonLoginAndPayHelper
         $this->paymentOrderRelationRepository = $paymentOrderRelationRepository;
         $this->session = $session;
         $this->configRepo = $configRepository;
-        $this->addressRepo = $addressRepo;
         $this->webstoreHelper = $webstoreHelper;
     }
 
@@ -138,7 +135,6 @@ class AlkimAmazonLoginAndPayHelper
     public function getPaymentMethod()
     {
         $paymentMethods = $this->paymentMethodRepository->allForPlugin('alkim_amazonpay');
-
         if (!is_null($paymentMethods)) {
             foreach ($paymentMethods as $paymentMethod) {
                 if ($paymentMethod->paymentKey == 'AMAZONPAY') {
@@ -234,17 +230,6 @@ class AlkimAmazonLoginAndPayHelper
         return $order->amounts[0]->grossTotal;
     }
 
-    public function createAddress($data)
-    {
-        $addressObj = null;
-        try {
-            $addressObj = $this->addressRepo->createAddress($data);
-        } catch (\Exception $e) {
-            $this->log(__CLASS__, __METHOD__, 'address creation failed', [$e, $e->getMessage()], true);
-        }
-        $this->log(__CLASS__, __METHOD__, 'address created', [$data, $addressObj]);
-        return $addressObj;
-    }
 
     public function reformatAmazonAddress($address)
     {

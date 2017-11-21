@@ -6,7 +6,7 @@ use Plenty\Plugin\Templates\Twig;
 
 class AmzDataProviderCartButton
 {
-    public function call(Twig $twig, $args)
+    public function call(Twig $twig)
     {
         /** @var AlkimAmazonLoginAndPayHelper $helper */
         $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);

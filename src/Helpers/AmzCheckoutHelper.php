@@ -3,6 +3,10 @@ namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Services\AmzBasketService;
 use AmazonLoginAndPay\Services\AmzCheckoutService;
+use AmazonLoginAndPay\Services\AmzCustomerService;
+use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
+use Plenty\Modules\Account\Address\Models\AddressRelationType;
+use Plenty\Modules\Account\Contact\Contracts\ContactAddressRepositoryContract;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Frontend\Contracts\Checkout;
@@ -86,7 +90,17 @@ class AmzCheckoutHelper
         try {
             $shippingAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
             $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress);
-            $shippingAddressObject = $this->helper->createAddress($formattedShippingAddress);
+
+            /** @var AmzCustomerService $customerService */
+            $customerService = pluginApp(AmzCustomerService::class);
+            $contactId = $customerService->getContactId();
+
+            if ($contactId) {
+                $shippingAddressObject = $this->createContactAddress($contactId, $formattedShippingAddress);
+            } else {
+                $shippingAddressObject = $this->createAddress($formattedShippingAddress);
+            }
+
             $this->checkout->setCustomerShippingAddressId($shippingAddressObject->id);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'set shipping address failed', [$e, $e->getMessage()], true);
@@ -108,11 +122,21 @@ class AmzCheckoutHelper
         }
         $formattedInvoiceAddress = null;
         $invoiceAddressObject = null;
+        $this->helper->log(__CLASS__, __METHOD__, 'hooray', '');
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
             $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress);
             $formattedInvoiceAddress["email"] = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
-            $invoiceAddressObject = $this->helper->createAddress($formattedInvoiceAddress);
+
+            /** @var AmzCustomerService $customerService */
+            $customerService = pluginApp(AmzCustomerService::class);
+            $contactId = $customerService->getContactId();
+
+            if ($contactId) {
+                $invoiceAddressObject = $this->createContactAddress($contactId, $formattedInvoiceAddress, 'invoice');
+            } else {
+                $invoiceAddressObject = $this->createAddress($formattedInvoiceAddress);
+            }
             $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage()], true);
@@ -127,6 +151,34 @@ class AmzCheckoutHelper
     public function setShippingProfile($id)
     {
         $this->checkout->setShippingProfileId($id);
+    }
+
+    public function createAddress($data)
+    {
+        /** @var AddressRepositoryContract $addressRepo */
+        $addressRepo = pluginApp(AddressRepositoryContract::class);
+        $addressObj = null;
+        try {
+            $addressObj = $addressRepo->createAddress($data);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'address creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'address created', [$data, $addressObj]);
+        return $addressObj;
+    }
+
+    public function createContactAddress($contactId, $data, $type = 'delivery')
+    {
+        /** @var ContactAddressRepositoryContract $contactAddressRepo */
+        $contactAddressRepo = pluginApp(ContactAddressRepositoryContract::class);
+        $addressObj = null;
+        try {
+            $addressObj = $contactAddressRepo->createAddress($data, $contactId, ($type === 'delivery' ? AddressRelationType::DELIVERY_ADDRESS : AddressRelationType::BILLING_ADDRESS));
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'contact address creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'contact address created', [$data, $addressObj]);
+        return $addressObj;
     }
 
     public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false)
@@ -228,6 +280,7 @@ class AmzCheckoutHelper
         $this->helper->log(__CLASS__, __METHOD__, 'try to set payment method', []);
         try {
             $paymentMethodId = $this->helper->createMopIfNotExistsAndReturnId();
+
             $this->checkout->setPaymentMethodId($paymentMethodId);
             $this->helper->log(__CLASS__, __METHOD__, 'paymentMethodId', ['id' => $paymentMethodId]);
         } catch (\Exception $e) {
