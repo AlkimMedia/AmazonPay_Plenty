@@ -1,5 +1,10 @@
-# Release 0.1.10
+# Release notes for Amazon Pay
 
-#### Features:
-  
-**Amazon Pay for plentymarkets**.
+## 0.1.11
+
+### Fixed
+
+- keeping up with plenty development
+
+## Release 0.1.10
+
