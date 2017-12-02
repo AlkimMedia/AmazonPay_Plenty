@@ -127,7 +127,7 @@ class AmzCheckoutHelper
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
             $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress);
             $formattedInvoiceAddress["email"] = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
-
+            //$this->helper->log(__CLASS__, __METHOD__, 'formatted invoice address', [$formattedInvoiceAddress]);
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
             $contactId = $customerService->getContactId();

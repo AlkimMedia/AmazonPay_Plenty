@@ -254,8 +254,16 @@ class AlkimAmazonLoginAndPayHelper
             $company = '';
             $street = trim($address["AddressLine1"]);
         }
-
-
+        $houseNo = '';
+        $streetParts = explode(' ', $street); //TODO: replace with preg_split('/[\s]+/', $street);
+        if (count($streetParts) > 1) {
+            $houseNoKey = max(array_keys($streetParts));
+            if (strlen($streetParts[$houseNoKey]) <= 5) {
+                $houseNo = $streetParts[$houseNoKey];
+                unset($streetParts[$houseNoKey]);
+                $street = implode(' ', $streetParts);
+            }
+        }
         $city = $address["City"];
         $postcode = $address["PostalCode"];
         $countryCode = $address["CountryCode"];
@@ -266,6 +274,11 @@ class AlkimAmazonLoginAndPayHelper
         $finalAddress["name2"] = $firstName;
         $finalAddress["name3"] = $lastName;
         $finalAddress["address1"] = $street;
+
+        if (!empty($houseNo)) {
+            $finalAddress["address2"] = $houseNo;
+        }
+
         $finalAddress["postalCode"] = $postcode;
         $finalAddress["town"] = $city;
         $finalAddress["countryId"] = $this->getCountryId($countryCode);

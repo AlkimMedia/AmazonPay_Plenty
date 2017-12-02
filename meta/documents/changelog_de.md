@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.0.1
+
+### Hinzugefügt
+
+- Hausnummer separat speichern
+
 ## 1.0.0
 
 ### Hinzugefügt

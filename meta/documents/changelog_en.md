@@ -1,5 +1,11 @@
 # Release notes for Amazon Pay
 
+## 1.0.1
+
+### Added
+
+- separate house number from street
+
 ## 1.0.0
 
 ### Added
@@ -13,4 +19,3 @@
 - keeping up with plenty development
 
 ## Release 0.1.10
-

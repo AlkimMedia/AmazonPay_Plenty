@@ -34,7 +34,7 @@ class AmzServiceProvider extends ServiceProvider
                          PaymentMethodContainer $payContainer,
                          Request $request)
     {
-
+        //$helper->log(__CLASS__, __METHOD__, 'request uri', $request->getUri());
         if (strpos($request->getUri(), '/logout') !== false) {
             $helper->setToSession('amazonLogout', 1);
         }
