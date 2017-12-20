@@ -18,9 +18,7 @@ class AmzDataProviderOrderConfirmation
         $helper->resetSession();
 
         return $twig->render('AmazonLoginAndPay::content.custom-output', [
-            'output' => '<script type="text/javascript">
-                           var amazonPayAction = \'logout\';
-                         </script>',
+            'output' => '<input type="hidden" name="amazon-pay-action" value="logout" />',
             'warning' => $html,
             'error' => ''
         ]);

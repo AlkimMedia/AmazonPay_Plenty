@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.0.2
+
+### Gefixt
+
+- Kompatibilität Ceres 2.x
+
 ## 1.0.1
 
 ### Hinzugefügt

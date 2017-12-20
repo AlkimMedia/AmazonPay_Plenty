@@ -3,7 +3,6 @@
         var amazonPayAction = 'logout';
     </script>
 {% endif %}
-<script></script>
 <style>
     .amzPayButton {
         margin: 10px 0;
@@ -13,6 +12,10 @@
     }
 </style>
 <link href="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main.css" rel="stylesheet"/>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script type="text/javascript">
+    var amz$ = $.noConflict(true);
+</script>
 <script type="text/javascript">
     var amazonLoginAndPay = {
         config: {
@@ -29,7 +32,7 @@
     }
 </script>
 <!--<script src="{{ plugin_path('AmazonLoginAndPay') }}/js/amz-main.js"></script>-->
-<script src="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main.js"></script>
+<script src="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main-1.0.2.js"></script>
 {% if config('AmazonLoginAndPay.sandbox') == "true" %}
     <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/eur/sandbox/lpa/js/Widgets.js'></script>
 {% else %}
