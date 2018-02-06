@@ -53,6 +53,11 @@ class AmzBasketService
         return $basketRepository->load();
     }
 
+    public function getBasketItemsForTemplate(): array
+    {
+        $basketServiceOriginal = pluginApp(\IO\Services\BasketService::class);
+        return $basketServiceOriginal->getBasketItems();
+    }
     /**
      * List the basket items
      * @return array
@@ -63,17 +68,33 @@ class AmzBasketService
 
         /** @var BasketItem[] $basketItems */
         $basketItems = $this->basketItemRepository->all();
-        $this->helper->log(__CLASS__, __METHOD__, 'basket items', $basketItems);
+        $this->helper->log(__CLASS__, __METHOD__, 'basket items', ['test' => $basketItems]);
         $return = [];
         foreach ($basketItems as $basketItem) {
             $item = $basketItem->toArray();
             $item["final_price"] = $item["price"] * $item["quantity"];
             $this->helper->log(__CLASS__, __METHOD__, 'basket items details pre', $item);
-            $variationData = $this->variationRepository->show($item["variationId"], ['images', 'texts'], 'de');
+            $variationData = $this->variationRepository->show($item["variationId"], ['images', 'texts', 'variationProperties'], 'de');
+
+
+
             $itemData = $this->itemRepository->show($item["itemId"]);
             $imageData = $this->itemImageRepository->findByVariationId($item["variationId"]);
+
             //$itemImageData = $this->itemImageRepository->findByItemId($item["itemId"]);
-            $this->helper->log(__CLASS__, __METHOD__, 'basket item details', [$itemData, $variationData, $imageData, $itemData[""]]);
+            $this->helper->log(__CLASS__, __METHOD__, 'basket item details', [
+                'itemData' => $itemData,
+                'variationData' => $variationData,
+                'imageData' => $imageData,
+                'image' => $imageData[0],
+                'preview' => $imageData[0]['urlPreview'],
+                'is_object' => is_object($imageData[0])
+
+            ]);
+            $item["image"] = '';
+            if (!empty($imageData) && isset($imageData[0]) && is_object($imageData[0])) {
+                $item["image"] = $imageData[0]->urlPreview;
+            }
             $item["name"] = $itemData["texts"][0]["name1"];
             $return[] = $item;
         }
@@ -92,6 +113,19 @@ class AmzBasketService
 
         return $result;*/
     }
+
+    public function getBasketItem(int $basketItemId): array
+    {
+        $basketItem = $this->basketItemRepository->findOneById($basketItemId);
+        if ($basketItem === null) {
+            return [];
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'basket item details', $basketItem);
+        return $basketItem->toArray();
+    }
+
+
+
 
 
 }

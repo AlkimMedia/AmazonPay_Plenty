@@ -1,22 +1,40 @@
-# Amazon Pay - einfach online bezahlen
-Mit Amazon Pay können sich Millionen Amazon Kunden mit ihrem Amazon-Login in Ihrem Plentymarkets-Shop einloggen und mit den Adress- und Zahlungsinformationen aus ihrem Amazon-Kundenkonto bezahlen. Das geht schnell, ist einfach und sicher. Der komplette Bezahlvorgang findet ausschließlich in Widgets in Ihrem Online-Shop statt – ohne Weiterleitung auf eine andere Website.
+# Amazon Pay and Login with Amazon
+Ermöglichen Sie es über 300 Millionen von Amazon-Kunden, sich auf Ihrer Website einzuloggen und zu bezahlen. Jeder Amazon Kunde kann diese Zahlungsart sofort in Ihrem Shop nutzen.
 ## Ihre Vorteile
-### Loyale Kunden      
-Bieten Sie Ihren Kunden einen einfachen Login. Die Käufer werden zu Ihren Kunden und Sie können Ihre Produkte direkt an sie vermarkten.     
+- Umsatzsteigerung - Erhöhung der Kaufabschlussquote um bis zu 35%* durch hohes Kundenvertrauen in Amazon.
+- Verbessertes Kundenerlebnis - Kunden bestellen mit nur drei Klicks.
+- Neue Kunden - Ermöglichen Sie allen Amazon-Kunden sicher und schnell mit ihren Amazon Kundendaten zu bezahlen, ohne sich erst extra registrieren zu müssen.
+- Datenhoheit - Keine Weitergabe von Artikel- oder Warenkorbdaten an Amazon.
+- Erhöhung Datenqualität - Sie erhalten beim Anmelden den Kundennamen und die verifizierte E-Mail-Adresse von Amazon.
+- Kostenloser Schutz vor Zahlungsausfällen – Reduzieren Sie Kosten und schützen Sie Ihr Unternehmen mit dem bewährten Schutz vor Zahlungsausfällen von Amazon.
+- Loyale Kunden – Amazon Kunden werden zu Ihren Käufern und Sie können Ihre Produkte direkt an sie vermarkten.
 
-### Mobiloptimiert      
-Unsere Buttons und Widgets sind Desktop-, Tablet- und Mobiloptimiert. Erzielen Sie Verkäufe, die Ihnen ohne Mobiloptimierung entgingen.     
- 
-### Schutz vor Zahlungsausfällen      
-Reduzieren Sie Kosten und schützen Sie Ihr Unternehmen mit dem bewährten Schutz vor Zahlungsausfällen von Amazon. Dieser Service ist für Sie kostenlos.     
- 
-### Chance: höhere Konversion, mehr Umsatz      
-Amazon Payments kann Ihnen helfen, Umsätze mit Kunden zu erzielen, die aufgrund komplizierterer Anmelde- und Bezahloptionen sonst nicht bei Ihnen eingekauft hätten. Zusätzlich profitieren Sie vom Amazon Pay Schutz vor Zahlungsausfall.     
- 
-### Reine Zahlungsabwicklung      
-Amazon Pay bietet reine Zahlungsabwicklung. Als Händler übermitteln Sie nur den abzuwickelnden Betrag.
+## Features
+- Reine Zahlungsabwicklung ohne Übertragung von Artikel- oder Warenkorbdaten.
+- Kunden mit einer vertrauten und zuverlässigen Anmeldung überprüfen und bestätigen.
+- Der Betrugsschutz von Amazon Pay kann Forderungsausfälle verringern.
+- Amazon Pay wird ständig weiterentwickelt, um die Anforderungen von Händlern und Kunden zu erfüllen. 
+- Optimiert für mobile Endgeräte. Unterstützung von digitalen Gütern.
+- Schützen Sie Ihre Kunden mit der Amazon A-bis-Z-Garantie ohne zusätzliche Kosten.
+
+## Feedback
+- Unterstützung von Abonnements (Recurring Payments)
+- Unterstützung von Zahlungen in Fremdwährungen
+- Unterstützung von Fremdsprachen
+
+## Feedback
+- *„35% Steigerung der Conversion-Rate mit Amazon Pay“
+Frank Thelen | Gründer, Investor, Geek 
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kBrMmunO-3g" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+- „Amazon Pay bietet uns den bestmöglichen Bestellprozess und ermöglicht uns optimale Konversionsraten."
+Laura Garrity | E-Commerce Manager | DOMU
+
+- „Bei Amazon Pay müssen keine Zahlungsinformationen mehr angegeben werden, was die Zeit für den Bestellprozess von zwei oder drei Minuten auf 30 Sekunden oder weniger verkürzt."
+Andrew Kennedy | Commercial Manager | Flooring Superstore
 
 <hr>
 [Hinweise zur Installation und Einrichtung ](https://www.alkim.de/Amazon-Pay-fuer-Plentymarkets---Anleitung.html)	   
-[Weitere Informationen zu Amazon Pay](https://pay.amazon.com/de/merchant?ref=ml_de_ap_xx_sp_PAMP_xx_xx_xx_MPI)	 
-[Registrierung für Amazon Pay](https://payments-eu.amazon.com/register?spId=A1SGXK19QKIYNB&marketplaceId=A53RDEWN57UU5&language=de_DE&locale=de_DE&source=SPPW&ref=sp_de_ap_np_sp_Plty_xx_xx_xx_PLM)
+[Hilfeseite](https://pay.amazon.com/de/help)	 
+[Jetzt für Amazon Pay anmelden](https://pay.amazon.com/de/signup)

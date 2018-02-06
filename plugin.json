@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -33,6 +33,11 @@
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderCartButton",
       "name": "Amazon Login & Pay - Checkout-Button",
       "description": "Amazon Login & Pay - Checkout-Button"
+    },
+    {
+      "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderArticleCheckoutButton",
+      "name": "Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)",
+      "description": "Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderLoginButton",

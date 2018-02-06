@@ -93,6 +93,7 @@ class AjaxController extends Controller
             case 'getOrderDetails':
                 $this->checkoutHelper->setAddresses();
                 $templateData = ['items' => [], 'basket' => []];
+                $this->helper->log(__CLASS__, __METHOD__, 'startGetOrderDetails', []);
                 try {
                     $templateData['items'] = $this->checkoutHelper->getBasketItems();
                     $templateData['basket'] = $this->checkoutHelper->getBasketData();

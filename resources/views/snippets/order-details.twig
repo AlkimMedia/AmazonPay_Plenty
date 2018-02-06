@@ -5,9 +5,9 @@
 {% else %}
     <div class="order-items-table">
         <div class="line head">
-            <!--<div class="image">
-                Bild
-            </div>-->
+            <div class="image">
+
+            </div>
             <div class="name">
                 {{ trans("AmazonLoginAndPay::AmazonPay.articleNameCaption") }}
             </div>
@@ -23,11 +23,23 @@
         </div>
         {% for key,item in items %}
             <div class="line">
-                <!--<div class="image">
-                <img src="{{ item.image }}"/>
-            </div>-->
+                <div class="image">
+                    {% if  item.variation.data.images.variation.0.urlPreview %}
+                        <img src="{{ item.variation.data.images.variation.0.urlPreview }}"/>
+                    {% else %}
+                        <img src="{{ item.variation.data.images.item.0.urlPreview }}"/>
+                    {% endif %}
+                </div>
                 <div class="name">
-                    {{ item.name }}
+                    {{ item.variation.data.texts.name1 }}
+                    {% if item.variation.data.attributes %}
+                        {% for attribute in item.variation.data.attributes %}
+                            <div>
+                                <span>{{ attribute.attribute.names.name }}:</span>
+                                <span>{{ attribute.value.names.name }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
                 <div class="single-price">
                     {{ item.price  | formatMonetary('EUR') }}
@@ -36,7 +48,7 @@
                     {{ item.quantity }}
                 </div>
                 <div class="final-price">
-                    {{ item.final_price  | formatMonetary('EUR') }}
+                    {{ (item.price*item.quantity)  | formatMonetary('EUR') }}
                 </div>
             </div>
         {% endfor %}

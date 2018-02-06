@@ -49,23 +49,11 @@ class AmzCheckoutHelper
 
         $return = [];
         try {
-            $basketItems = $this->basketService->getBasketItems();
-
-            foreach ($basketItems as $basketItem) {
-                $item = [];
-                $item["name"] = $basketItem["name"];
-                $item["price"] = $basketItem["price"];
-                $item["quantity"] = $basketItem["quantity"];
-                $item["final_price"] = $item["price"] * $item["quantity"];
-                $item["image"] = '';
-                $item["variationId"] = $basketItem["variationId"];
-                $return[] = $item;
-                $this->helper->log(__CLASS__, __METHOD__, 'basket items', [$return, $basketItems]);
-            }
+            $return = $this->basketService->getBasketItemsForTemplate();
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems failed', [$e, $e->getMessage()], true);
         }
-
+        $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems return', [$return], true);
         return $return;
     }
 
