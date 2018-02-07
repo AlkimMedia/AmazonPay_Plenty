@@ -1,5 +1,12 @@
 # Release notes for Amazon Pay
 
+## 1.0.3
+
+### Added
+
+- Amazon Pay btton on article detail page
+- images and variants on checkout page
+
 ## 1.0.2
 
 ### Fixed

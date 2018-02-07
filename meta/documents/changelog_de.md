@@ -1,5 +1,12 @@
 # Release Notes für Amazon Pay
 
+## 1.0.3
+
+### Hinzugefügt
+
+- Amazon Pay Button auf Artikelseite (Schnellkauf)
+- Bilder und Varianten auf Checkout-Seite
+
 ## 1.0.2
 
 ### Gefixt
