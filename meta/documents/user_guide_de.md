@@ -1,3 +1,5 @@
+[**Hier geht es zu den Informationen zur Integration und Konfiguration von "Amazon Pay and Login with Amazon"**](https://pay.amazon.com/de/signup)
+
 # Amazon Pay and Login with Amazon
 Ermöglichen Sie es über 300 Millionen von Amazon-Kunden, sich auf Ihrer Website einzuloggen und zu bezahlen. Jeder Amazon Kunde kann diese Zahlungsart sofort in Ihrem Shop nutzen.
 ## Ihre Vorteile
@@ -35,6 +37,6 @@ Laura Garrity | E-Commerce Manager | DOMU
 Andrew Kennedy | Commercial Manager | Flooring Superstore
 
 <hr>
-[Hinweise zur Installation und Einrichtung ](https://www.alkim.de/Amazon-Pay-fuer-Plentymarkets---Anleitung.html)	   
+[Hinweise zur Installation und Einrichtung ](https://www.alkim.de/Amazon-Pay-fuer-Plentymarkets---Anleitung.html)	  
 [Hilfeseite](https://pay.amazon.com/de/help)	 
 [Jetzt für Amazon Pay anmelden](https://pay.amazon.com/de/signup)

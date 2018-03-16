@@ -199,9 +199,7 @@ class AmzCheckoutHelper
             }
         }
         $this->transactionHelper->confirmOrderReference($orderReferenceId, true, $orderId);
-        $this->helper->log(__CLASS__, __METHOD__, 'checkout auth mode', $this->helper->getFromConfig('authorizationMode'));
         if ($this->helper->getFromConfig('authorizationMode') != 'manually') {
-            $this->helper->log(__CLASS__, __METHOD__, 'try to authorize', $orderReferenceId);
             $response = $this->transactionHelper->authorize($orderReferenceId, $amount, 0);
             $this->helper->log(__CLASS__, __METHOD__, 'amazonCheckoutAuthorizeResult', $response);
             if (is_array($response) && !empty($response["AuthorizeResult"])) {

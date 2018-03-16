@@ -1,5 +1,12 @@
 # Release Notes für Amazon Pay
 
+## 1.0.4
+
+### Gefixt
+
+- Autorisierung in Popup
+- JS/CSS nicht mehr auf alkim.de gehostet
+
 ## 1.0.3
 
 ### Hinzugefügt

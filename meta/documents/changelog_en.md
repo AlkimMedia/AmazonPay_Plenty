@@ -1,10 +1,17 @@
 # Release notes for Amazon Pay
 
+## 1.0.4
+
+### Fixed
+
+- Authorization in popup
+- JS/CSS no longer hosted on alkim.de
+
 ## 1.0.3
 
 ### Added
 
-- Amazon Pay btton on article detail page
+- Amazon Pay button on article detail page
 - images and variants on checkout page
 
 ## 1.0.2
