@@ -1,5 +1,16 @@
 # Release notes for Amazon Pay
 
+## 1.1.0
+
+### Added
+
+- Multi Currency Feature
+
+### Fixed
+
+- Email address and phone in customer record
+- Checkout from article detail page with popup experience
+
 ## 1.0.4
 
 ### Fixed

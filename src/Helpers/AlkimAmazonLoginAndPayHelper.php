@@ -83,7 +83,7 @@ class AlkimAmazonLoginAndPayHelper
         return ($this->getFromConfig('sandbox') == 'true' ? 'Sandbox' : 'Live');
     }
 
-    public function createPlentyPayment($amount, $status, $dateTime, $comment, $transactionId, $type = 'credit', $transactionType = 2)
+    public function createPlentyPayment($amount, $status, $dateTime, $comment, $transactionId, $type = 'credit', $transactionType = 2, $currency = 'EUR')
     {
         /** @var Payment $payment */
         $payment = pluginApp(Payment::class);
@@ -91,7 +91,8 @@ class AlkimAmazonLoginAndPayHelper
         $payment->transactionType = $transactionType;
         $payment->type = $type;
         $payment->status = $this->mapStatus($status);
-        $payment->currency = 'EUR';
+        $payment->currency = $currency;
+        $payment->isSystemCurrency = ($currency === 'EUR' ? true : false);
         $payment->amount = $amount;
         $payment->receivedAt = $dateTime;
         if ($status != 'captured' && $status != 'refunded') {
@@ -223,17 +224,23 @@ class AlkimAmazonLoginAndPayHelper
         }
     }
 
-    public function getOrderTotal(int $orderId)
+    public function getOrderTotalAndCurrency(int $orderId)
     {
         $order = $this->orderRepository->findOrderById($orderId);
         $this->log(__CLASS__, __METHOD__, 'get order amount', ['order' => $order, 'amounts' => $order->amounts, 'amount' => $order->amounts[0], 'amount 1' => $order->amounts[0]->grossTotal, 'amount 2' => $order->amounts[0]["grossTotal"]]);
-        return $order->amounts[0]->grossTotal;
+        $amount = (isset($order->amounts[1]) ? $order->amounts[1] : $order->amounts[0]);
+        return [
+            'total' => $amount->grossTotal,
+            'currency' => $amount->currency
+        ];
     }
 
 
-    public function reformatAmazonAddress($address)
+    public function reformatAmazonAddress($address, $emailAddress = null)
     {
-        $finalAddress = [];
+        $finalAddress = [
+            'options' => []
+        ];
 
         $name = $address["Name"];
         $t = explode(' ', $name);
@@ -282,7 +289,21 @@ class AlkimAmazonLoginAndPayHelper
         $finalAddress["postalCode"] = $postcode;
         $finalAddress["town"] = $city;
         $finalAddress["countryId"] = $this->getCountryId($countryCode);
-        $finalAddress["phone"] = $phone;
+        if (!empty($phone)) {
+            $finalAddress["phone"] = $phone;
+            $finalAddress["options"][] = [
+                'typeId' => 4,
+                'value' => $phone
+            ];
+
+        }
+        if (!empty($emailAddress)) {
+            $finalAddress["email"] = $emailAddress;
+            $finalAddress["options"][] = [
+                'typeId' => 5,
+                'value' => $emailAddress
+            ];
+        }
         $this->log(__CLASS__, __METHOD__, 'formatted address', [$finalAddress]);
         return $finalAddress;
     }

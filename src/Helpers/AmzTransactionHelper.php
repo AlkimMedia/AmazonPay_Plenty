@@ -24,12 +24,12 @@ class AmzTransactionHelper
     }
 
 
-    public function setOrderReferenceDetails($orderRef, $amount, $orderId)
+    public function setOrderReferenceDetails($orderRef, $amount, $orderId, $currency = 'EUR')
     {
         $requestParameters = [];
         $requestParameters['amazon_order_reference_id'] = $orderRef;
         $requestParameters['amount'] = $amount;
-        $requestParameters['currency_code'] = 'EUR';
+        $requestParameters['currency_code'] = $currency;
         $requestParameters['platform_id'] = 'A1SGXK19QKIYNB';
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['store_name'] = $this->helper->getWebstoreName();
@@ -83,7 +83,8 @@ class AmzTransactionHelper
                 'mode' => $this->helper->getTransactionMode(),
                 'amount' => $details["OrderTotal"]["Amount"],
                 'amountRefunded' => 0,
-                'order' => $orderId
+                'order' => $orderId,
+                'currency' => $details["OrderTotal"]["CurrencyCode"]
             ];
             $this->amzTransactionRepository->createTransaction($data);
         }
@@ -107,7 +108,7 @@ class AmzTransactionHelper
         $requestParameters['authorization_amount'] = $amount;
         $requestParameters['amazon_order_reference_id'] = $orderRef;
         $requestParameters['transaction_timeout'] = $timeout;
-        $requestParameters['currency_code'] = 'EUR';
+        $requestParameters['currency_code'] = $this->getCurrencyFromOrderRef($orderRef);
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['soft_descriptor'] = $comment;
         $requestParameters['authorization_reference_id'] = 'plenty_auth_ref_' . time() . '_' . rand(10000, 99999);
@@ -139,12 +140,13 @@ class AmzTransactionHelper
                 'merchantId' => $this->helper->getFromConfig('merchantId'),
                 'mode' => $this->helper->getTransactionMode(),
                 'amount' => $amount,
-                'amountRefunded' => 0
+                'amountRefunded' => 0,
+                'currency' => $requestParameters['currency_code']
             ];
             $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $data]);
             $plentyPayment = null;
             try {
-                $plentyPayment = $this->helper->createPlentyPayment(($data["status"] == 'Declined' ? 0 : $amount), ($data["status"] == 'Open' ? 'approved' : ($data["status"] == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"]);
+                $plentyPayment = $this->helper->createPlentyPayment(($data["status"] == 'Declined' ? 0 : $amount), ($data["status"] == 'Open' ? 'approved' : ($data["status"] == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'credit', 2, $requestParameters['currency_code']);
             } catch (\Exception $e) {
                 $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);
             }
@@ -177,7 +179,7 @@ class AmzTransactionHelper
             $requestParameters = [];
             $requestParameters['amazon_capture_id'] = $captureId;
             $requestParameters['refund_amount'] = $amount;
-            $requestParameters['currency_code'] = 'EUR';
+            $requestParameters['currency_code'] = $this->getCurrencyFromOrderRef($orderRef);
             $requestParameters['refund_reference_id'] = 'plenty_ref_r_' . time() . '_' . rand(10000, 99999);
 
             $response = $this->call('refund', $requestParameters);
@@ -199,11 +201,12 @@ class AmzTransactionHelper
                 'merchantId' => $this->helper->getFromConfig('merchantId'),
                 'mode' => ($this->helper->getFromConfig('sandbox') == 'true' ? 'Sandbox' : 'Live'),
                 'amount' => $amount,
-                'amountRefunded' => 0
+                'amountRefunded' => 0,
+                'currency' => $requestParameters['currency_code']
             ];
             $plentyRefund = null;
             try {
-                $plentyRefund = $this->helper->createPlentyPayment($amount, 'refunded', date('Y-m-d H-i-s'), 'Rueckzahlung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'debit');
+                $plentyRefund = $this->helper->createPlentyPayment($amount, 'refunded', date('Y-m-d H-i-s'), 'Rueckzahlung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'debit', 2, $requestParameters['currency_code']);
             } catch (\Exception $e) {
                 $this->helper->log(__CLASS__, __METHOD__, 'plenty refund creation failed', [$e, $e->getMessage()], true);
             }
@@ -344,7 +347,7 @@ class AmzTransactionHelper
             $requestParameters['amazon_order_reference_id'] = $orderRef;
             $requestParameters['amazon_authorization_id'] = $authId;
             $requestParameters['capture_amount'] = $amount;
-            $requestParameters['currency_code'] = 'EUR';
+            $requestParameters['currency_code'] = $this->getCurrencyFromOrderRef($orderRef);
             $requestParameters['capture_reference_id'] = 'plenty_cpt_r_' . time() . '_' . rand(10000, 99999);
             /*
                         if (MODULE_PAYMENT_AM_APA_PROVOCATION == 'capture_decline' && MODULE_PAYMENT_AM_APA_MODE == 'sandbox') {
@@ -370,13 +373,14 @@ class AmzTransactionHelper
                 'merchantId' => $this->helper->getFromConfig('merchantId'),
                 'mode' => ($this->helper->getFromConfig('sandbox') == 'true' ? 'Sandbox' : 'Live'),
                 'amount' => $amount,
-                'amountRefunded' => 0
+                'amountRefunded' => 0,
+                'currency' => $requestParameters['currency_code']
             ];
 
             $orderId = $this->getOrderIdFromOrderRef($orderRef);
             $plentyPayment = null;
             try {
-                $plentyPayment = $this->helper->createPlentyPayment($amount, 'captured', date('Y-m-d H-i-s'), 'Zahlungseinzug: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"]);
+                $plentyPayment = $this->helper->createPlentyPayment($amount, 'captured', date('Y-m-d H-i-s'), 'Zahlungseinzug: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'credit', 2, $requestParameters['currency_code']);
             } catch (\Exception $e) {
                 $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);
             }
@@ -479,6 +483,16 @@ class AmzTransactionHelper
         ]);
         $oro = $oroArr[0];
         return $oro->amount;
+    }
+
+    public function getCurrencyFromOrderRef($orderReferenceId)
+    {
+        $oroArr = $this->amzTransactionRepository->getTransactions([
+            ['orderReference', '=', $orderReferenceId],
+            ['type', '=', 'order_ref']
+        ]);
+        $oro = $oroArr[0];
+        return ($oro->currency ? $oro->currency : 'EUR');
     }
 
     public function getCaptureTransactionsFromOrderRef($orderReferenceId)

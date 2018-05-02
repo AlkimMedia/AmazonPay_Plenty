@@ -113,9 +113,7 @@ class AmzCheckoutHelper
         $this->helper->log(__CLASS__, __METHOD__, 'hooray', '');
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
-            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress);
-            $formattedInvoiceAddress["email"] = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
-            //$this->helper->log(__CLASS__, __METHOD__, 'formatted invoice address', [$formattedInvoiceAddress]);
+            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"]);
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
             $contactId = $customerService->getContactId();
@@ -169,7 +167,7 @@ class AmzCheckoutHelper
         return $addressObj;
     }
 
-    public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false)
+    public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false, $currency = 'EUR')
     {
         $return = [
             'redirect' => ''
@@ -182,10 +180,11 @@ class AmzCheckoutHelper
         if ($amount === null) {
             $basket = $this->getBasketData();
             $amount = $basket["basketAmount"];
+            $currency = $basket["currency"];
         }
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
         if (!$walletOnly) {
-            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, $orderId);
+            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, $orderId, $currency);
             $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
             $constraint = $constraints["Constraint"]["ConstraintID"];
             if (!empty($constraint)) {

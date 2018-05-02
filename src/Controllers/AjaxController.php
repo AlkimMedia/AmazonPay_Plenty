@@ -107,19 +107,6 @@ class AjaxController extends Controller
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'No action found']);
     }
 
-    public function dataTest(Twig $twig)
-    {
-        $action = $this->request->get('action');
-        if ($action == 'insert') {
-            $data = $this->request->get('data');
-            //$data = ['orderReference' => 'TEST'];
-            $tx = $this->amzTransactionRepo->createTransaction($data);
-            $this->helper->log(__CLASS__, __METHOD__, 'insert transaction', [$data, $tx]);
-        }
-
-        return $twig->render('AmazonLoginAndPay::snippets.data-test', ['transactions' => json_decode(json_encode($this->amzTransactionRepo->getTransactions([['id', '>=', 130]])), true)]);
-    }
-
     public function cron(Twig $twig)
     {
 
@@ -155,15 +142,6 @@ class AjaxController extends Controller
             $this->transactionHelper->intelligentRefresh($openTransaction);
             sleep(1);
         }
-
-        /*$q = "SELECT * FROM amz_transactions WHERE amz_tx_status != 'Canceled' AND amz_tx_status != 'Closed' AND amz_tx_status != 'Declined' AND amz_tx_status != 'Completed' AND amz_tx_mode = '".xtc_db_input(MODULE_PAYMENT_AM_APA_MODE)."' ORDER BY amz_tx_last_update ASC LIMIT 40";
-        $rs = xtc_db_query($q);
-        while($r = xtc_db_fetch_array($rs)){
-            AlkimAmazonTransactions::intelligentRefresh($r);
-            sleep(1.5);
-        }
-        echo 'COMPLETED';
-        return 'COMPLETED';*/
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'COMPLETED']);
     }
 

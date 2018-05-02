@@ -16,7 +16,7 @@
                     />
                     <label for="ShippingProfileID{{ shippingOption.parcelServicePresetId }}">
                         {{ shippingOption.parcelServiceName }} - {{ shippingOption.parcelServicePresetName }}
-                        ({{ shippingOption.shippingAmount | formatMonetary('EUR') }})
+                        ({{ shippingOption.shippingAmount | formatMonetary(basket.currency) }})
                     </label>
                 </li>
             {% endfor %}

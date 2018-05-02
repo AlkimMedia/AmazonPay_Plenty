@@ -59,6 +59,7 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
         $transaction->amountRefunded = (float)$data["amountRefunded"];
         $transaction->order = (string)$data["order"];
         $transaction->paymentId = (int)$data["paymentId"];
+        $transaction->currency = (string)$data["currency"];
         $this->helper->log(__CLASS__, __METHOD__, 'create transaction - before save', ['data' => $data, 'input' => $transaction]);
         try {
             /** @var AmzTransaction $response */

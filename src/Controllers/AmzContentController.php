@@ -36,7 +36,12 @@ class AmzContentController extends Controller{
     {
         $this->checkoutHelper->setPaymentMethod();
         $userData = $this->helper->getFromSession('amzUserData');
-        $templateData = ['userData' => $userData, 'error' => $this->helper->getFromSession('amazonCheckoutError')];
+        $basket = $this->checkoutHelper->getBasketData();
+        $templateData = [
+            'userData' => $userData,
+            'currency' => $basket["currency"],
+            'error' => $this->helper->getFromSession('amazonCheckoutError')
+        ];
         return $twig->render('AmazonLoginAndPay::content.amazon-checkout', $templateData);
     }
 
@@ -44,7 +49,12 @@ class AmzContentController extends Controller{
     {
         $this->checkoutHelper->setPaymentMethod();
         $userData = $this->helper->getFromSession('amzUserData');
-        $templateData = ['userData' => $userData, 'walletOnly' => 1];
+        $basket = $this->checkoutHelper->getBasketData();
+        $templateData = [
+            'userData' => $userData,
+            'currency' => $basket["currency"],
+            'walletOnly' => 1
+        ];
         return $twig->render('AmazonLoginAndPay::content.amazon-checkout', $templateData);
     }
 
@@ -86,10 +96,12 @@ class AmzContentController extends Controller{
         $this->helper->log(__CLASS__, __METHOD__, 'is wallet only?', $walletOnly);
         if ($this->helper->getFromConfig('submitOrderIds') != 'true' || $walletOnly) {
             $amount = null;
+            $currency = 'EUR';
             if ($walletOnly) {
                 $amount = $this->transactionHelper->getAmountFromOrderRef($orderReferenceId);
+                $currency = $this->transactionHelper->getCurrencyFromOrderRef($orderReferenceId);
             }
-            $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly);
+            $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly, $currency);
             $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', $return);
             if (!empty($return["redirect"])) {
                 return $this->response->redirectTo($return["redirect"]);
@@ -98,7 +110,7 @@ class AmzContentController extends Controller{
             $basket = $this->checkoutHelper->getBasketData();
             $amount = $basket["basketAmount"];
             $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
-            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, null);
+            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, null, $basket["currency"]);
             $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
             $constraint = $constraints["Constraint"]["ConstraintID"];
             if (!empty($constraint)) {

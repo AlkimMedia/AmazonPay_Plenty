@@ -1,4 +1,5 @@
-if (typeof($) != 'undefined' && typeof(amz$) == 'undefined') {
+if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
+
     var amz$ = $;
 }
 var PlentyMarketsAmazonPay = {
@@ -39,7 +40,7 @@ var PlentyMarketsAmazonPay = {
 
 
     initialize: function () {
-        if (typeof(amz$) != 'undefined') {
+        if (typeof amz$ !== 'undefined') {
             var authRequest;
             var $payButton = amz$('.amzPayButton');
             if ($payButton.length) {
@@ -56,42 +57,33 @@ var PlentyMarketsAmazonPay = {
                         language: 'de-DE',
 
                         authorization: function () {
+                            $button.addClass('amz-loading').find('img').remove();
                             var doAmzAuth = function () {
-                                loginOptions = {
+                                var loginOptions = {
                                     scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
                                     popup: amazonLoginAndPay.config.popup
                                 };
                                 document.cookie = "amzLoginType=Pay;path=/";
-                                authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                                if (amazonLoginAndPay.config.popup && isArticleCheckout) {
+                                    authRequest = amazon.Login.authorize(loginOptions);
+                                } else {
+                                    authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                                }
                             };
-                            if (isArticleCheckout) {
+                            if (isArticleCheckout && !amazonLoginAndPay.config.popup) {
                                 PlentyMarketsAmazonPay.buyProduct(doAmzAuth);
                             } else {
                                 doAmzAuth();
                             }
                         },
-                        /*
+
                         onSignIn: function (orderReference) {
-                            if (thisId == 'amazonChangePaymentLogin') {
-                                location.reload();
-                            } else {
-                                var amazonOrderReferenceId = orderReference.getAmazonOrderReferenceId();
-
-                                 $.ajax({
-                                 type: 'GET',
-                                 url: '<?php echo xtc_href_link('checkout_amazon_handler.php', '', $request_type); ?>',
-                                 data: 'handleraction=setusertoshop&access_token=' + authRequest.access_token + '&amazon_id=' + amazonOrderReferenceId,
-                                 success: function(htmlcontent){
-                                 if (htmlcontent == 'error') {
-                                 alert('An error occured - please try again or contact our support');
-                                 } else {
-                                 window.location = htmlcontent;
-                                 }
-                                 }
-
-                         });
+                            if (amazonLoginAndPay.config.popup && isArticleCheckout) {
+                                PlentyMarketsAmazonPay.buyProduct(function () {
+                                    location.href = '/amazon-login-processing/?access_token=' + authRequest.access_token;
+                                });
                             }
-                         },*/
+                        },
                         onError: function (error) {
                             console.error(error);
                         }
@@ -140,7 +132,7 @@ var PlentyMarketsAmazonPay = {
                     scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
                     onOrderReferenceCreate: function (orderReference) {
                         // Here is where you can grab the Order Reference ID.
-                        var orderReference = orderReference.getAmazonOrderReferenceId();
+                        orderReference = orderReference.getAmazonOrderReferenceId();
                         if (PlentyMarketsAmazonPay.isInitialized == false) {
                             amz$.get('amazon-ajax-handle', {
                                 action: 'setOrderReference',
@@ -178,8 +170,14 @@ var PlentyMarketsAmazonPay = {
                 PlentyMarketsAmazonPay.getOrderDetails();
             }
             if (amz$('#walletWidgetDiv').length) {
+                var amzCurrency = 'EUR';
+                if (amz$('#currency-input').length) {
+                    amzCurrency = amz$('#currency-input').val();
+                }
+                console.log('currency: ' + amzCurrency);
                 amazonLoginAndPay.widgets.walletWidget = new OffAmazonPayments.Widgets.Wallet({
                     sellerId: amazonLoginAndPay.config.merchantId,
+                    presentmentCurrency: amzCurrency,
                     design: {
                         designMode: 'responsive'
                     },
@@ -199,7 +197,7 @@ var PlentyMarketsAmazonPay = {
     cron: function () {
 
         setInterval(function () {
-            if (typeof(amz$) != 'undefined') {
+            if (typeof amz$ !== 'undefined') {
                 var $unrenderedButtons = amz$('.amzPayButton:not([id])');
                 if ($unrenderedButtons.length) {
                     PlentyMarketsAmazonPay.initialize();

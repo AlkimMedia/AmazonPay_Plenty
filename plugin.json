@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.0.4",
+  "version": "1.1.0",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -68,6 +68,7 @@
     "amzn/amazon-pay-sdk-php": "3.1.0"
   },
   "runOnBuild": [
-    "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable"
+    "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable",
+    "AmazonLoginAndPay\\Migrations\\UpdateAmzTransactionTable_AddCurrencyField"
   ]
 }

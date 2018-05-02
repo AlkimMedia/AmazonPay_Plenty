@@ -57,8 +57,10 @@ class AmzServiceProvider extends ServiceProvider
                     $helper->log(__CLASS__, __METHOD__, 'execute payment - submit order id config value', $helper->getFromConfig('submitOrderIds'));
                     if ($helper->getFromConfig('submitOrderIds') == 'true') {
                         $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id pre', '');
-                        $amount = $helper->getOrderTotal($orderId);
-                        $return = $checkoutHelper->doCheckoutActions($amount, $orderId);
+                        $totalAndCurrency = $helper->getOrderTotalAndCurrency($orderId);
+                        $amount = $totalAndCurrency["total"];
+                        $currency = $totalAndCurrency["currency"];
+                        $return = $checkoutHelper->doCheckoutActions($amount, $orderId, false, $currency);
                         $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id', ['order' => $orderId, 'return' => $return]);
                         if (!empty($return["redirect"]) && $return["redirect"] != 'place-order') {
                             $event->setType('redirectUrl');

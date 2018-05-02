@@ -25,6 +25,7 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Model;
  * @property boolean $adminInformed
  * @property string $merchantId
  * @property string $mode
+ * @property string $currency
  */
 class AmzTransaction extends Model
 {
@@ -49,6 +50,7 @@ class AmzTransaction extends Model
     public $adminInformed = false;
     public $merchantId = '';
     public $mode = '';
+    public $currency = '';
 
     /**
      * @return string

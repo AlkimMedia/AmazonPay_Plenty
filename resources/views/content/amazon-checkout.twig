@@ -1,5 +1,6 @@
 {% extends getPartial('page-design') %}
 {% block PageBody %}
+    <input type="hidden" id="currency-input" value="{{ currency }}"/>
     <div class="container-max">
         <h1>{{ trans("AmazonLoginAndPay::AmazonPay.checkoutPageCaption") }}</h1>
         {% if (error != '') or (walletOnly == 1) %}

@@ -42,13 +42,13 @@
                     {% endif %}
                 </div>
                 <div class="single-price">
-                    {{ item.price  | formatMonetary('EUR') }}
+                    {{ item.price  | formatMonetary(basket.currency) }}
                 </div>
                 <div class="quantity">
                     {{ item.quantity }}
                 </div>
                 <div class="final-price">
-                    {{ (item.price*item.quantity)  | formatMonetary('EUR') }}
+                    {{ (item.price*item.quantity)  | formatMonetary(basket.currency) }}
                 </div>
             </div>
         {% endfor %}
@@ -63,7 +63,7 @@
                     ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
                 </dt>
                 <dd>
-                    {{ basket.itemSumNet  | formatMonetary('EUR') }}
+                    {{ basket.itemSumNet  | formatMonetary(basket.currency) }}
                 </dd>
 
                 <dt>
@@ -71,14 +71,14 @@
                     ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
                 </dt>
                 <dd>
-                    {{ basket.itemSum  | formatMonetary('EUR') }}
+                    {{ basket.itemSum  | formatMonetary(basket.currency) }}
                 </dd>
                 <dt>
                     {{ trans("AmazonLoginAndPay::AmazonPay.itemShippingCosts") }}
                     ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
                 </dt>
                 <dd>
-                    {{ basket.shippingAmountNet  | formatMonetary('EUR') }}
+                    {{ basket.shippingAmountNet  | formatMonetary(basket.currency) }}
                 </dd>
 
                 <dt>
@@ -86,35 +86,35 @@
                     ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})
                 </dt>
                 <dd>
-                    {{ basket.shippingAmount  | formatMonetary('EUR') }}
+                    {{ basket.shippingAmount  | formatMonetary(basket.currency) }}
                 </dd>
                 <dt>
                     {{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
                     ({{ trans("AmazonLoginAndPay::AmazonPay.basketNet") }})
                 </dt>
                 <dd>
-                    {{ basket.basketAmountNet  | formatMonetary('EUR') }}
+                    {{ basket.basketAmountNet  | formatMonetary(basket.currency) }}
                 </dd>
                 {% if basket.couponDiscount != 0 %}
                     <dt>
                         {{ trans("AmazonLoginAndPay::AmazonPay.basketCoupon") }}
                     </dt>
                     <dd>
-                        {{ basket.couponDiscount | formatMonetary('EUR') }}
+                        {{ basket.couponDiscount | formatMonetary(basket.currency) }}
                     </dd>
                 {% endif %}
                 <dt>
                     {{ trans("AmazonLoginAndPay::AmazonPay.basketVAT") }}
                 </dt>
                 <dd>
-                    {{ basket.vat  | formatMonetary('EUR') }}
+                    {{ basket.vat  | formatMonetary(basket.currency) }}
                 </dd>
                 <dt>
                     <strong>{{ trans("AmazonLoginAndPay::AmazonPay.basketTotalSum") }}
                         ({{ trans("AmazonLoginAndPay::AmazonPay.basketGross") }})</strong>
                 </dt>
                 <dd>
-                    {{ basket.basketAmount  | formatMonetary('EUR') }}
+                    {{ basket.basketAmount  | formatMonetary(basket.currency) }}
                 </dd>
             </dl>
         </div>
