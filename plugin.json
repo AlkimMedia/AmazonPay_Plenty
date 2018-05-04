@@ -7,8 +7,8 @@
   },
   "description": "The official Amazon Pay plugin for plentymarkets",
   "shortDescription": {
-    "de": "Das offizielle, von alkim media (Certified Developer Amazon Pay) entwickelte Amazon Pay Plugin.",
-    "en": "The official Amazon Pay plugin developed by alkim media (Certified Developer Amazon Pay)."
+    "de": "Das offizielle, von alkim media (Certified Developer Amazon Pay) entwickelte Amazon Pay Plugin für den Ceres Webshop (plentymarkets 7)",
+    "en": "The official Amazon Pay plugin developed by alkim media (Certified Developer Amazon Pay) for Ceres (plentmarkets 7)."
   },
   "type": "payment",
   "categories":["3519"],
