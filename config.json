@@ -1,177 +1,280 @@
-[{
-    "tab": "Zugangsdaten",
-    "key": "merchantId",
-    "label": "Händler-ID",
-    "type": "text",
-    "default": ""
-},
-  {
-    "tab": "Zugangsdaten",
-    "key": "mwsAccessKey",
-    "label": "MWS Access Key",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Zugangsdaten",
-    "key": "mwsSecretAccessKey",
-    "label": "MWS Secret Access Key",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Zugangsdaten",
-    "key": "accountCountry",
-    "label": "Land des Amazon Payments Accounts",
-    "type": "dropdown",
-    "possibleValues": {
-      "DE": "DE",
-      "UK": "UK",
-      "US": "US"
+{
+  "formatVersion": 1,
+  "menu": {
+    "Config.credentialsTab": {
+      "label": "Config.credentialsTab",
+      "formFields": {
+        "merchantId": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.merchantIdLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "mwsAccessKey": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.mwsAccessKeyLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "mwsSecretAccessKey": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.mwsSecretAccessKeyLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "accountCountry": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accountCountryLabel",
+          "options": {
+            "defaultValue": "DE",
+            "selectBoxValues": [
+              {
+                "value": "DE",
+                "caption": "Config.accountCountryPossibleValueDE"
+              },
+              {
+                "value": "UK",
+                "caption": "Config.accountCountryPossibleValueUK"
+              },
+              {
+                "value": "US",
+                "caption": "Config.accountCountryPossibleValueUS"
+              }
+            ]
+          }
+        },
+        "loginClientId": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.loginClientIdLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        }
+      }
     },
-    "default": "DE"
-  },
-  {
-    "tab": "Zugangsdaten",
-    "key": "loginClientId",
-    "label": "Login Client ID",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "status",
-    "label": "Status",
-    "type": "checkbox",
-    "default": "0"
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "sandbox",
-    "label": "Sandbox aktivieren",
-    "type": "checkbox",
-    "default": "0"
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "hideButtons",
-    "label": "Buttons verstecken (debug)",
-    "type": "checkbox",
-    "default": "0"
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "usePopup",
-    "label": "Wenn möglich Amazon-Login in Popup",
-    "type": "checkbox",
-    "default": "0"
-  },
-
-  {
-    "tab": "Grundeinstellungen",
-    "key": "authorizationMode",
-    "label": "Art der Autorisierung",
-    "type": "dropdown",
-    "possibleValues": {
-      "default": "während des Checkouts, spätestens innerhalb von 24h (Standard)",
-      "fast_auth": "unbedingt während des Checkouts (z.B. Download-Produkte)",
-      "manually": "Ereignisaktion/manuell"
+    "Config.baseSettingsTab": {
+      "label": "Config.baseSettingsTab",
+      "formFields": {
+        "status": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.statusLabel",
+          "options": {
+            "defaultValue": "0"
+          }
+        },
+        "sandbox": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.sandboxLabel",
+          "options": {
+            "defaultValue": "0"
+          }
+        },
+        "hideButtons": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.hideButtonsLabel",
+          "options": {
+            "defaultValue": "0"
+          }
+        },
+        "usePopup": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.usePopupLabel",
+          "options": {
+            "defaultValue": "0"
+          }
+        },
+        "authorizationMode": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.authorizationModeLabel",
+          "options": {
+            "selectBoxValues": [
+              {
+                "value": "default",
+                "caption": "Config.authorizationModePossibleValueDefault"
+              },
+              {
+                "value": "fast_auth",
+                "caption": "Config.authorizationModePossibleValueFastAuth"
+              },
+              {
+                "value": "manually",
+                "caption": "Config.authorizationModePossibleValueManually"
+              }
+            ]
+          }
+        },
+        "captureMode": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.captureModeLabel",
+          "options": {
+            "selectBoxValues": [
+              {
+                "value": "after_auth",
+                "caption": "Config.captureModePossibleValueAfterAuth"
+              },
+              {
+                "value": "manually",
+                "caption": "Config.captureModePossibleValueManually"
+              }
+            ]
+          }
+        },
+        "authorizedStatus": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.authorizedStatusLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "softDeclineStatus": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.softDeclineStatusLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "hardDeclineStatus": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.hardDeclineStatusLabel",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "closeOroOnCompleteCapture": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.closeOroOnCompleteCaptureLabel",
+          "options": {
+            "defaultValue": "true"
+          }
+        },
+        "submitOrderIds": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.submitOrderIdsLabel",
+          "options": {
+            "defaultValue": "true"
+          }
+        }
+      }
+    },
+    "Config.StyleTab": {
+      "label": "Config.StyleTab",
+      "formFields": {
+        "payButtonSize": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.payButtonSizeLabel",
+          "options": {
+            "defaultValue": "medium",
+            "selectBoxValues": [
+              {
+                "value": "small",
+                "caption": "Config.payButtonSizePossibleValueSmall"
+              },
+              {
+                "value": "medium",
+                "caption": "Config.payButtonSizePossibleValueMedium"
+              },
+              {
+                "value": "large",
+                "caption": "Config.payButtonSizePossibleValueLarge"
+              },
+              {
+                "value": "x-large",
+                "caption": "Config.payButtonSizePossibleValueXLarge"
+              }
+            ]
+          }
+        },
+        "payButtonColor": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.payButtonColorLabel",
+          "options": {
+            "defaultValue": "Gold",
+            "selectBoxValues": [
+              {
+                "value": "Gold",
+                "caption": "Config.payButtonColorPossibleValueGold"
+              },
+              {
+                "value": "LightGray",
+                "caption": "Config.payButtonColorPossibleValueLightGray"
+              },
+              {
+                "value": "DarkGray",
+                "caption": "Config.payButtonColorPossibleValueDarkGray"
+              }
+            ]
+          }
+        },
+        "loginButtonSize": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.loginButtonSizeLabel",
+          "options": {
+            "defaultValue": "medium",
+            "selectBoxValues": [
+              {
+                "value": "small",
+                "caption": "Config.loginButtonSizePossibleValueSmall"
+              },
+              {
+                "value": "medium",
+                "caption": "Config.loginButtonSizePossibleValueMedium"
+              },
+              {
+                "value": "large",
+                "caption": "Config.loginButtonSizePossibleValueLarge"
+              },
+              {
+                "value": "x-large",
+                "caption": "Config.loginButtonSizePossibleValueXLarge"
+              }
+            ]
+          }
+        },
+        "loginButtonColor": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.loginButtonColorLabel",
+          "options": {
+            "defaultValue": "Gold",
+            "selectBoxValues": [
+              {
+                "value": "Gold",
+                "caption": "Config.loginButtonColorPossibleValueGold"
+              },
+              {
+                "value": "LightGray",
+                "caption": "Config.loginButtonColorPossibleValueLightGray"
+              },
+              {
+                "value": "DarkGray",
+                "caption": "Config.loginButtonColorPossibleValueDarkGray"
+              }
+            ]
+          }
+        }
+      }
     }
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "captureMode",
-    "label": "Art des Zahlungseinzugs",
-    "type": "dropdown",
-    "possibleValues": {
-      "after_auth": "direkt nach der Autorisierung",
-      "manually": "Ereignisaktion/manuell"
-    }
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "authorizedStatus",
-    "label": "Auftragsstatus nach erfolgreicher Autorisierung",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "softDeclineStatus",
-    "label": "Auftragsstatus bei Ablehnung des Zahlungmittels, Kundenaktion notwendig (vorläufig abgelehnte Zahlungen)",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "hardDeclineStatus",
-    "label": "Auftragsstatus bei vollständiger Ablehnung der Zahlung mit Amazon Pay (endgültig abgelehnte Zahlungen)",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "closeOroOnCompleteCapture",
-    "label": "Amazon Pay Vorgang bei komplettem Zahlungseinzug abschließen",
-    "type": "checkbox",
-    "default": "true"
-  },
-  {
-    "tab": "Grundeinstellungen",
-    "key": "submitOrderIds",
-    "label": "Plenty-Auftragsnummer an Amazon übertragen",
-    "type": "checkbox",
-    "default": "true"
-  },
-  {
-    "tab": "Style",
-    "key": "payButtonSize",
-    "label": "Größe des Amazon Pay Buttons",
-    "type": "dropdown",
-    "possibleValues": {
-      "small": "klein",
-      "medium": "mittel",
-      "large": "groß",
-      "x-large": "sehr groß"
-    },
-    "default": "medium"
-  },
-  {
-    "tab": "Style",
-    "key": "payButtonColor",
-    "label": "Farbe des Amazon Pay Buttons",
-    "type": "dropdown",
-    "possibleValues": {
-      "Gold": "Amazon-Gelb",
-      "LightGray": "Hellgrau",
-      "DarkGray": "Dunkelgrau"
-    },
-    "default": "Gold"
-  },
-  {
-    "tab": "Style",
-    "key": "loginButtonSize",
-    "label": "Größe des Amazon-Login-Buttons",
-    "type": "dropdown",
-    "possibleValues": {
-      "small": "klein",
-      "medium": "mittel",
-      "large": "groß",
-      "x-large": "sehr groß"
-    },
-    "default": "medium"
-  },
-  {
-    "tab": "Style",
-    "key": "loginButtonColor",
-    "label": "Farbe des Amazon-Login-Buttons",
-    "type": "dropdown",
-    "possibleValues": {
-      "Gold": "Amazon-Gelb",
-      "LightGray": "Hellgrau",
-      "DarkGray": "Dunkelgrau"
-    },
-    "default": "Gold"
   }
-
-]
+}

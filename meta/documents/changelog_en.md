@@ -10,7 +10,8 @@
 
 - JS event issues in some templates with shipping method selection
 - show nice error for rejected captures
-- gtc/privacy checkbox in checkout 
+- gtc/privacy checkbox in checkout
+- compatibility with new trailing slash feature 
 
 ## 1.1.0
 

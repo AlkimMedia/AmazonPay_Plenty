@@ -11,6 +11,7 @@
 - JS Event Probleme in manchen Templates bei der Auswahl der Versandart
 - Fehlermeldung bei Abgelehnten Einzugsversuchen (capture)
 - AGB/Datenschutz-Checkbox in Checkout
+- Kompatibilität mit neuem Trailing Slash Feature
 
 ## 1.1.0
 

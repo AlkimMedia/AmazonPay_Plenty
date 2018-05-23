@@ -7,7 +7,7 @@ var PlentyMarketsAmazonPay = {
     isAddressInitialized: false,
     isCompletelyInitialized: false,
     getShippingList: function () {
-        amz$.get('amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
+        amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
             if (data.indexOf('alert-warning') != -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
             } else {
@@ -17,7 +17,7 @@ var PlentyMarketsAmazonPay = {
         });
     },
     getOrderDetails: function () {
-        amz$.get('amazon-ajax-handle', {action: 'getOrderDetails'}, function (data) {
+        amz$.get('/amazon-ajax-handle', {action: 'getOrderDetails'}, function (data) {
             amz$('#orderDetailsWr').html(data);
         });
     },
@@ -133,7 +133,7 @@ var PlentyMarketsAmazonPay = {
                         // Here is where you can grab the Order Reference ID.
                         orderReference = orderReference.getAmazonOrderReferenceId();
                         if (PlentyMarketsAmazonPay.isInitialized == false) {
-                            amz$.get('amazon-ajax-handle', {
+                            amz$.get('/amazon-ajax-handle', {
                                 action: 'setOrderReference',
                                 orderReference: orderReference
                             }, function () {
@@ -281,7 +281,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
     amz$(document).on('change', '#shippingOptionsListWr [name="ShippingProfileID"]', function () {
         if (amz$(this).is(':checked')) {
             var id = amz$(this).val();
-            amz$.get('amazon-ajax-handle', {action: 'setShippingProfileId', id: id}, function (data) {
+            amz$.get('/amazon-ajax-handle', {action: 'setShippingProfileId', id: id}, function (data) {
                 amz$('#orderDetailsWr').html(data);
             });
         }
