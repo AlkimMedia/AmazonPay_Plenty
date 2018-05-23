@@ -76,6 +76,9 @@ class AmzServiceProvider extends ServiceProvider
                                         $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
                                         $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
                                         $helper->setToSession('amazonAuthId', '');
+                                        if ($helper->getFromConfig('authorizedStatus')) {
+                                            $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
+                                        }
                                     }
                                 }
                                 $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);

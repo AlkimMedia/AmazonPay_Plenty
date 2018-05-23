@@ -1,5 +1,16 @@
 # Release Notes für Amazon Pay
 
+## 1.1.1
+
+### Hinzugefügt
+
+- einstellbarer Status bei Autorisierung
+
+### Gefixt
+
+- JS Event Probleme in manchen Templates bei der Auswahl der Versandart
+- Fehlermeldung bei Abgelehnten Einzugsversuchen (capture)
+- AGB/Datenschutz-Checkbox in Checkout
 
 ## 1.1.0
 

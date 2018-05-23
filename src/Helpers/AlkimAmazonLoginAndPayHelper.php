@@ -105,7 +105,9 @@ class AlkimAmazonLoginAndPayHelper
 
         $paymentProperties = [];
         $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, $comment);
-        $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
+        if (!empty($transactionId)) {
+            $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
+        }
 
 
         $payment->properties = $paymentProperties;

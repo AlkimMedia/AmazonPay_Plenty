@@ -1,5 +1,4 @@
 if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
-
     var amz$ = $;
 }
 var PlentyMarketsAmazonPay = {
@@ -85,7 +84,7 @@ var PlentyMarketsAmazonPay = {
                             }
                         },
                         onError: function (error) {
-                            console.error(error);
+                            console.error(error.getErrorMessage(), error.getErrorCode());
                         }
                     });
                     $button.find('img').show();
@@ -118,7 +117,7 @@ var PlentyMarketsAmazonPay = {
                             authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
                         },
                         onError: function (error) {
-                            console.error(error);
+                            console.error(error.getErrorMessage(), error.getErrorCode());
                         }
                     });
                     $button.find('img').show();
@@ -186,7 +185,7 @@ var PlentyMarketsAmazonPay = {
                     },
                     onError: function (error) {
                         // your error handling code
-                        console.log(error.getErrorMessage());
+                        console.error(error.getErrorMessage(), error.getErrorCode());
                     }
                 }).bind("walletWidgetDiv");
             }
@@ -279,7 +278,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
         });
         document.cookie = "amazon_Login_accessToken=" + accessToken + ";secure;path=/";
     }
-    amz$('#shippingOptionsListWr').on('change', '[name="ShippingProfileID"]', function () {
+    amz$(document).on('change', '#shippingOptionsListWr [name="ShippingProfileID"]', function () {
         if (amz$(this).is(':checked')) {
             var id = amz$(this).val();
             amz$.get('amazon-ajax-handle', {action: 'setShippingProfileId', id: id}, function (data) {
@@ -288,7 +287,12 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
         }
     });
     amz$(function () {
-        amz$('.amz-checkout-order-button-wr a').bind('click', function () {
+        amz$('.amz-checkout-order-button-wr a').bind('click', function (e) {
+            if (amz$('#gtc-accept').length && !amz$('#gtc-accept').is(':checked')) {
+                e.preventDefault();
+                alert(amz$('#gtc-accept').data('error'));
+                return;
+            }
             var $link = amz$(this);
             $link.css({opacity: 0.5, cursor: 'default'});
             $link.bind('click', function (e) {

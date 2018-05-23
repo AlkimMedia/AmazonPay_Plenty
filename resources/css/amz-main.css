@@ -22,6 +22,10 @@
     padding: 1em;
 }
 
+.amz-border-box.with-mb {
+    margin-bottom: 15px;
+}
+
 .order-details-table {
     float: right;
 }
