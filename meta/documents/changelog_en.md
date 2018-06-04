@@ -1,12 +1,22 @@
 # Release notes for Amazon Pay
 
+## 1.1.2
+
+### Added
+
+- minified JS and CSS
+
+### Fixed
+
+- Ceres language vars
+
 ## 1.1.1
 
 ### Added
 
 - allowing to set an order status for authorized orders
 
-### Gefixt
+### Fixed
 
 - JS event issues in some templates with shipping method selection
 - show nice error for rejected captures

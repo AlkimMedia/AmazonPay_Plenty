@@ -28,7 +28,6 @@ var PlentyMarketsAmazonPay = {
                 clearInterval(PlentyMarketsAmazonPay.logoutInterval);
             }
         }
-        console.log('logout');
         document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     },
     getURLParameter: function (name, source) {
@@ -173,7 +172,6 @@ var PlentyMarketsAmazonPay = {
                 if (amz$('#currency-input').length) {
                     amzCurrency = amz$('#currency-input').val();
                 }
-                console.log('currency: ' + amzCurrency);
                 amazonLoginAndPay.widgets.walletWidget = new OffAmazonPayments.Widgets.Wallet({
                     sellerId: amazonLoginAndPay.config.merchantId,
                     presentmentCurrency: amzCurrency,

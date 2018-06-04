@@ -37,25 +37,49 @@
                         <input class="form-check-input" type="checkbox" value="1" id="gtc-accept"
                                data-error="{{ trans("AmazonLoginAndPay::AmazonPay.checkoutGtcError") }}">
                         {% autoescape false %}
-                            {% set gtcContent %}
-                                <a href="/gtc" target="_blank">
-                                    <strong>{{ trans("Ceres::Template.generalGtc") }}</strong>
-                                </a>
-                            {% endset %}
+                            {% if trans("Ceres::Template.generalChooseOur") == 'Ceres::Template.generalChooseOur' %}
+                                {% set gtcContent %}
+                                    <a href="/gtc" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.checkoutGtc", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
 
-                            {% set cancellationContent %}
-                                <a href="/cancellation-rights" target="_blank">
-                                    <strong>{{ trans("Ceres::Template.generalCancellationRight") }}</strong>
-                                </a>
-                            {% endset %}
+                                {% set cancellationContent %}
+                                    <a href="/cancellation-rights" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.checkoutCancellationRight", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
 
-                            {% set policyContent %}
-                                <a href="/privacy-policy" target="_blank">
-                                    <strong>{{ trans("Ceres::Template.generalPrivacyPolicy") }}</strong>
-                                </a>
-                            {% endset %}
+                                {% set policyContent %}
+                                    <a href="/privacy-policy" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.checkoutPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
 
-                            {{ trans("Ceres::Template.generalChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent}) }}
+                                {{ trans("Ceres::Template.checkoutChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
+
+                            {% else %}
+                                {% set gtcContent %}
+                                    <a href="/gtc" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.generalGtc", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
+
+                                {% set cancellationContent %}
+                                    <a href="/cancellation-rights" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.generalCancellationRight", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
+
+                                {% set policyContent %}
+                                    <a href="/privacy-policy" target="_blank">
+                                        <strong>{{ trans("Ceres::Template.generalPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>
+                                {% endset %}
+
+                                {{ trans("Ceres::Template.generalChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
+                            {% endif %}
+
                         {% endautoescape %}
                     </label>
                 </div>

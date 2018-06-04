@@ -1,5 +1,15 @@
 # Release Notes für Amazon Pay
 
+## 1.1.2
+
+### Hinzugefügt
+
+- kompromiertes JS und CSS
+
+### Gefixt
+
+- Ceres Sprachbausteine
+
 ## 1.1.1
 
 ### Hinzugefügt
