@@ -41,14 +41,15 @@ var PlentyMarketsAmazonPay = {
     initialize: function () {
         if (typeof amz$ !== 'undefined') {
             var authRequest;
-            var i = 0;
+            var amzI = 0;
             var $payButton = amz$('.amzPayButton');
             if ($payButton.length) {
                 $payButton.each(function () {
                     var $button = amz$(this);
                     if ($button.find('img').length === 0 || !$button.attr('id')) {
                         var isArticleCheckout = $button.hasClass('articleCheckout');
-                        var id = 'amzPayButton_' + i++;
+                        var id = 'amzPayButton_' + amzI;
+                        amzI++;
                         $button.attr('id', id);
                         OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
                             type: 'PwA',

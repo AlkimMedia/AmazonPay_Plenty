@@ -1,5 +1,11 @@
 # Release notes for Amazon Pay
 
+## 1.1.4
+
+### Fixed
+
+- duplicate button
+
 ## 1.1.3
 
 ### Added

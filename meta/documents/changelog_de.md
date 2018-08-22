@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.1.4
+
+### Gefixt
+
+- zweite Ursache für doppelten Button
+
 ## 1.1.3
 
 ### Hinzugefügt
