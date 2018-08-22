@@ -1,3 +1,4 @@
+//v2018-08-22_15:05
 if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
     var amz$ = $;
 }
@@ -8,7 +9,7 @@ var PlentyMarketsAmazonPay = {
     isCompletelyInitialized: false,
     getShippingList: function () {
         amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
-            if (data.indexOf('alert-warning') != -1) {
+            if (data.indexOf('alert-warning') !== -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
             } else {
                 amz$('.amz-checkout-order-button-wr').show();
@@ -22,7 +23,7 @@ var PlentyMarketsAmazonPay = {
         });
     },
     logout: function () {
-        if (typeof(amazon) != 'undefined') {
+        if (typeof(amazon) !== 'undefined') {
             amazon.Login.logout();
             if (PlentyMarketsAmazonPay.logoutInterval) {
                 clearInterval(PlentyMarketsAmazonPay.logoutInterval);
@@ -40,60 +41,62 @@ var PlentyMarketsAmazonPay = {
     initialize: function () {
         if (typeof amz$ !== 'undefined') {
             var authRequest;
+            var i = 0;
             var $payButton = amz$('.amzPayButton');
             if ($payButton.length) {
-                var i = 0;
                 $payButton.each(function () {
                     var $button = amz$(this);
-                    var isArticleCheckout = $button.hasClass('articleCheckout');
-                    var id = 'amzPayButton_' + i++;
-                    $button.attr('id', id);
-                    OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
-                        type: 'PwA',
-                        color: amazonLoginAndPay.config.payButtonColor,
-                        size: amazonLoginAndPay.config.payButtonSize,
-                        language: 'de-DE',
+                    if ($button.find('img').length === 0 || !$button.attr('id')) {
+                        var isArticleCheckout = $button.hasClass('articleCheckout');
+                        var id = 'amzPayButton_' + i++;
+                        $button.attr('id', id);
+                        OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
+                            type: 'PwA',
+                            color: amazonLoginAndPay.config.payButtonColor,
+                            size: amazonLoginAndPay.config.payButtonSize,
+                            language: 'de-DE',
 
-                        authorization: function () {
-                            $button.addClass('amz-loading').find('img').remove();
-                            var doAmzAuth = function () {
-                                var loginOptions = {
-                                    scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
-                                    popup: amazonLoginAndPay.config.popup
+                            authorization: function () {
+                                $button.addClass('amz-loading').find('img').remove();
+                                var doAmzAuth = function () {
+                                    var loginOptions = {
+                                        scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
+                                        popup: amazonLoginAndPay.config.popup
+                                    };
+                                    document.cookie = "amzLoginType=Pay;path=/";
+                                    if (amazonLoginAndPay.config.popup && isArticleCheckout) {
+                                        authRequest = amazon.Login.authorize(loginOptions);
+                                    } else {
+                                        authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                                    }
                                 };
-                                document.cookie = "amzLoginType=Pay;path=/";
-                                if (amazonLoginAndPay.config.popup && isArticleCheckout) {
-                                    authRequest = amazon.Login.authorize(loginOptions);
+                                if (isArticleCheckout && !amazonLoginAndPay.config.popup) {
+                                    PlentyMarketsAmazonPay.buyProduct(doAmzAuth);
                                 } else {
-                                    authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                                    doAmzAuth();
                                 }
-                            };
-                            if (isArticleCheckout && !amazonLoginAndPay.config.popup) {
-                                PlentyMarketsAmazonPay.buyProduct(doAmzAuth);
-                            } else {
-                                doAmzAuth();
-                            }
-                        },
+                            },
 
-                        onSignIn: function (orderReference) {
-                            if (amazonLoginAndPay.config.popup && isArticleCheckout) {
-                                PlentyMarketsAmazonPay.buyProduct(function () {
-                                    location.href = '/amazon-login-processing/?access_token=' + authRequest.access_token;
-                                });
+                            onSignIn: function (orderReference) {
+                                if (amazonLoginAndPay.config.popup && isArticleCheckout) {
+                                    PlentyMarketsAmazonPay.buyProduct(function () {
+                                        location.href = '/amazon-login-processing/?access_token=' + authRequest.access_token;
+                                    });
+                                }
+                            },
+                            onError: function (error) {
+                                console.error(error.getErrorMessage(), error.getErrorCode());
                             }
-                        },
-                        onError: function (error) {
-                            console.error(error.getErrorMessage(), error.getErrorCode());
-                        }
-                    });
-                    $button.find('img').show();
+                        });
+                        $button.find('img').show();
+                    }
                 });
             }
 
 
             var $loginButton = amz$('.amzLoginButton');
             if ($loginButton.length) {
-                var i = 0;
+                i = 0;
                 $loginButton.each(function () {
                     var $button = amz$(this);
                     var id = 'amzLoginButton_' + i++;
@@ -131,7 +134,7 @@ var PlentyMarketsAmazonPay = {
                     onOrderReferenceCreate: function (orderReference) {
                         // Here is where you can grab the Order Reference ID.
                         orderReference = orderReference.getAmazonOrderReferenceId();
-                        if (PlentyMarketsAmazonPay.isInitialized == false) {
+                        if (PlentyMarketsAmazonPay.isInitialized === false) {
                             amz$.get('/amazon-ajax-handle', {
                                 action: 'setOrderReference',
                                 orderReference: orderReference
@@ -237,7 +240,7 @@ window.onAmazonLoginReady = function () {
         var amazonPayAction = $actionInputField.val();
     }
     if (amazonPayAction) {
-        if (amazonPayAction == 'logout') {
+        if (amazonPayAction === 'logout') {
             PlentyMarketsAmazonPay.logout();
             PlentyMarketsAmazonPay.logoutInterval = setInterval(PlentyMarketsAmazonPay.logout, 500);
         }
@@ -284,6 +287,8 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
             });
         }
     });
+
+
     amz$(function () {
         amz$('.amz-checkout-order-button-wr a').bind('click', function (e) {
             if (amz$('#gtc-accept').length && !amz$('#gtc-accept').is(':checked')) {
@@ -291,11 +296,21 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
                 alert(amz$('#gtc-accept').data('error'));
                 return;
             }
+
             var $link = amz$(this);
             $link.css({opacity: 0.5, cursor: 'default'});
             $link.bind('click', function (e) {
                 e.preventDefault();
             });
+
+            var $commentInput = amz$('.amz-comment-textarea');
+            if ($commentInput.length) {
+                e.preventDefault();
+                amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function (data) {
+                    location.href = $link.attr('href');
+                });
+            }
+
         });
     });
 }

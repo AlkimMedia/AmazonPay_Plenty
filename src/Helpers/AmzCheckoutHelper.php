@@ -53,7 +53,7 @@ class AmzCheckoutHelper
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems failed', [$e, $e->getMessage()], true);
         }
-        $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems return', [$return], true);
+        $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems return', [$return]);
         return $return;
     }
 

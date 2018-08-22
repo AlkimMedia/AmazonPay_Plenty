@@ -77,6 +77,7 @@ class AmzContentController extends Controller{
     public function amazonConnectAccountsAction(Request $request, Twig $twig)
     {
         $userData = $this->helper->getFromSession('amzUserData');
+        $this->helper->log(__CLASS__, __METHOD__, 'amazonConnectAccountsAction - request', [$request, $request->get('email'), $request->get('password')]);
         if (($email = $request->get('email')) && ($password = $request->get('password'))) {
             $connectInfo = $this->customerService->connectAccounts($userData, $email, $password);
             if ($connectInfo["success"]) {

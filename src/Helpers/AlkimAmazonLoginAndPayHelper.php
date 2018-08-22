@@ -50,13 +50,14 @@ class AlkimAmazonLoginAndPayHelper
 
     public function log($class, $method, $msg, $arg, $error = false)
     {
-        $logger = $this->getLogger($class . '_' . $method);
-        if ($error) {
-            $logger->error('ERROR: ' . $msg, $arg);
-        } else {
-            $logger->error('INFO: ' . $msg, $arg);
+        if ($this->getFromConfig('debugMode') == 'true' || $error) {
+            $logger = $this->getLogger($class . '_' . $method);
+            if ($error) {
+                $logger->error('ERROR: ' . $msg, $arg);
+            } else {
+                $logger->error('INFO: ' . $msg, $arg);
+            }
         }
-
     }
 
     public function getCallConfig()
@@ -322,22 +323,27 @@ class AlkimAmazonLoginAndPayHelper
     public function setOrderStatus($orderId, $status)
     {
         $this->log(__CLASS__, __METHOD__, 'try to set order status', ['order' => $orderId, 'status' => $status]);
-        $order = ['statusId' => (float)$status];
-        $response = '';
-        try {
-            $orderRepo = $this->orderRepository;
-            /** @var AuthHelper $authHelper */
-            $authHelper = pluginApp(AuthHelper::class);
-            $response = $authHelper->processUnguarded(
-                function () use ($orderRepo, $order, $orderId) {
-                    return $orderRepo->updateOrder($order, (int)$orderId);
-                }
-            );
-        } catch (\Exception $e) {
-            $this->log(__CLASS__, __METHOD__, 'set order status failed', [$e, $e->getMessage()], true);
+        if (!empty($status)) {
+            $order = ['statusId' => (float)$status];
+            $response = '';
+            try {
+                $orderRepo = $this->orderRepository;
+                /** @var AuthHelper $authHelper */
+                $authHelper = pluginApp(AuthHelper::class);
+                $response = $authHelper->processUnguarded(
+                    function () use ($orderRepo, $order, $orderId) {
+                        return $orderRepo->updateOrder($order, (int)$orderId);
+                    }
+                );
+            } catch (\Exception $e) {
+                $this->log(__CLASS__, __METHOD__, 'set order status failed', [$e, $e->getMessage()], true);
+            }
+            $this->log(__CLASS__, __METHOD__, 'finished set order status', ['order' => $response, 'status' => $status]);
+        } else {
+            $this->log(__CLASS__, __METHOD__, 'set order status cancelled because of empty status', null);
         }
 
-        $this->log(__CLASS__, __METHOD__, 'finished set order status', ['order' => $response, 'status' => $status]);
+
     }
 
     public function resetSession($keepBasket = false)

@@ -2,6 +2,8 @@
 
 # Amazon Pay and Login with Amazon
 Ermöglichen Sie es über 300 Millionen von Amazon-Kunden, sich auf Ihrer Website einzuloggen und zu bezahlen. Jeder Amazon Kunde kann diese Zahlungsart sofort in Ihrem Shop nutzen.
+
+[Zur Registrierung von Amazon Pay](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=de_DE&source=SPMW)
 ## Ihre Vorteile
 - Umsatzsteigerung - Erhöhung der Kaufabschlussquote um bis zu 35%* durch hohes Kundenvertrauen in Amazon.
 - Verbessertes Kundenerlebnis - Kunden bestellen mit nur drei Klicks.
@@ -39,4 +41,4 @@ Andrew Kennedy | Commercial Manager | Flooring Superstore
 <hr>
 [Hinweise zur Installation und Einrichtung ](https://www.alkim.de/Amazon-Pay-fuer-Plentymarkets---Anleitung.html)	   
 [Hilfeseite](https://pay.amazon.com/de/help)	 
-[Jetzt für Amazon Pay anmelden](https://pay.amazon.com/de/signup)
+[Jetzt für Amazon Pay anmelden](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=de_DE&source=SPMW)

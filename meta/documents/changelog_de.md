@@ -1,5 +1,16 @@
 # Release Notes für Amazon Pay
 
+## 1.1.3
+
+### Hinzugefügt
+
+- Einstellbares Logging
+
+### Gefixt
+
+- Verhalten bei Transaction Timeouts
+- Doppelter Button bei neuer Ceres Version
+
 ## 1.1.2
 
 ### Hinzugefügt

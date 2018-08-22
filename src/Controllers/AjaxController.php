@@ -88,6 +88,10 @@ class AjaxController extends Controller
                 $this->helper->log(__CLASS__, __METHOD__, 'shipping list template data', $templateData);
                 return $twig->render('AmazonLoginAndPay::snippets.shipping-list', $templateData);
                 break;
+            case 'setComment':
+                $this->helper->setToSession('orderContactWish', $this->request->get('comment'));
+                return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'success']);
+                break;
             case 'setShippingProfileId':
                 $this->checkoutHelper->setShippingProfile($this->request->get('id'));
             case 'getOrderDetails':

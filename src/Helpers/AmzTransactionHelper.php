@@ -111,7 +111,7 @@ class AmzTransactionHelper
         $requestParameters['currency_code'] = $this->getCurrencyFromOrderRef($orderRef);
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['soft_descriptor'] = $comment;
-        $requestParameters['authorization_reference_id'] = 'plenty_auth_ref_' . time() . '_' . rand(10000, 99999);
+        $requestParameters['authorization_reference_id'] = 'pm_auth_' . time() . '_' . rand(10000, 99999) . '_' . ($timeout == 0 ? 'sync' : 'async');
         /*
         if (MODULE_PAYMENT_AM_APA_PROVOCATION == 'hard_decline' && MODULE_PAYMENT_AM_APA_MODE == 'sandbox') {
             $requestParameters['seller_authorization_note'] = '{"SandboxSimulation": {"State":"Declined", "ReasonCode":"AmazonRejected"}}';
@@ -156,7 +156,9 @@ class AmzTransactionHelper
             if ($plentyPayment instanceof Payment && !empty($orderId)) {
                 $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
                 $this->helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$plentyPayment, $orderId]);
-                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                if ($data["status"] === 'Open') {
+                    $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                }
             }
             $data["paymentId"] = $plentyPayment->id;
             $data["order"] = $orderId;
@@ -290,22 +292,17 @@ class AmzTransactionHelper
             if ($this->helper->getFromConfig('captureMode') == 'after_auth') {
                 $this->capture($transaction->amzId, $transaction->amount);
             }
-            /*
-            $q = "SELECT amz_tx_admin_informed FROM amz_transactions WHERE amz_tx_amz_id = '".xtc_db_input($authId)."'";
-            $rs = xtc_db_query($q);
-            $r = xtc_db_fetch_array($rs);
-            if ($r["amz_tx_admin_informed"]==0) {
-                AlkimAmazonHandler::handleOpenAuth($authId);
-            }
+            $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
 
-
-            $q = "UPDATE amz_transactions SET amz_tx_admin_informed = 1 WHERE amz_tx_amz_id = '".xtc_db_input($authId)."'";
-            xtc_db_query($q);*/
+            $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
         }
 
         if ($transaction->status == 'Declined') {
 
             $reason = (string)$details["AuthorizationStatus"]["ReasonCode"];
+            if (strpos($transaction->reference, '_async') !== false && $reason == 'TransactionTimedOut') {
+                $reason = 'AmazonRejected';
+            }
             if ($reason == 'AmazonRejected') {
                 $this->cancelOrder($transaction->orderReference);
             }

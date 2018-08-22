@@ -1,5 +1,16 @@
 # Release notes for Amazon Pay
 
+## 1.1.3
+
+### Added
+
+- allowing to disable extensive Logging
+
+### Fixed
+
+- handling of transaction timeouts
+- duplicate button
+
 ## 1.1.2
 
 ### Added

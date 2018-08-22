@@ -176,6 +176,8 @@ class AmzCustomerService
 
     public function connectAccounts($data, $email, $password)
     {
+        $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
+        $helper->log(__CLASS__, __METHOD__, 'connectAccounts', [$data, $email, $password]);
         return $this->loginWithAmazonUserData($data, $email, $password);
     }
 
