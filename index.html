@@ -3,56 +3,94 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        h2{
+            margin-top:40px;
+        }
+    </style>
     <title>Amazon Pay für plentymarkets</title>
 </head>
 <body>
-<h2>
-    1. Überblick Zahlungsablauf
-</h2>
-<div>
-    Für die Einrichtung des Amazon Pay Plugins für plentymarkets ist es wichtig, zu verstehen, dass sich der Zahlungsablauf in einem Detail etwas anders verhält als bei herkömmlichen Zahlungsanbietern.
-    Statt eines direkten Zahlungseinzugs findet vorerst eine Autorisierung statt, die für dich als Händler eine Zahlungsgarantie bedeutet. Der eigentliche Zahlungseinzug ist ein eigener Schritt der normalerweise bei Versand der Ware ausgelöst werden sollte.<br />
-    Umfangreiche Informationen findest du auf der <a href="https://pay.amazon.com/de/merchant" target="_blank">Website von Amazon Pay</a>.
-    <br />
-    Das Plugin selbst bietet in deinem Shop eine eigene Checkout-Seite an, auf der der Kunde aus seinen bei Amazon hinterlegten Zahlungsarten und Versandadressen wählen kann.
-</div>
-<h2>
-    2. Plugin-Setup
-</h2>
-<h3>2.1 Plugin-Installation</h3>
-<div>
-    Du erhältst das Amazon Pay Plugin für plentymarkets am einfachsten direkt im <a href="https://marketplace.plentymarkets.com/plugins/payment/AmazonLoginAndPay_5072" target="_blank">plentyMarketplace</a>.
-    Weitere Infos zur Installation von Marketplace Plugins gibt es auch in den <a href="https://marketplace.plentymarkets.com/faq" target="_blank">FAQs</a>.<br />
-    Für versierte Anwender steht natürlich auch die Einbindung über unser <a href="https://github.com/AlkimMedia/AmazonPay_Plenty" target="_blank">GitHub Repository</a> zur Verfügung.
-</div>
-<h3>2.2 Amazon Pay Account anlegen</h3>
-<div>
-    Wenn du noch keinen Amazon-Pay Account hast, kannst du dich <a href="https://payments-eu.amazon.com/register?spId=A1SGXK19QKIYNB&marketplaceId=A53RDEWN57UU5&language=de_DE&locale=de_DE&source=SPPD&ref=sp_de_ap_np_sp_AkPm_xx_xx_xx_Man" target="_blank">hier registrieren</a>.
-</div>
-<h3>2.3 Einrichtung in Sellercentral und Zugangsdaten</h3>
-<div>
-    ...
-</div>
-<h2>3. Ereignisaktionen</h2>
-<h3>3.1 Amazon Pay Zahhlung autoriserieren</h3>
-Diese Ereignisaktionen wird für den normalen Workflow nicht gebraucht und ist nur dann relevant, wenn ungewöhnliche Prozesse eine Autorisierung zu einem bestimmten Zeitpunkt erfordern, z.B. bei langfristigen Vorbestellungen.<br />
-Unter normalen Umständen sollte in der Plugin-Konfiguration die Autorisierung direkt bei Checkout gewählt werden.
-<h3>3.2 Vollständiger Einzug der Amazon Pay Zahlung</h3>
-Diese Ereignisaktion muss unbedingt eingerichtet werden, damit die Zahlung auch tatsächlich eingezogen wird. Sinnvoll ist eine Kopplung an den Versand, also z.B. an den Statuswechsel auf "[7] Warenausgang gebucht".
-<h3>3.3 Amazon Pay Vorgang schließen</h3>
-Wenn du in der Plugin-Konfiguration nicht "Amazon Pay Vorgang bei komplettem Zahlungseinzug abschließen" gewählt hast, solltest du diese Ereignisaktion einrichten, um dem Kunden zu signalisieren, wenn du alle Zahlungsvorgänge ausgeführt hast und er keine weiteren Zahlungseinzüge zu erwarten hat.
-<h3>3.4 Erstattung der Amazon Pay Zahlung</h3>
-Um dem Kunden seine Zahlung im Fall einer Gutschrift zu erstatten, z.B. bei einer Retoure, solltest du diese Ereignisaktion z.B. bei dem Ereignis "Neue Gutschrift" einrichten. Die Aktion veranlasst eine Rückzahlung in Höhe der Gutschrift, die du angelegt hast.
+<div style="margin:40px 10%;">
+    <h2>
+        1. Überblick Zahlungsablauf
+    </h2>
+    <div>
+        Für die Einrichtung des Amazon Pay Plugins für plentymarkets ist es wichtig, zu verstehen, dass sich der
+        Zahlungsablauf in einem Detail etwas anders verhält als bei herkömmlichen Zahlungsanbietern.
+        Statt eines direkten Zahlungseinzugs findet vorerst eine Autorisierung statt, die für dich als Händler eine
+        Zahlungsgarantie bedeutet. Der eigentliche Zahlungseinzug ist ein eigener Schritt der normalerweise bei Versand
+        der Ware ausgelöst werden sollte.<br/>
+        Umfangreiche Informationen findest du auf der <a href="https://pay.amazon.com/de/merchant" target="_blank">Website
+        von Amazon Pay</a>.
+        <br/>
+        Das Plugin selbst bietet in deinem Shop eine eigene Checkout-Seite an, auf der der Kunde aus seinen bei Amazon
+        hinterlegten Zahlungsarten und Versandadressen wählen kann.
+    </div>
+    <h2>
+        2. Plugin-Setup
+    </h2>
+    <h3>2.1 Plugin-Installation</h3>
+    <div>
+        Du erhältst das Amazon Pay Plugin für plentymarkets am einfachsten direkt im <a
+            href="https://marketplace.plentymarkets.com/plugins/payment/AmazonLoginAndPay_5072" target="_blank">plentyMarketplace</a>.
+        Weitere Infos zur Installation von Marketplace Plugins gibt es auch in den <a
+            href="https://marketplace.plentymarkets.com/faq" target="_blank">FAQs</a>.<br/>
+        Für versierte Anwender steht natürlich auch die Einbindung über unser <a
+            href="https://github.com/AlkimMedia/AmazonPay_Plenty" target="_blank">GitHub Repository</a> zur Verfügung.
+    </div>
+    <h3>2.2 Amazon Pay Account anlegen</h3>
+    <div>
+        Wenn du noch keinen Amazon-Pay Account hast, kannst du dich <a
+            href="https://payments-eu.amazon.com/register?spId=A1SGXK19QKIYNB&marketplaceId=A53RDEWN57UU5&language=de_DE&locale=de_DE&source=SPPD&ref=sp_de_ap_np_sp_AkPm_xx_xx_xx_Man"
+            target="_blank">hier registrieren</a>.
+    </div>
+    <h3>2.3 Einrichtung in Sellercentral und Zugangsdaten</h3>
+    <div>
+        ...
+    </div>
+    <h2>3. Ereignisaktionen</h2>
+    <h3>3.1 Amazon Pay Zahhlung autoriserieren</h3>
+    <div>Diese Ereignisaktionen wird für den normalen Workflow nicht gebraucht und ist nur dann relevant, wenn
+        ungewöhnliche
+        Prozesse eine Autorisierung zu einem bestimmten Zeitpunkt erfordern, z.B. bei langfristigen
+        Vorbestellungen.<br/>
+        Unter normalen Umständen sollte in der Plugin-Konfiguration die Autorisierung direkt bei Checkout gewählt
+        werden.
+    </div>
+    <h3>3.2 Vollständiger Einzug der Amazon Pay Zahlung</h3>
+    <div>Diese Ereignisaktion muss unbedingt eingerichtet werden, damit die Zahlung auch tatsächlich eingezogen wird.
+        Sinnvoll ist eine Kopplung an den Versand, also z.B. an den Statuswechsel auf "[7] Warenausgang gebucht".
+    </div>
+    <h3>3.3 Amazon Pay Vorgang schließen</h3>
+    <div>Wenn du in der Plugin-Konfiguration nicht "Amazon Pay Vorgang bei komplettem Zahlungseinzug abschließen"
+        gewählt
+        hast, solltest du diese Ereignisaktion einrichten, um dem Kunden zu signalisieren, wenn du alle Zahlungsvorgänge
+        ausgeführt hast und er keine weiteren Zahlungseinzüge zu erwarten hat.
+    </div>
+    <h3>3.4 Erstattung der Amazon Pay Zahlung</h3>
+    <div>Um dem Kunden seine Zahlung im Fall einer Gutschrift zu erstatten, z.B. bei einer Retoure, solltest du diese
+        Ereignisaktion z.B. bei dem Ereignis "Neue Gutschrift" einrichten. Die Aktion veranlasst eine Rückzahlung in
+        Höhe
+        der Gutschrift, die du angelegt hast.
+    </div>
     <h2>4. E-Mails</h2>
     <h2>5. Content Container</h2>
-
+</div>
 
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 </body>
 </html>
