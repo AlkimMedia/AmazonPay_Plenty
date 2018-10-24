@@ -5,6 +5,7 @@ if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
 var PlentyMarketsAmazonPay = {
     isFirstAddressCall: true,
     isInitialized: false,
+    isInitStarted: false,
     isAddressInitialized: false,
     isCompletelyInitialized: false,
     getShippingList: function () {
@@ -39,7 +40,8 @@ var PlentyMarketsAmazonPay = {
 
 
     initialize: function () {
-        if (typeof amz$ !== 'undefined') {
+        if (typeof amz$ !== 'undefined' && PlentyMarketsAmazonPay.isInitStarted === false) {
+            PlentyMarketsAmazonPay.isInitStarted = true;
             var authRequest;
             var amzI = 0;
             var $payButton = amz$('.amzPayButton');

@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
@@ -6,7 +7,7 @@ use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 
 
-class AmzCloseOrderProcedure
+class AmzCancelOrderProcedure
 {
 
     public function run(EventProceduresTriggered $eventTriggered,
@@ -15,14 +16,14 @@ class AmzCloseOrderProcedure
     )
     {
         $order = $eventTriggered->getOrder();
-        $helper->log(__CLASS__, __METHOD__, 'closeOrderProcedure', $order);
+        $helper->log(__CLASS__, __METHOD__, 'cancelOrderProcedure', $order);
         switch ($order->typeId) {
             case 1: //sales order
                 $orderId = $order->id;
                 break;
         }
         if (empty($orderId)) {
-            throw new \Exception('Amazon Pay Close Order failed! The given order is invalid!');
+            throw new \Exception('Amazon Pay Cancel Order failed! The given order is invalid!');
         }
 
         $oroArr = $transactionHelper->amzTransactionRepository->getTransactions([
@@ -30,6 +31,6 @@ class AmzCloseOrderProcedure
             ['type', '=', 'order_ref']
         ]);
         $oro = $oroArr[0];
-        $transactionHelper->closeOrder($oro->orderReference);
+        $transactionHelper->cancelOrder($oro->orderReference);
     }
 }

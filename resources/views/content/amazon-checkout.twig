@@ -31,7 +31,7 @@
             </div>
 
             <div class="amz-checkout-box">
-                <h2>{{ trans("Ceres::Template.checkoutContactWishMessage") }}</h2>
+                <h2>{{ trans("AmazonLoginAndPay::AmazonPay._checkoutContactWishMessage") }}</h2>
                 <div id="amzOrderComment" class="amz-border-box">
                     <textarea class="amz-comment-textarea"></textarea>
                 </div>
@@ -44,47 +44,47 @@
                         <input class="form-check-input" type="checkbox" value="1" id="gtc-accept"
                                data-error="{{ trans("AmazonLoginAndPay::AmazonPay.checkoutGtcError") }}">
                         {% autoescape false %}
-                            {% if trans("Ceres::Template.generalChooseOur") == 'Ceres::Template.generalChooseOur' %}
+                            {% if trans("AmazonLoginAndPay::AmazonPay._generalChooseOur") == 'AmazonLoginAndPay::AmazonPay._generalChooseOur' %}
                                 {% set gtcContent %}
                                     <a href="/gtc" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.checkoutGtc", {"hyphen": "&shy;"}) }}</strong>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay._checkoutGtc", {"hyphen": "&shy;"}) }}</strong>
                                     </a>
                                 {% endset %}
 
                                 {% set cancellationContent %}
                                     <a href="/cancellation-rights" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.checkoutCancellationRight", {"hyphen": "&shy;"}) }}</strong>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay._checkoutCancellationRight", {"hyphen": "&shy;"}) }}</strong>
                                     </a>
                                 {% endset %}
 
                                 {% set policyContent %}
                                     <a href="/privacy-policy" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.checkoutPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay._checkoutPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
                                     </a>
                                 {% endset %}
 
-                                {{ trans("Ceres::Template.checkoutChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
+                                {{ trans("AmazonLoginAndPay::AmazonPay._checkoutChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
 
                             {% else %}
                                 {% set gtcContent %}
                                     <a href="/gtc" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.generalGtc", {"hyphen": "&shy;"}) }}</strong>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay._generalGtc", {"hyphen": "&shy;"}) }}</strong>
                                     </a>
                                 {% endset %}
 
                                 {% set cancellationContent %}
                                     <a href="/cancellation-rights" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.generalCancellationRight", {"hyphen": "&shy;"}) }}</strong>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay._generalCancellationRight", {"hyphen": "&shy;"}) }}</strong>
                                     </a>
                                 {% endset %}
 
                                 {% set policyContent %}
                                     <a href="/privacy-policy" target="_blank">
-                                        <strong>{{ trans("Ceres::Template.generalPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
-                                    </a>
+                                        <strong>{{ trans("AmazonLoginAndPay::AmazonPay.generalPrivacyPolicy", {"hyphen": "&shy;"}) }}</strong>
+                                    </a>_
                                 {% endset %}
 
-                                {{ trans("Ceres::Template.generalChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
+                                {{ trans("AmazonLoginAndPay::AmazonPay._generalChooseOur", {"gtc": gtcContent, "cancellation": cancellationContent, "policy": policyContent, "hyphen": "&shy;"}) }}
                             {% endif %}
 
                         {% endautoescape %}

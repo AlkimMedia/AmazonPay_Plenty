@@ -140,6 +140,16 @@ class AmzServiceProvider extends ServiceProvider
             ],
             '\AmazonLoginAndPay\Procedures\AmzCloseOrderProcedure@run'
         );
+
+        $eventProceduresService->registerProcedure(
+            'alkim_amazonpay',
+            ProcedureEntry::PROCEDURE_GROUP_ORDER,
+            [
+                'de' => 'Amazon Pay Vorgang abbrechen',
+                'en' => 'Cancel order with Amazon Pay'
+            ],
+            '\AmazonLoginAndPay\Procedures\AmzCancelOrderProcedure@run'
+        );
     }
 
     /**

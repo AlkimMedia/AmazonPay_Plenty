@@ -50,14 +50,17 @@ class AlkimAmazonLoginAndPayHelper
 
     public function log($class, $method, $msg, $arg, $error = false)
     {
-        if ($this->getFromConfig('debugMode') == 'true' || $error) {
-            $logger = $this->getLogger($class . '_' . $method);
+        $logger = $this->getLogger($class . '_' . $method);
             if ($error) {
-                $logger->error('ERROR: ' . $msg, $arg);
+                $logger->error($msg, $arg);
             } else {
-                $logger->error('INFO: ' . $msg, $arg);
+                if (!is_array($arg)) {
+                    $arg = [$arg];
+                }
+                $arg[] = $msg;
+                $logger->info('AmazonLoginAndPay::Logger.infoCaption', $arg);
             }
-        }
+
     }
 
     public function getCallConfig()

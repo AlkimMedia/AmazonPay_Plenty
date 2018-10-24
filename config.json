@@ -79,14 +79,6 @@
             "defaultValue": "0"
           }
         },
-        "debugMode": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.debugModeLabel",
-          "options": {
-            "defaultValue": "0"
-          }
-        },
         "hideButtons": {
           "type": "checkBox",
           "required": false,
