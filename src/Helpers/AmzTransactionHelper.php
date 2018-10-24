@@ -33,6 +33,7 @@ class AmzTransactionHelper
         $requestParameters['platform_id'] = 'A1SGXK19QKIYNB';
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['store_name'] = $this->helper->getWebstoreName();
+        $requestParameters['custom_information'] = 'Created by Alkim Media, Plentymarkets, V' . $this->helper->getCallConfig()['application_version'];
         if (!empty($orderId)) {
             $requestParameters['seller_order_id'] = $orderId;
         }
