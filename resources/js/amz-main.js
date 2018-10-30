@@ -2,12 +2,15 @@
 if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
     var amz$ = $;
 }
+
+
 var PlentyMarketsAmazonPay = {
     isFirstAddressCall: true,
     isInitialized: false,
     isInitStarted: false,
     isAddressInitialized: false,
     isCompletelyInitialized: false,
+    isDocumentReady: false,
     getShippingList: function () {
         amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
@@ -40,7 +43,7 @@ var PlentyMarketsAmazonPay = {
 
 
     initialize: function () {
-        if (typeof amz$ !== 'undefined' && PlentyMarketsAmazonPay.isInitStarted === false) {
+        if (typeof amz$ !== 'undefined' && PlentyMarketsAmazonPay.isInitStarted === false && PlentyMarketsAmazonPay.isDocumentReady) {
             PlentyMarketsAmazonPay.isInitStarted = true;
             var authRequest;
             var amzI = 0;
@@ -193,6 +196,9 @@ var PlentyMarketsAmazonPay = {
                     }
                 }).bind("walletWidgetDiv");
             }
+            setTimeout(function () {
+                PlentyMarketsAmazonPay.isInitStarted = false;
+            }, 1000);
         } else {
             setTimeout(PlentyMarketsAmazonPay.initialize, 100);
         }
@@ -293,6 +299,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
 
     amz$(function () {
+        PlentyMarketsAmazonPay.isDocumentReady = true;
         amz$('.amz-checkout-order-button-wr a').bind('click', function (e) {
             if (amz$('#gtc-accept').length && !amz$('#gtc-accept').is(':checked')) {
                 e.preventDefault();

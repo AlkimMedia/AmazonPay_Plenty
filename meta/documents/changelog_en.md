@@ -1,5 +1,23 @@
 # Release notes for Amazon Pay
 
+## 1.1.5.1
+
+### Gefixt
+
+- order of JS execution to prevent click events from being removed by Vue
+
+## 1.1.5
+
+### Added
+
+- event procedure for cancelling order 
+
+### Fixed
+
+- JS error (duplicate button)
+- cleaner ogging
+- version info and comment in Amazon calls
+
 ## 1.1.4
 
 ### Fixed
