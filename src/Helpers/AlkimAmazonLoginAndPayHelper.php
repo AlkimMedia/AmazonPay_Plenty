@@ -72,7 +72,7 @@ class AlkimAmazonLoginAndPayHelper
             'secret_key' => $this->getFromConfig('mwsSecretAccessKey'),
             'client_id' => $this->getFromConfig('loginClientId'),
             'application_name' => 'plentymarkets-alkim-amazon-pay',
-            'application_version' => '1.1.5.1',
+            'application_version' => '1.1.6',
             'region' => 'de'
         ];
     }
