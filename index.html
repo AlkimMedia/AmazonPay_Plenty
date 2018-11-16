@@ -63,11 +63,13 @@
             padding: 0;
             font-size: 13px;
         }
+
         #content {
-            padding:8px;
+            padding: 8px;
         }
-        .about{
-            display:none;
+
+        .about {
+            display: none;
         }
 
         @media (min-width: 700px) {
@@ -91,7 +93,7 @@
                 background: #fff;
                 border-top: 1px solid #ddd;
                 text-align: center;
-                display:block;
+                display: block;
             }
 
             h1 {
@@ -100,12 +102,12 @@
 
             #content {
                 margin-left: 270px;
-                padding:0;
+                padding: 0;
             }
 
         }
 
-        .about a{
+        .about a {
             color: #51080a;
         }
 
@@ -128,8 +130,6 @@
             margin: 0;
             list-style: none;
         }
-
-
 
         #myBtn {
             display: none;
@@ -526,72 +526,120 @@
         <h2 id="anchor_5">5. Content Container</h2>
         Damit das Plugin im Frontend deines Shops erscheint, musst du in deinem plentymarkets Backend unter <i>CMS</i> »
         <i>Container-Verknüpfungen</i>
-        folgende Zuordnungen vornehmen:
+        folgende Zuordnungen vornehmen:<br/><br/>
 
-        <div>
-            <b>Amazon Login & Pay - Checkout-Button</b><br/>
-            ✓ Shopping cart: After "Checkout" button<br/>
-            ✓ Shopping cart overlay: Extend buttons<br/>
-            ✓ Shopping cart preview: After "Checkout" button<br/>
-            ✓ Checkout: After payment method
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - Checkout-Button
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i>
+                        <b>Hinweis</b>:
+                        Dieser Content erzeugt den Button, der den Kunden zum Amazon Checkout weiterleitet.
+                        Grundsätzlich kannst du ihn überall platzieren, wo er dir sinnvoll erscheint. Die folgende Liste
+                        gibt Vorschläge, aber insbesondere, ob du ihn bei "Shopping cart" und "Shopping cart preview"
+                        eher vor oder nach dem normalen Checkout-Button anzeigen möchtest, ist natürlich dir überlassen
+                    </i>
+                </div>
+                ✓ Shopping cart: After "Checkout" button<br/>
+                ✓ Shopping cart overlay: Extend buttons<br/>
+                ✓ Shopping cart preview: After "Checkout" button<br/>
+                ✓ Checkout: After payment method
+            </div>
         </div>
-        <br/>
-        <div>
-            <b>Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)</b><br/>
-            ✓ Single item: After "Add to shopping cart" button
+        <br />
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)
+            </div>
+            <div class="card-body">
+                ✓ Single item: After "Add to shopping cart" button
+            </div>
         </div>
-        <br/>
-        <div>
-            <b>Amazon Login & Pay - Login-Button</b><br/>
-            ✓ Login: Container below the buttons<br/>
-            ✓ Login overlay: Container in a row with the buttons<br/>
-            ✓ Registration overlay: Container in a row with the buttons
+        <br />
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - Login-Button
+            </div>
+            <div class="card-body">
+
+                ✓ Login overlay: Container in a row with the buttons<br/>
+                ✓ Registration overlay: Container in a row with the buttons
+            </div>
         </div>
-        <br/>
-        <div>
-            <b>Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite</b><br/>
-            ✓ Order confirmation: Additional payment information
+        <br />
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite
+            </div>
+            <div class="card-body">
+
+                ✓ Order confirmation: Additional payment information
+            </div>
         </div>
-        <br/>
-        <div>
-            <b>Amazon Login & Pay - JavaScript</b><br/>
-            ✓ Script loader: Register/load JS
+        <br />
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - JavaScript
+            </div>
+            <div class="card-body">
+
+                ✓ Script loader: Register/load JS
+            </div>
         </div>
-        <br/>
-        <div>
-            <b>Amazon Login & Pay - Logo </b><br/>
-            Dieser Container zeigt das Amazon-Pay Logo. Du kannst ihn nutzen, um das Logo in deinem Shop anzuzeigen.
+        <br />
+        <div class="card">
+            <div class="card-header">
+                Amazon Login & Pay - Logo
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i>
+                        Dieser Container zeigt das Amazon-Pay Logo. Du kannst ihn nutzen, um das Logo in deinem Shop
+                        anzuzeigen.
+                    </i>
+                </div>
+            </div>
         </div>
         <h2 id="anchor_6">6. Loslegen</h2>
         <div>
-            Damit sollte alles erledigt sein, um deinen Kunden ein reibungsloses Amazon Pay Einkaufserlebnis zu bieten.
+            Damit sollte alles erledigt sein, um deinen Kunden ein reibungsloses Amazon Pay Einkaufserlebnis zu
+            bieten.
             <br/>
-            Wenn du Fragen, Probleme oder Anregungen hast, kontaktiere uns am besten im plentymarkets Forum in <a
-                href="https://forum.plentymarkets.com/c/non-plenty-plugins/amazon-pay" target="_blank">dieser
-            Kategorie</a>.
+            Wenn du Fragen, Probleme oder Anregungen hast, kontaktiere uns am besten im plentymarkets Forum in
+            <a
+                    href="https://forum.plentymarkets.com/c/non-plenty-plugins/amazon-pay" target="_blank">dieser
+                Kategorie</a>.
         </div>
 
         <h2 id="anchor_7">7. Häufige Fehler</h2>
         <h3 id="anchor_71">7.1 <i>{"error":{"message":"Internal Server error"}}</i> bei Checkout</h3>
         <div>
-            Dieser Fehler kann zwei mögliche Ursachen haben. Bitte prüfe als erstes, ob du wirklich alle Zugangsdaten
-            korrekt kopiert hast (siehe <a href="#anchor_234">2.3.4</a>). Wenn du wirklich sicher bist, dass hier alles
-            korrekt ist, stelle bitte sicher, dass dein Amazon Pay Account eine UST-Id enthält. Diese ist notwendig,
+            Dieser Fehler kann zwei mögliche Ursachen haben. Bitte prüfe als erstes, ob du wirklich alle
+            Zugangsdaten
+            korrekt kopiert hast (siehe <a href="#anchor_234">2.3.4</a>). Wenn du wirklich sicher bist, dass
+            hier alles
+            korrekt ist, stelle bitte sicher, dass dein Amazon Pay Account eine UST-Id enthält. Diese ist
+            notwendig,
             damit du die Rechnungsadresse des Kunden erhältst, die für den Checkout benötigt wird.
         </div>
 
         <div style="text-align: center; margin-top:40px;">
-            <b>Impressum</b><br/>Verantwortlich für die Inhalte dieser Webseite gemäß § 6 Teledienstgesetz (tdg): Fa.
+            <b>Impressum</b><br/>Verantwortlich für die Inhalte dieser Webseite gemäß § 6 Teledienstgesetz
+            (tdg): Fa.
             alkim media •
-            Inhaber: Frau Thekla Alkim • Perleberger Straße 62b • 16866 Kyritz • E-Mail: info@alkim.de • Telefon:
+            Inhaber: Frau Thekla Alkim • Perleberger Straße 62b • 16866 Kyritz • E-Mail: info@alkim.de •
+            Telefon:
             033971-604480
             • Telefax: 033971-32263
         </div>
         <p style="text-align: center;"><a href="http://www.alkim.de" target="_blank"
                                           title="alkim media - eCommerce Agentur f&uuml;r modified eCommerce, xt:Commerce und Gambio GX2"><img
                 class="displayed" src="images/am-banner.png"
-                alt="alkim media - eCommerce Agentur f&uuml;r modified eCommerce, xt:Commerce und Gambio GX2"/></a></p>
-        <br /><br />
+                alt="alkim media - eCommerce Agentur f&uuml;r modified eCommerce, xt:Commerce und Gambio GX2"/></a>
+        </p>
+        <br/><br/>
     </div>
 </div>
 <div class="about">
