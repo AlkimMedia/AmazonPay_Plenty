@@ -35,7 +35,34 @@ class AmzCaptureProcedure
         ]);
 
         foreach ($openAuths as $openAuth) {
-            $transactionHelper->capture($openAuth->amzId, $openAuth->amount);
+            $transactionHelper->refreshAuthorization($openAuth);
+        }
+
+        $openAuths = $transactionHelper->amzTransactionRepository->getTransactions([
+            ['order', '=', $orderId],
+            ['type', '=', 'auth'],
+            ['status', '=', 'Open']
+        ]);
+
+        if (count($openAuths) === 0) {
+            $oroArr = $transactionHelper->amzTransactionRepository->getTransactions([
+                ['order', '=', $orderId],
+                ['type', '=', 'order_ref']
+            ]);
+            $oro = $oroArr[0];
+            $amount = $oro->amount;
+            $transactionHelper->authorize($oro->orderReference, $amount, 0);
+
+            $openAuths = $transactionHelper->amzTransactionRepository->getTransactions([
+                ['order', '=', $orderId],
+                ['type', '=', 'auth'],
+                ['status', '=', 'Open']
+            ]);
+
+        }
+
+        foreach ($openAuths as $openAuth) {
+            $transactionHelper->refreshAuthorization($openAuth);
         }
 
     }

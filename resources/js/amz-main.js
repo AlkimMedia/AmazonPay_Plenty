@@ -11,6 +11,28 @@ var PlentyMarketsAmazonPay = {
     isAddressInitialized: false,
     isCompletelyInitialized: false,
     isDocumentReady: false,
+    getLanguage: function () {
+        var language = 'en-GB';
+        if (typeof App !== 'undefined') {
+            if (typeof App.language !== 'undefined') {
+                switch (App.language) {
+                    case 'de':
+                        language = 'de-DE'
+                        break;
+                    case 'es':
+                        language = 'es-ES'
+                        break;
+                    case 'fr':
+                        language = 'fr-FR'
+                        break;
+                    case 'it':
+                        language = 'it-IT'
+                        break;
+                }
+            }
+        }
+        return language;
+    },
     getShippingList: function () {
         amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
@@ -60,10 +82,9 @@ var PlentyMarketsAmazonPay = {
                             type: 'PwA',
                             color: amazonLoginAndPay.config.payButtonColor,
                             size: amazonLoginAndPay.config.payButtonSize,
-                            language: 'de-DE',
+                            language: PlentyMarketsAmazonPay.getLanguage(),
 
                             authorization: function () {
-                                $button.addClass('amz-loading').find('img').remove();
                                 var doAmzAuth = function () {
                                     var loginOptions = {
                                         scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
@@ -95,6 +116,17 @@ var PlentyMarketsAmazonPay = {
                             }
                         });
                         $button.find('img').show();
+                        if (isArticleCheckout) {
+                            var buttonChecker = function () {
+                                if (amz$('.add-to-basket-container').length) {
+                                    $button.show();
+                                } else {
+                                    $button.hide();
+                                }
+                            }
+                            buttonChecker();
+                            setInterval(buttonChecker, 200);
+                        }
                     }
                 });
             }
@@ -111,7 +143,7 @@ var PlentyMarketsAmazonPay = {
                         type: 'LwA',
                         color: amazonLoginAndPay.config.loginButtonColor,
                         size: amazonLoginAndPay.config.loginButtonSize,
-                        language: 'de-DE',
+                        language: PlentyMarketsAmazonPay.getLanguage(),
                         authorization: function () {
                             loginOptions = {
                                 scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',

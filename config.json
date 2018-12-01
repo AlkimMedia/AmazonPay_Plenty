@@ -57,20 +57,20 @@
           "options": {
             "defaultValue": ""
           }
+        },
+        "amzShopwareConnectorKey": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.shopwareConnectorKeyLabel",
+          "options": {
+            "defaultValue": ""
+          }
         }
       }
     },
     "Config.baseSettingsTab": {
       "label": "Config.baseSettingsTab",
       "formFields": {
-        "status": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.statusLabel",
-          "options": {
-            "defaultValue": "0"
-          }
-        },
         "sandbox": {
           "type": "checkBox",
           "required": false,

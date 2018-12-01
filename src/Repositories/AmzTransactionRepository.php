@@ -5,7 +5,6 @@ namespace AmazonLoginAndPay\Repositories;
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
-use Plenty\Exceptions\ValidationException;
 use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 
 
@@ -24,23 +23,9 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
      *
      * @param array $data
      * @return AmzTransaction
-     * @throws ValidationException
      */
     public function createTransaction(array $data)
     {
-        /*try {
-            AmzTransactionValidator::validateOrFail($data);
-        } catch (ValidationException $e) {
-            throw $e;
-        }*/
-
-        /**
-         * @var DataBase $database
-         */
-
-
-        $database = pluginApp(DataBase::class);
-
         $transaction = pluginApp(AmzTransaction::class);
         $transaction->orderReference = (string)$data["orderReference"];
         $transaction->type = (string)$data["type"];
@@ -60,15 +45,28 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
         $transaction->order = (string)$data["order"];
         $transaction->paymentId = (int)$data["paymentId"];
         $transaction->currency = (string)$data["currency"];
-        $this->helper->log(__CLASS__, __METHOD__, 'create transaction - before save', ['data' => $data, 'input' => $transaction]);
+        return $this->saveTransaction($transaction);
+    }
+
+    /**
+     * @param AmzTransaction $transaction
+     * @return AmzTransaction|\Plenty\Modules\Plugin\DataBase\Contracts\Model
+     */
+    public function saveTransaction(AmzTransaction $transaction)
+    {
+        /**
+         * @var DataBase $database
+         */
+        $database = pluginApp(DataBase::class);
+        $this->helper->log(__CLASS__, __METHOD__, 'save transaction - before save', ['input' => $transaction]);
+        $response = null;
         try {
             /** @var AmzTransaction $response */
             $response = $database->save($transaction);
         } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'create transaction - exception', [$e, $e->getMessage()], true);
+            $this->helper->log(__CLASS__, __METHOD__, 'save transaction - exception', [$e, $e->getMessage()], true);
         }
-        $this->helper->log(__CLASS__, __METHOD__, 'create transaction - after save', ['data' => $data, 'input' => $transaction, 'output' => $response]);
-
+        $this->helper->log(__CLASS__, __METHOD__, 'save transaction - after save', ['input' => $transaction, 'output' => $response]);
         return $response;
     }
 
@@ -95,19 +93,8 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
 
     public function updateTransaction(AmzTransaction $transaction)
     {
-        /**
-         * @var DataBase $database
-         */
-        $database = pluginApp(DataBase::class);
         $transaction->lastUpdate = date('Y-m-d H:i:s');
-        $response = null;
-        try {
-            $response = $database->save($transaction);
-        } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'update transaction - exception', [$e, $e->getMessage()], true);
-        }
-        $this->helper->log(__CLASS__, __METHOD__, 'update transaction - after save', ['input' => $transaction, 'output' => $response]);
-        return $response;
+        return $this->saveTransaction($transaction);
     }
 
 }

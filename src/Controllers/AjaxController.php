@@ -8,7 +8,6 @@ use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
 use AmazonLoginAndPay\Services\AmzCustomerService;
-use Plenty\Modules\Plugin\DataBase\Contracts\Migrate;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Http\Response;
@@ -149,7 +148,7 @@ class AjaxController extends Controller
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'COMPLETED']);
     }
 
-    public function ipn(Twig $twig, Migrate $migrate)
+    public function ipn(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
         $key = $this->request->get('key');
         //TODO: Check key
@@ -158,44 +157,94 @@ class AjaxController extends Controller
         $requestData = json_decode($requestBody);
         $message = json_decode($requestData->Message);
 
-
-        $responseXml =  simplexml_load_string($message->NotificationData);
+        $responseXml = simplexml_load_string($message->NotificationData);
         $this->helper->log(__CLASS__, __METHOD__, 'ipn data', [$message, $responseXml]);
         switch ($message->NotificationType) {
-
             case 'PaymentAuthorize':
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->AuthorizationDetails->AmazonAuthorizationId]]);
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - auth', [$transactions]);
-                if (!empty($transactions)) {
+                if (empty($transactions)) {
+                    /** @var AmzTransaction $transaction */
+                    $transaction = pluginApp(AmzTransaction::class);
+                    $transaction->amzId = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
+                    $transaction->type = 'auth';
+                    $transaction = $repository->saveTransaction($transaction);
+                } else {
                     $transaction = $transactions[0];
-                    $this->transactionHelper->refreshAuthorization($transaction);
                 }
+                $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
                 break;
             case 'OrderReferenceNotification':
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->OrderReference->AmazonOrderReferenceId], ['type', '=', 'order_ref']]);
-                if (!empty($transactions)) {
+                $this->helper->log(__CLASS__, __METHOD__, 'ipn - order reference', [$transactions]);
+                if (empty($transactions)) {
+                    /** @var AmzTransaction $transaction */
+                    $transaction = pluginApp(AmzTransaction::class);
+                    $transaction->orderReference = $responseXml->OrderReference->AmazonOrderReferenceId;
+                    $transaction->type = 'order_ref';
+                    $transaction = $repository->saveTransaction($transaction);
+                } else {
                     $transaction = $transactions[0];
-                    $this->transactionHelper->refreshOrderReference($transaction);
                 }
+
+                $this->transactionHelper->refreshOrderReference($transaction, empty($transaction->status));
                 break;
         }
 
-        try {
-            if ($key == 'delete') {
-                $this->helper->log(__CLASS__, __METHOD__, 'delete', []);
-                $migrate->deleteTable(AmzTransaction::class);
-                $this->helper->log(__CLASS__, __METHOD__, 'delete done', []);
-            }
-            if ($key == 'create') {
-                $this->helper->log(__CLASS__, __METHOD__, 'create', []);
-                $migrate->createTable(AmzTransaction::class);
-                $this->helper->log(__CLASS__, __METHOD__, 'create done', []);
-            }
-        } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'migration exception', [$e, $e->getMessage()]);
-        }
         $output = 'done';
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $output]);
+    }
+
+    public function shopwareConnect(Twig $twig, AmzTransactionRepositoryContract $repository)
+    {
+        $key = $this->request->get('key');
+        $response = ['success' => true];
+        if (!empty($key) && $key === $this->helper->getFromConfig('amzShopwareConnectorKey')) {
+            $orderId = $this->request->get('order_id');
+            $orderReferenceId = $this->request->get('order_reference_id');
+            if (!empty($orderId) && !empty($orderReferenceId)) {
+                $transactions = $repository->getTransactions([['orderReference', '=', $orderReferenceId], ['type', '=', 'order_ref']]);
+                if (!empty($transactions)) {
+                    foreach ($transactions as $transaction) {
+                        if (empty($transaction->order)) {
+                            $transaction->order = (int)$orderId;
+                            if ($transaction->type === 'auth' && empty($transaction->paymentId)) {
+                                $this->transactionHelper->doAuthorizationPaymentAction($transaction);
+                            }
+                            $repository->updateTransaction($transaction);
+                        }
+                    }
+                } else {
+                    /** @var AmzTransaction $transaction */
+                    $transaction = pluginApp(AmzTransaction::class);
+                    $transaction->order = (int)$orderId;
+                    $transaction->orderReference = $orderReferenceId;
+                    $transaction->type = 'order_ref';
+                    $repository->saveTransaction($transaction);
+                }
+            } else {
+                $response = ['success' => false, 'error' => 'data missing'];
+            }
+        } else {
+            $response = ['success' => false, 'error' => 'wrong key'];
+        }
+        $this->response->json($response, 200, ['Content-Type: application/json']);
+        return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => json_encode($response)]);
+
+    }
+
+    public function getTable(Twig $twig, AmzTransactionRepositoryContract $repository)
+    {
+        $transactions = $repository->getTransactions([]);
+        $html = '<table>';
+        foreach ($transactions as $transaction) {
+            $html .= '<tr>';
+            foreach ($transaction as $k => $v) {
+                $html .= '<td>' . $v . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $html]);
     }
 
 }

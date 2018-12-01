@@ -31,4 +31,11 @@ interface AmzTransactionRepositoryContract
      */
     public function updateTransaction(AmzTransaction $transaction);
 
+    /**
+     * Save transaction
+     * @param AmzTransaction $transaction
+     * @return AmzTransaction
+     */
+    public function saveTransaction(AmzTransaction $transaction);
+
 }

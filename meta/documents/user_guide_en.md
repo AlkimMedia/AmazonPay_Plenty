@@ -4,6 +4,8 @@ Millions of Amazon buyers can use Amazon Pay on your Plentymarkets desktop or mo
 No charges are applied to install the Amazon Pay plugin developed by Alkim Media in your Shop and it is easy to setup. Plus, it's a seamless experience for your customers. All buyer interactions take place in widgets embedded in your shop, so they never leave your website. Customers simply authenticate using their Amazon credentials, select a shipping address and payment method, and confirm their order.
 
 Amazon Pay is fast, easy and secure and helps you add new customers, increase sales, and reduce fraud costs. Leverage the trust of Amazon to grow your business.
+
+[Register now for Amazon Pay](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=en_GB&source=SPMW)
 ##  Your benefits
 ### Customer loyalty
 You increase repeat buyers by offering a trusted and convenient payment method.

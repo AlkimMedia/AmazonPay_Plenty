@@ -17,5 +17,7 @@ class AmzRouteServiceProvider extends RouteServiceProvider
         $router->get('amazon-ajax-handle', 'AmazonLoginAndPay\Controllers\AjaxController@handle');
         $router->get('amazon-cron', 'AmazonLoginAndPay\Controllers\AjaxController@cron');
         $router->post('amazon-ipn', 'AmazonLoginAndPay\Controllers\AjaxController@ipn');
+        $router->post('amazon-shopware-connect', 'AmazonLoginAndPay\Controllers\AjaxController@shopwareConnect');
+        //$router->get('amazon-get-table', 'AmazonLoginAndPay\Controllers\AjaxController@getTable');
     }
 }

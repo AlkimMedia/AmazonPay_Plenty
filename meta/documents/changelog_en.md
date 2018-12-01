@@ -1,6 +1,18 @@
 # Release notes for Amazon Pay
 
-## 1.1.5.1
+## 1.2.0
+
+### Added
+
+- Shopware connector for transactions (test)
+
+### Fixed
+
+- button language
+- label for buy button
+- hide button for unavailable variants
+
+## 1.1.6
 
 ### Gefixt
 

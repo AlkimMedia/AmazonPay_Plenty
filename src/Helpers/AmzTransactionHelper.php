@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
@@ -23,6 +24,31 @@ class AmzTransactionHelper
         $this->amzTransactionRepository = $amzTransactionRepository;
     }
 
+    public function call($action, $parameters)
+    {
+        $startTime = microtime(true);
+        $result = $this->callLib->call(
+            'AmazonLoginAndPay::amz_client_call',
+            [
+                'config' => $this->helper->getCallConfig(),
+                'action' => $action,
+                'parameters' => $parameters
+            ]
+        );
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+        $this->helper->log(__CLASS__, __METHOD__, 'call result ' . $action, ['startTime' => $startTime, 'endTime' => $endTime, 'duration' => $duration, 'config' => $this->helper->getCallConfig(), 'action' => $action, 'parameters' => $parameters, 'result' => $result]);
+        return $result;
+    }
+
+    public function getOrderReferenceDetails($orderRef, $token = '')
+    {
+        $requestParameters = [];
+        $requestParameters['amazon_order_reference_id'] = $orderRef;
+        $requestParameters['address_consent_token'] = $token;
+        $response = $this->call('GetOrderReferenceDetails', $requestParameters);
+        return $response;
+    }
 
     public function setOrderReferenceDetails($orderRef, $amount, $orderId, $currency = 'EUR')
     {
@@ -42,23 +68,6 @@ class AmzTransactionHelper
         return $response;
     }
 
-    public function call($action, $parameters)
-    {
-        $startTime = microtime(true);
-        $result = $this->callLib->call(
-            'AmazonLoginAndPay::amz_client_call',
-            [
-                'config' => $this->helper->getCallConfig(),
-                'action' => $action,
-                'parameters' => $parameters
-            ]
-        );
-        $endTime = microtime(true);
-        $duration = $endTime - $startTime;
-        $this->helper->log(__CLASS__, __METHOD__, 'call result ' . $action, ['startTime' => $startTime, 'endTime' => $endTime, 'duration' => $duration, 'config' => $this->helper->getCallConfig(), 'action' => $action, 'parameters' => $parameters, 'result' => $result]);
-        return $result;
-    }
-
     public function confirmOrderReference($orderRef, $saveTransaction = true, $orderId = '')
     {
         $requestParameters = [];
@@ -67,39 +76,45 @@ class AmzTransactionHelper
         if ($saveTransaction) {
             $details = $this->getOrderReferenceDetails($orderRef);
             $details = $details["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"];
-
-            $data = [
-                'orderReference' => $orderRef,
-                'type' => 'order_ref',
-                'status' => $details["OrderReferenceStatus"]["State"],
-                'reference' => $orderRef,
-                'expiration' => $details["ExpirationTimestamp"],
-                'time' => date('Y-m-d H:i:s'),
-                'amzId' => $orderRef,
-                'lastChange' => date('Y-m-d H:i:s'),
-                'lastUpdate' => date('Y-m-d H:i:s'),
-                'customerInformed' => false,
-                'adminInformed' => false,
-                'merchantId' => $this->helper->getFromConfig('merchantId'),
-                'mode' => $this->helper->getTransactionMode(),
-                'amount' => $details["OrderTotal"]["Amount"],
-                'amountRefunded' => 0,
-                'order' => $orderId,
-                'currency' => $details["OrderTotal"]["CurrencyCode"]
-            ];
-            $this->amzTransactionRepository->createTransaction($data);
+            $transaction = pluginApp(AmzTransaction::class);
+            $transaction->order = $orderId;
+            $transaction->orderReference = $orderRef;
+            $transaction->type = 'order_ref';
+            $this->assignOrderReferenceDetails($transaction, $details);
+            $this->amzTransactionRepository->saveTransaction($transaction);
         }
-
         return $response;
     }
 
-    public function getOrderReferenceDetails($orderRef, $token = '')
+    public function refreshOrderReference(AmzTransaction $transaction, $complete = false)
     {
-        $requestParameters = [];
-        $requestParameters['amazon_order_reference_id'] = $orderRef;
-        $requestParameters['address_consent_token'] = $token;
-        $response = $this->call('GetOrderReferenceDetails', $requestParameters);
-        return $response;
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh oro', [$transaction]);
+        $details = $this->getOrderReferenceDetails($transaction->orderReference);
+        $details = $details["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"];
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh oro details', [$details]);
+        $transaction->status = (string)$details["OrderReferenceStatus"]["State"];
+        $transaction->lastChange = (string)$details["OrderReferenceStatus"]["LastUpdateTimestamp"];
+        if ($complete) {
+            $this->assignOrderReferenceDetails($transaction, $details);
+        }
+        $this->amzTransactionRepository->updateTransaction($transaction);
+    }
+
+
+    private function assignOrderReferenceDetails(AmzTransaction $transaction, array $orderReferenceDetails)
+    {
+        $time = date('Y-m-d H:i:s');
+        $transaction->reference = $transaction->orderReference;
+        $transaction->amzId = $transaction->orderReference;
+        $transaction->expiration = $orderReferenceDetails["ExpirationTimestamp"];
+        $transaction->status = (string)$orderReferenceDetails["OrderReferenceStatus"]["State"];
+        $transaction->time = $time;
+        $transaction->lastChange = $time;
+        $transaction->lastUpdate = $time;
+        $transaction->merchantId = $this->helper->getFromConfig('merchantId');
+        $transaction->mode = $this->helper->getTransactionMode();
+        $transaction->amount = $orderReferenceDetails["OrderTotal"]["Amount"];
+        $transaction->currency = $orderReferenceDetails["OrderTotal"]["CurrencyCode"];
     }
 
     public function authorize($orderRef, $amount, $timeout = 1440, $comment = '')
@@ -113,68 +128,105 @@ class AmzTransactionHelper
         $requestParameters['merchant_id'] = $this->helper->getFromConfig('merchantId');
         $requestParameters['soft_descriptor'] = $comment;
         $requestParameters['authorization_reference_id'] = 'pm_auth_' . time() . '_' . rand(10000, 99999) . '_' . ($timeout == 0 ? 'sync' : 'async');
-        /*
-        if (MODULE_PAYMENT_AM_APA_PROVOCATION == 'hard_decline' && MODULE_PAYMENT_AM_APA_MODE == 'sandbox') {
-            $requestParameters['seller_authorization_note'] = '{"SandboxSimulation": {"State":"Declined", "ReasonCode":"AmazonRejected"}}';
-        }
-
-        if (MODULE_PAYMENT_AM_APA_PROVOCATION == 'soft_decline' && MODULE_PAYMENT_AM_APA_MODE == 'sandbox') {
-            $requestParameters['seller_authorization_note'] = '{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod", "PaymentMethodUpdateTimeInMins":1}}';
-        }*/
-
         $response = $this->call('authorize', $requestParameters);
+
         $details = $response["AuthorizeResult"]["AuthorizationDetails"];
         $authId = $details["AmazonAuthorizationId"];
         if ($authId != '') {
-            $data = [
-                'orderReference' => $orderRef,
-                'type' => 'auth',
-                'status' => $details["AuthorizationStatus"]["State"],
-                'reference' => $details["AuthorizationReferenceId"],
-                'expiration' => $details["ExpirationTimestamp"],
-                'time' => date('Y-m-d H:i:s'),
-                'amzId' => $authId,
-                'lastChange' => date('Y-m-d H:i:s'),
-                'lastUpdate' => date('Y-m-d H:i:s'),
-                'customerInformed' => false,
-                'adminInformed' => false,
-                'merchantId' => $this->helper->getFromConfig('merchantId'),
-                'mode' => $this->helper->getTransactionMode(),
-                'amount' => $amount,
-                'amountRefunded' => 0,
-                'currency' => $requestParameters['currency_code']
-            ];
-            $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $data]);
-            $plentyPayment = null;
-            try {
-                $plentyPayment = $this->helper->createPlentyPayment(($data["status"] == 'Declined' ? 0 : $amount), ($data["status"] == 'Open' ? 'approved' : ($data["status"] == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $data["amzId"] . "\n" . 'Betrag: ' . $amount . "\n" . 'Status: ' . $data["status"], $data["amzId"], 'credit', 2, $requestParameters['currency_code']);
-            } catch (\Exception $e) {
-                $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);
-            }
-            $this->helper->log(__CLASS__, __METHOD__, 'payment created', ['payment' => $plentyPayment]);
-            $orderId = $this->getOrderIdFromOrderRef($orderRef);
-            $this->helper->log(__CLASS__, __METHOD__, 'orderid', [$orderId]);
-            if ($plentyPayment instanceof Payment && !empty($orderId)) {
-                $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
-                $this->helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$plentyPayment, $orderId]);
-                if ($data["status"] === 'Open') {
-                    $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
-                }
-            }
-            $data["paymentId"] = $plentyPayment->id;
-            $data["order"] = $orderId;
-            $this->amzTransactionRepository->createTransaction($data);
+            /** @var AmzTransaction $transaction */
+            $transaction = pluginApp(AmzTransaction::class);
+            $transaction->amzId = $authId;
+            $transaction->type = 'auth';
+            $this->assignAuthorizationDetails($transaction, $details);
+            $this->doAuthorizationPaymentAction($transaction);
+            $this->amzTransactionRepository->saveTransaction($transaction);
         }
 
         return $response;
     }
 
-    public function getOrderIdFromOrderRef($orderRef)
+    public function refreshAuthorization(AmzTransaction $transaction, $complete = false)
     {
-        $transactions = $this->amzTransactionRepository->getTransactions([['orderReference', '=', $orderRef], ['type', '=', 'order_ref']]);
-        $this->helper->log(__CLASS__, __METHOD__, 'get order id transaction', [$transactions[0]]);
-        return $transactions[0]->order;
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh authorization', [$transaction]);
+        $details = $this->call('getAuthorizationDetails', ['amazon_authorization_id' => $transaction->amzId]);
+        $details = $details["GetAuthorizationDetailsResult"]["AuthorizationDetails"];
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh authorization details', [$details]);
+
+        // call might take a while - therefore get current transaction row //
+        $transactions = $this->amzTransactionRepository->getTransactions([['id', '=', $transaction->id]]);
+        $transaction = $transactions[0];
+        $transaction->status = (string)$details["AuthorizationStatus"]["State"];
+        $transaction->lastChange = (string)$details["AuthorizationStatus"]["LastUpdateTimestamp"];
+        if ($complete) {
+            $this->assignAuthorizationDetails($transaction, $details);
+            if (empty($transaction->paymentId)) {
+                $this->doAuthorizationPaymentAction($transaction);
+            }
+        }
+        $this->amzTransactionRepository->updateTransaction($transaction);
+        if ($transaction->status == 'Open') {
+            if ($this->helper->getFromConfig('captureMode') == 'after_auth') {
+                $this->capture($transaction->amzId, $transaction->amount);
+            }
+            $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
+            $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+        }
+
+        if ($transaction->status == 'Declined') {
+            $reason = (string)$details["AuthorizationStatus"]["ReasonCode"];
+            if (strpos($transaction->reference, '_async') !== false && $reason == 'TransactionTimedOut') {
+                $reason = 'AmazonRejected';
+            }
+            if ($reason == 'AmazonRejected') {
+                $this->cancelOrder($transaction->orderReference);
+            }
+            $this->helper->updatePlentyPayment($transaction->paymentId, 'refused', 'comment - test', 0);
+            $this->authorizationDeclinedAction($transaction, $reason);
+        }
     }
+
+    public function doAuthorizationPaymentAction(AmzTransaction $transaction)
+    {
+        $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $transaction]);
+        $plentyPayment = null;
+        try {
+            $plentyPayment = $this->helper->createPlentyPayment(($transaction->status == 'Declined' ? 0 : $transaction->amount), ($transaction->status == 'Open' ? 'approved' : ($transaction->status == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status, $transaction->amzId, 'credit', 2, $transaction->currency);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'payment created', ['payment' => $plentyPayment]);
+        $orderId = $transaction->order;
+        $this->helper->log(__CLASS__, __METHOD__, 'orderid', [$orderId]);
+        if ($plentyPayment instanceof Payment && !empty($orderId)) {
+            $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
+            $this->helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$plentyPayment, $orderId]);
+            if ($transaction->status === 'Open') {
+                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+            }
+        }
+        $transaction->paymentId = $plentyPayment->id;
+    }
+
+    private function assignAuthorizationDetails(AmzTransaction $transaction, array $authorizationDetails)
+    {
+        $orderReferenceId = $this->getOrderRefFromAmzId($transaction->amzId);
+        $time = date('Y-m-d H:i:s');
+        $transaction->orderReference = $orderReferenceId;
+        $transaction->status = $authorizationDetails["AuthorizationStatus"]["State"];
+        $transaction->reference = $authorizationDetails["AuthorizationReferenceId"];
+        $transaction->expiration = $authorizationDetails["ExpirationTimestamp"];
+        $transaction->time = $time;
+        $transaction->lastChange = $time;
+        $transaction->lastUpdate = $time;
+        $transaction->merchantId = $this->helper->getFromConfig('merchantId');
+        $transaction->mode = $this->helper->getTransactionMode();
+        $transaction->amount = $authorizationDetails["AuthorizationAmount"]["Amount"];
+        $transaction->currency = $authorizationDetails["AuthorizationAmount"]["CurrencyCode"];
+        if ($orderId = $this->getOrderIdFromOrderRef($transaction->orderReference)) {
+            $transaction->order = $orderId;
+        }
+    }
+
 
     public function refund($captureId, $amount, $creditNoteId = null)
     {
@@ -247,15 +299,6 @@ class AmzTransactionHelper
 
     }
 
-    public function getOrderRefFromAmzId($amzId)
-    {
-        if (preg_match('/([0-9A-Z]+\-[0-9]+\-[0-9]+)\-[0-9A-Z]+/', $amzId, $matches)) {
-            $this->helper->log(__CLASS__, __METHOD__, 'or matches', [$matches]);
-            return $matches[1];
-        } else {
-            return '';
-        }
-    }
 
     public function intelligentRefresh(AmzTransaction $transaction)
     {
@@ -276,64 +319,6 @@ class AmzTransactionHelper
         }
     }
 
-    public function refreshAuthorization(AmzTransaction $transaction)
-    {
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh authorization', [$transaction]);
-        $details = $this->call('getAuthorizationDetails', ['amazon_authorization_id' => $transaction->amzId]);
-        $details = $details["GetAuthorizationDetailsResult"]["AuthorizationDetails"];
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh authorization details', [$details]);
-
-        // call might take a while - therefore get current transaction row //
-        $transactions = $this->amzTransactionRepository->getTransactions([['id', '=', $transaction->id]]);
-        $transaction = $transactions[0];
-        $transaction->status = (string)$details["AuthorizationStatus"]["State"];
-        $transaction->lastChange = (string)$details["AuthorizationStatus"]["LastUpdateTimestamp"];
-        $this->amzTransactionRepository->updateTransaction($transaction);
-        if ($transaction->status == 'Open') {
-            if ($this->helper->getFromConfig('captureMode') == 'after_auth') {
-                $this->capture($transaction->amzId, $transaction->amount);
-            }
-            $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
-
-            $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
-        }
-
-        if ($transaction->status == 'Declined') {
-
-            $reason = (string)$details["AuthorizationStatus"]["ReasonCode"];
-            if (strpos($transaction->reference, '_async') !== false && $reason == 'TransactionTimedOut') {
-                $reason = 'AmazonRejected';
-            }
-            if ($reason == 'AmazonRejected') {
-                $this->cancelOrder($transaction->orderReference);
-            }
-            $this->helper->updatePlentyPayment($transaction->paymentId, 'refused', 'comment - test', 0);
-            $this->authorizationDeclinedAction($transaction, $reason);
-        }
-    }
-
-    public function authorizationDeclinedAction(AmzTransaction $transaction, $reason)
-    {
-        if ($transaction->status == 'Declined') {
-            $informed = false;
-            if ($reason == 'InvalidPaymentMethod') {
-                if (!$transaction->adminInformed) {
-                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('softDeclineStatus'));
-                }
-                $informed = true;
-            } elseif ($reason == 'AmazonRejected') {
-                if (!$transaction->adminInformed) {
-                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('hardDeclineStatus'));
-                }
-                $informed = true;
-            }
-
-            if ($informed) {
-                $transaction->adminInformed = true;
-                $this->amzTransactionRepository->updateTransaction($transaction);
-            }
-        }
-    }
 
 
     public function capture($authId, $amount)
@@ -446,15 +431,6 @@ class AmzTransactionHelper
         }
     }
 
-    public function getTransactionFromAmzId($amzId)
-    {
-        $transactions = $this->amzTransactionRepository->getTransactions([['amzId', '=', $amzId]]);
-        if (!empty($transactions) && is_array($transactions)) {
-            return $transactions[0];
-        } else {
-            return null;
-        }
-    }
 
     public function closeOrder($orderRef)
     {
@@ -472,18 +448,27 @@ class AmzTransactionHelper
         return $response;
     }
 
-    public function refreshOrderReference(AmzTransaction $transaction)
+    public function authorizationDeclinedAction(AmzTransaction $transaction, $reason)
     {
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh oro', [$transaction]);
-        $details = $this->getOrderReferenceDetails($transaction->orderReference);
-        $details = $details["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"];
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh oro details', [$details]);
-        $transaction->status = (string)$details["OrderReferenceStatus"]["State"];
-        $transaction->lastChange = (string)$details["OrderReferenceStatus"]["LastUpdateTimestamp"];
-        $this->amzTransactionRepository->updateTransaction($transaction);
-        /*if ($transaction->status == 'Open') {
-            //TODO: AlkimAmazonTransactions::doAuthorizationAfterDecline($orderRef);
-        }*/
+        if ($transaction->status == 'Declined') {
+            $informed = false;
+            if ($reason == 'InvalidPaymentMethod') {
+                if (!$transaction->adminInformed) {
+                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('softDeclineStatus'));
+                }
+                $informed = true;
+            } elseif ($reason == 'AmazonRejected') {
+                if (!$transaction->adminInformed) {
+                    $this->helper->setOrderStatus($transaction->order, $this->helper->getFromConfig('hardDeclineStatus'));
+                }
+                $informed = true;
+            }
+
+            if ($informed) {
+                $transaction->adminInformed = true;
+                $this->amzTransactionRepository->updateTransaction($transaction);
+            }
+        }
     }
 
     public function getAmountFromOrderRef($orderReferenceId)
@@ -496,16 +481,6 @@ class AmzTransactionHelper
         return $oro->amount;
     }
 
-    public function getCurrencyFromOrderRef($orderReferenceId)
-    {
-        $oroArr = $this->amzTransactionRepository->getTransactions([
-            ['orderReference', '=', $orderReferenceId],
-            ['type', '=', 'order_ref']
-        ]);
-        $oro = $oroArr[0];
-        return ($oro->currency ? $oro->currency : 'EUR');
-    }
-
     public function getCaptureTransactionsFromOrderRef($orderReferenceId)
     {
         $transactions = $this->amzTransactionRepository->getTransactions([
@@ -514,4 +489,42 @@ class AmzTransactionHelper
         ]);
         return $transactions;
     }
+
+
+    public function getOrderRefFromAmzId($amzId)
+    {
+        if (preg_match('/([0-9A-Z]+\-[0-9]+\-[0-9]+)\-[0-9A-Z]+/', $amzId, $matches)) {
+            $this->helper->log(__CLASS__, __METHOD__, 'or matches', [$matches]);
+            return $matches[1];
+        } else {
+            return '';
+        }
+    }
+
+    public function getCurrencyFromOrderRef($orderReferenceId)
+    {
+        $orderRefrenceObject = $this->amzTransactionRepository->getTransactions([
+            ['orderReference', '=', $orderReferenceId],
+            ['type', '=', 'order_ref']
+        ])[0];
+        return ($orderRefrenceObject->currency ? $orderRefrenceObject->currency : 'EUR');
+    }
+
+    public function getOrderIdFromOrderRef($orderRef)
+    {
+        $transactions = $this->amzTransactionRepository->getTransactions([['orderReference', '=', $orderRef], ['type', '=', 'order_ref']]);
+        return $transactions[0]->order;
+    }
+
+    public function getTransactionFromAmzId($amzId)
+    {
+        $transactions = $this->amzTransactionRepository->getTransactions([['amzId', '=', $amzId]]);
+        if (!empty($transactions) && is_array($transactions)) {
+            return $transactions[0];
+        } else {
+            return null;
+        }
+    }
+
+
 }

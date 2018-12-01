@@ -72,7 +72,7 @@ class AlkimAmazonLoginAndPayHelper
             'secret_key' => $this->getFromConfig('mwsSecretAccessKey'),
             'client_id' => $this->getFromConfig('loginClientId'),
             'application_name' => 'plentymarkets-alkim-amazon-pay',
-            'application_version' => '1.1.6',
+            'application_version' => '1.2.0',
             'region' => 'de'
         ];
     }
@@ -184,25 +184,27 @@ class AlkimAmazonLoginAndPayHelper
     {
 
         try {
-            $payment = $this->paymentRepository->getPaymentById($id);
-            if ($payment) {
-                $payment->status = $this->mapStatus($status);
+            if (!empty($id)) {
+                $payment = $this->paymentRepository->getPaymentById($id);
+                if ($payment) {
+                    $payment->status = $this->mapStatus($status);
 
-                if ($amount !== null) {
-                    $payment->amount = (float)$amount;
-                }
+                    if ($amount !== null) {
+                        $payment->amount = (float)$amount;
+                    }
 
-                if (($status != 'approved' && $status != 'captured') || $amount == 0) {
-                    $payment->unaccountable = 1;
-                } else {
-                    $payment->unaccountable = 0;
-                }
-                $payment->updateOrderPaymentStatus = true;
-                $this->log(__CLASS__, __METHOD__, 'before updatePayment', ['payment' => $payment, 'orderId' => $orderId, 'comment' => $comment]);
-                $result = $this->paymentRepository->updatePayment($payment);
-                $this->log(__CLASS__, __METHOD__, 'after updatePayment', ['result' => $result, 'orderId' => $orderId]);
-                if ($orderId !== null) {
-                    $this->recalculateOrderPayment($payment, $orderId);
+                    if (($status != 'approved' && $status != 'captured') || $amount == 0) {
+                        $payment->unaccountable = 1;
+                    } else {
+                        $payment->unaccountable = 0;
+                    }
+                    $payment->updateOrderPaymentStatus = true;
+                    $this->log(__CLASS__, __METHOD__, 'before updatePayment', ['payment' => $payment, 'orderId' => $orderId, 'comment' => $comment]);
+                    $result = $this->paymentRepository->updatePayment($payment);
+                    $this->log(__CLASS__, __METHOD__, 'after updatePayment', ['result' => $result, 'orderId' => $orderId]);
+                    if ($orderId !== null) {
+                        $this->recalculateOrderPayment($payment, $orderId);
+                    }
                 }
             }
         } catch (\Exception $e) {
