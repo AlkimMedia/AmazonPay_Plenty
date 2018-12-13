@@ -151,7 +151,7 @@ class AmzTransactionHelper
         $details = $this->call('getAuthorizationDetails', ['amazon_authorization_id' => $transaction->amzId]);
         $details = $details["GetAuthorizationDetailsResult"]["AuthorizationDetails"];
         $this->helper->log(__CLASS__, __METHOD__, 'refresh authorization details', [$details]);
-
+        $transactionBeforeRefresh = $transaction;
         // call might take a while - therefore get current transaction row //
         $transactions = $this->amzTransactionRepository->getTransactions([['id', '=', $transaction->id]]);
         $transaction = $transactions[0];
@@ -160,16 +160,18 @@ class AmzTransactionHelper
         if ($complete) {
             $this->assignAuthorizationDetails($transaction, $details);
             if (empty($transaction->paymentId)) {
-                $this->doAuthorizationPaymentAction($transaction);
+                $this->doAuthorizationPaymentAction($transaction, false);
             }
         }
         $this->amzTransactionRepository->updateTransaction($transaction);
-        if ($transaction->status == 'Open') {
+        if ($transaction->status === 'Open') {
             if ($this->helper->getFromConfig('captureMode') == 'after_auth') {
                 $this->capture($transaction->amzId, $transaction->amount);
             }
             $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
-            $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+            if ($transactionBeforeRefresh->status !== 'Open') {
+                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+            }
         }
 
         if ($transaction->status == 'Declined') {
@@ -185,7 +187,7 @@ class AmzTransactionHelper
         }
     }
 
-    public function doAuthorizationPaymentAction(AmzTransaction $transaction)
+    public function doAuthorizationPaymentAction(AmzTransaction $transaction, $setStatus = true)
     {
         $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $transaction]);
         $plentyPayment = null;
@@ -200,7 +202,7 @@ class AmzTransactionHelper
         if ($plentyPayment instanceof Payment && !empty($orderId)) {
             $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
             $this->helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$plentyPayment, $orderId]);
-            if ($transaction->status === 'Open') {
+            if ($setStatus && $transaction->status === 'Open') {
                 $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
             }
         }

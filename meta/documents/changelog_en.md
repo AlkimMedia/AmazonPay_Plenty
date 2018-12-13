@@ -1,5 +1,12 @@
 # Release notes for Amazon Pay
 
+## 1.2.1
+
+### Fixed
+
+- bug in capture event procedure 
+- JS: scope for all widgets
+
 ## 1.2.0
 
 ### Added

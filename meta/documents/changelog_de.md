@@ -1,5 +1,12 @@
 # Release Notes für Amazon Pay
 
+## 1.2.1
+
+### Gefixt
+
+- Fehler in Ereignisaktion für Zahlungseinzug
+- JS: scope für alle Widgets
+
 ## 1.2.0
 
 ### Hinzugefügt

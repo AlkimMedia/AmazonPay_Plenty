@@ -11,6 +11,7 @@ var PlentyMarketsAmazonPay = {
     isAddressInitialized: false,
     isCompletelyInitialized: false,
     isDocumentReady: false,
+    amazonScope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
     getLanguage: function () {
         var language = 'en-GB';
         if (typeof App !== 'undefined') {
@@ -87,7 +88,7 @@ var PlentyMarketsAmazonPay = {
                             authorization: function () {
                                 var doAmzAuth = function () {
                                     var loginOptions = {
-                                        scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
+                                        scope: PlentyMarketsAmazonPay.amazonScope,
                                         popup: amazonLoginAndPay.config.popup
                                     };
                                     document.cookie = "amzLoginType=Pay;path=/";
@@ -145,8 +146,8 @@ var PlentyMarketsAmazonPay = {
                         size: amazonLoginAndPay.config.loginButtonSize,
                         language: PlentyMarketsAmazonPay.getLanguage(),
                         authorization: function () {
-                            loginOptions = {
-                                scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
+                            var loginOptions = {
+                                scope: PlentyMarketsAmazonPay.amazonScope,
                                 popup: amazonLoginAndPay.config.popup
                             };
                             if (location.href.indexOf('%2Fcheckout') !== -1 || location.href.indexOf('/checkout') !== -1) {
@@ -168,7 +169,7 @@ var PlentyMarketsAmazonPay = {
             if (amz$('#addressBookWidgetDiv').length) {
                 new OffAmazonPayments.Widgets.AddressBook({
                     sellerId: amazonLoginAndPay.config.merchantId,
-                    scope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
+                    scope: PlentyMarketsAmazonPay.amazonScope,
                     onOrderReferenceCreate: function (orderReference) {
                         // Here is where you can grab the Order Reference ID.
                         orderReference = orderReference.getAmazonOrderReferenceId();
@@ -215,6 +216,7 @@ var PlentyMarketsAmazonPay = {
                 }
                 amazonLoginAndPay.widgets.walletWidget = new OffAmazonPayments.Widgets.Wallet({
                     sellerId: amazonLoginAndPay.config.merchantId,
+                    scope: PlentyMarketsAmazonPay.amazonScope,
                     presentmentCurrency: amzCurrency,
                     design: {
                         designMode: 'responsive'

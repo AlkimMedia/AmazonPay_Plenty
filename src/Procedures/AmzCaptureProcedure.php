@@ -62,7 +62,7 @@ class AmzCaptureProcedure
         }
 
         foreach ($openAuths as $openAuth) {
-            $transactionHelper->refreshAuthorization($openAuth);
+            $transactionHelper->capture($openAuth->amzId, $openAuth->amount);
         }
 
     }
