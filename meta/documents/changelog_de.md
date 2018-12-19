@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.2.2
+
+### Gefixt
+
+- Netto-Bestellungen
+
 ## 1.2.1
 
 ### Gefixt

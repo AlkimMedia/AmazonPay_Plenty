@@ -1,5 +1,11 @@
 # Release notes for Amazon Pay
 
+## 1.2.2
+
+### Fixed
+
+- net prices
+
 ## 1.2.1
 
 ### Fixed

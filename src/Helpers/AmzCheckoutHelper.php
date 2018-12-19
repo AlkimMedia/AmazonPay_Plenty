@@ -280,6 +280,11 @@ class AmzCheckoutHelper
             $basket = $this->basketService->getBasket();
             $this->helper->log(__CLASS__, __METHOD__, 'basket', [$basket]);
             $returnBasket = $basket->toArray();
+            if($this->helper->isNet()) {
+                $returnBasket["itemSum"] = $returnBasket["itemSumNet"];
+                $returnBasket["basketAmount"] = $returnBasket["basketAmountNet"];
+                $returnBasket["shippingAmount"] = $returnBasket["shippingAmountNet"];
+            }
             $basketAmount = $returnBasket["basketAmount"];
             $basketNetAmount = $returnBasket["basketAmountNet"];
             $returnBasket["vat"] = $basketAmount - $basketNetAmount;

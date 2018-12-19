@@ -72,7 +72,7 @@ class AlkimAmazonLoginAndPayHelper
             'secret_key' => $this->getFromConfig('mwsSecretAccessKey'),
             'client_id' => $this->getFromConfig('loginClientId'),
             'application_name' => 'plentymarkets-alkim-amazon-pay',
-            'application_version' => '1.2.1',
+            'application_version' => '1.2.2',
             'region' => 'de'
         ];
     }
@@ -238,7 +238,7 @@ class AlkimAmazonLoginAndPayHelper
         $this->log(__CLASS__, __METHOD__, 'get order amount', ['order' => $order, 'amounts' => $order->amounts, 'amount' => $order->amounts[0], 'amount 1' => $order->amounts[0]->grossTotal, 'amount 2' => $order->amounts[0]["grossTotal"]]);
         $amount = (isset($order->amounts[1]) ? $order->amounts[1] : $order->amounts[0]);
         return [
-            'total' => $amount->grossTotal,
+            'total' => ($amount->isNet?$amount->netTotal:$amount->grossTotal),
             'currency' => $amount->currency
         ];
     }
@@ -371,6 +371,10 @@ class AlkimAmazonLoginAndPayHelper
     public function getFromSession($key)
     {
         return $this->session->getPlugin()->getValue($key);
+    }
+
+    public function isNet(){
+        return (bool)$this->session->getCustomer()->showNetPrice;
     }
 
     public function setOrderIdToAmazonTransactions($orderReference, $orderId)
