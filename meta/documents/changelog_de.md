@@ -1,5 +1,15 @@
 # Release Notes für Amazon Pay
 
+## 1.3.0
+
+### Hinzugefügt
+
+- Kompatibilität mit Shopware Connector
+
+### Gefixt
+
+- Verlust von Access Token aus Session
+
 ## 1.2.2
 
 ### Gefixt

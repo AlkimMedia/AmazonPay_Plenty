@@ -1,34 +1,28 @@
-# Amazon Pay on Plentymarkets
-Millions of Amazon buyers can use Amazon Pay on your Plentymarkets desktop or mobile sites with the information already stored in their Amazon account.
-
-No charges are applied to install the Amazon Pay plugin developed by Alkim Media in your Shop and it is easy to setup. Plus, it's a seamless experience for your customers. All buyer interactions take place in widgets embedded in your shop, so they never leave your website. Customers simply authenticate using their Amazon credentials, select a shipping address and payment method, and confirm their order.
-
-Amazon Pay is fast, easy and secure and helps you add new customers, increase sales, and reduce fraud costs. Leverage the trust of Amazon to grow your business.
+# Amazon Pay and Login with Amazon
+With the Amazon Pay extension merchants enable over 300 million Amazon customers to login and pay on their website. Every Amazon customer can use this payment method immediately. 
 
 [Register now for Amazon Pay](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=en_GB&source=SPMW)
-##  Your benefits
-### Customer loyalty
-You increase repeat buyers by offering a trusted and convenient payment method.
+##  Advantages
+- Grow your business – The Amazon checkout experience __increases conversion__ by allowing customers to use one familiar login.
+- Improve the customer experience – Consumers order with as little as __three clicks__.
+- Expand your customer base – Amazon Pay offers a __hassle-free checkout__. Consumers can pay convenient and securely with their Amazon user data without having to register on your website.
+- Own your data – __No sharing of__ item or shopping cart __data__ with Amazon.
+- Improve your data quality – All necessary __customer information__ (name, e-mail, shipping address and phone number) is transferred after Amazon Pay was used.
+- Protect your business -  Amazon Pay includes __fraud protection__, provided at no additional cost
+- Build customer engagement and loyalty – The __Amazon customer base__ can be directly addressed to market products online. 
 
-### Increased sales
-You capture sales from buyers who are reluctant to enter their information.
 
-### Mobile ready
-Your login and payment flow is automatically mobile ready without any extra setup.
-
-## Customer benefits
-### Online identity
-Your customers save time and hassle by using their Amazon credentials to login and pay.
-
-### A smooth payment process
-Your customers won’t leave your website to enter their payment/shipping information.
-
-### Painless Mobile Experience
-Your customers easily login and pay on their smartphones and tablets with a few taps.
-
- 
+##  Features
+- Pure payment processing without transferring item or shopping cart data 
+- Familiar and trusted login to validate and verify customers.
+- Amazon’s fraud detection and prevention technology helps to reduce bad debt
+- Amazon Pay is continuously evolving to meet the needs of merchants and customers 
+- Mobile-optimized with widgets that automatically adapt to tablets and smartphones. Support of digital goods.
+- Protect your customers with the Amazon A-to-z Guarantee at no additional cost 
+- Multi-currency support
+- Multi-language support
 
 <hr>
-[Information for installation and setup ](https://www.alkim.de/Amazon-Pay-fuer-Plentymarkets---Anleitung.html)	   
+[Information for installation and setup ](https://alkimmedia.github.io/AmazonPay_Plenty/)	   
 [Further information about Amazon Pay](https://pay.amazon.com/uk/merchant?ref=ml_de_ap_xx_sp_PAMP_xx_xx_xx_MPI)	 
-[Sign up for Amazon Pay](https://payments-eu.amazon.com/register?spId=A1SGXK19QKIYNB&marketplaceId=A53RDEWN57UU5&language=en_GB&locale=de_DE&source=SPPW&ref=sp_de_ap_np_sp_Plty_xx_xx_xx_PLM)
+[Sign up for Amazon Pay](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=en_GB&source=SPMW)

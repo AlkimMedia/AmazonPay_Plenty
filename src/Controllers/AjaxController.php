@@ -167,7 +167,15 @@ class AjaxController extends Controller
                     /** @var AmzTransaction $transaction */
                     $transaction = pluginApp(AmzTransaction::class);
                     $transaction->amzId = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
+                    $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
                     $transaction->type = 'auth';
+                    if($orderReferenceTransactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $transaction], ['type', '=', 'order_ref']])){
+                        $orderReferenceTransaction = $orderReferenceTransactions[0];
+                        if($orderReferenceTransaction->order){
+                            $transaction->order = $orderReferenceTransaction->order;
+                        }
+                    }
+
                     $transaction = $repository->saveTransaction($transaction);
                 } else {
                     $transaction = $transactions[0];
@@ -199,28 +207,45 @@ class AjaxController extends Controller
     {
         $key = $this->request->get('key');
         $response = ['success' => true];
+        $this->helper->log(__CLASS__, __METHOD__, 'shopware connect start', [$this->request->getContent(), $this->request->all()]);
         if (!empty($key) && $key === $this->helper->getFromConfig('amzShopwareConnectorKey')) {
             $orderId = $this->request->get('order_id');
             $orderReferenceId = $this->request->get('order_reference_id');
             if (!empty($orderId) && !empty($orderReferenceId)) {
-                $transactions = $repository->getTransactions([['orderReference', '=', $orderReferenceId], ['type', '=', 'order_ref']]);
+                $transactions = $repository->getTransactions([['orderReference', '=', $orderReferenceId]]);
+                $orderReferenceObjectExists = false;
                 if (!empty($transactions)) {
                     foreach ($transactions as $transaction) {
+                        if ($transaction->type === 'order_ref') {
+                            $orderReferenceObjectExists = true;
+                        }
                         if (empty($transaction->order)) {
                             $transaction->order = (int)$orderId;
-                            if ($transaction->type === 'auth' && empty($transaction->paymentId)) {
-                                $this->transactionHelper->doAuthorizationPaymentAction($transaction);
+                            if ($transaction->type === 'auth') {
+                                if(empty($transaction->paymentId)) {
+                                    $this->transactionHelper->doAuthorizationPaymentAction($transaction);
+                                }else{
+                                    $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - detected payment', [$transaction->paymentId, $orderId]);
+                                    if ($payment = $this->helper->paymentRepository->getPaymentById($transaction->paymentId)) {
+                                        $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign payment', [$payment, $orderId]);
+                                        if(!$this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)){
+                                            $this->transactionHelper->doAuthorizationPaymentAction($transaction);
+                                        }
+                                    }
+                                }
                             }
                             $repository->updateTransaction($transaction);
                         }
                     }
-                } else {
+                }
+                if(!$orderReferenceObjectExists){
                     /** @var AmzTransaction $transaction */
                     $transaction = pluginApp(AmzTransaction::class);
                     $transaction->order = (int)$orderId;
                     $transaction->orderReference = $orderReferenceId;
                     $transaction->type = 'order_ref';
-                    $repository->saveTransaction($transaction);
+                    $transaction = $repository->saveTransaction($transaction);
+                    $this->transactionHelper->refreshOrderReference($transaction, true);
                 }
             } else {
                 $response = ['success' => false, 'error' => 'data missing'];

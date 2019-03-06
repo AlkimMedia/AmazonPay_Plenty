@@ -60,7 +60,7 @@ class AmzCheckoutHelper
     public function setAddresses($orderReferenceDetails = null)
     {
         if ($orderReferenceDetails === null) {
-            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getFromSession('amzUserToken'));
+            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $this->helper->log(__CLASS__, __METHOD__, 'set addresses', $orderReferenceDetails);
         $this->setShippingAddress($orderReferenceDetails);
@@ -71,7 +71,7 @@ class AmzCheckoutHelper
     {
         $this->helper->log(__CLASS__, __METHOD__, 'set shipping address - start', []);
         if ($orderReferenceDetails === null) {
-            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getFromSession('amzUserToken'));
+            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $formattedShippingAddress = null;
         $shippingAddressObject = null;
@@ -106,14 +106,18 @@ class AmzCheckoutHelper
     public function setInvoiceAddress($orderReferenceDetails = null)
     {
         if ($orderReferenceDetails === null) {
-            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getFromSession('amzUserToken'));
+            $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $formattedInvoiceAddress = null;
         $invoiceAddressObject = null;
-        $this->helper->log(__CLASS__, __METHOD__, 'hooray', '');
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
-            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"]);
+            $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            if(empty($email)) {
+                $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
+                $email = $userData["email"];
+            }
+            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $email);
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
             $contactId = $customerService->getContactId();

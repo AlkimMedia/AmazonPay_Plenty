@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
@@ -14,6 +15,7 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Plugin\ConfigRepository;
+use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
 
 class AlkimAmazonLoginAndPayHelper
@@ -51,15 +53,15 @@ class AlkimAmazonLoginAndPayHelper
     public function log($class, $method, $msg, $arg, $error = false)
     {
         $logger = $this->getLogger($class . '_' . $method);
-            if ($error) {
-                $logger->error($msg, $arg);
-            } else {
-                if (!is_array($arg)) {
-                    $arg = [$arg];
-                }
-                $arg[] = $msg;
-                $logger->info('AmazonLoginAndPay::Logger.infoCaption', $arg);
+        if ($error) {
+            $logger->error($msg, $arg);
+        } else {
+            if (!is_array($arg)) {
+                $arg = [$arg];
             }
+            $arg[] = $msg;
+            $logger->info('AmazonLoginAndPay::Logger.infoCaption', $arg);
+        }
 
     }
 
@@ -113,7 +115,6 @@ class AlkimAmazonLoginAndPayHelper
             $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
         }
 
-
         $payment->properties = $paymentProperties;
         $payment = $this->paymentRepository->createPayment($payment);
         return $payment;
@@ -123,9 +124,9 @@ class AlkimAmazonLoginAndPayHelper
     {
         $paymentMethodId = $this->getPaymentMethod();
         if ($paymentMethodId === false) {
-            $paymentMethodData = array('pluginKey' => 'alkim_amazonpay',
-                'paymentKey' => 'AMAZONPAY',
-                'name' => 'Amazon Pay');
+            $paymentMethodData = ['pluginKey' => 'alkim_amazonpay',
+                                  'paymentKey' => 'AMAZONPAY',
+                                  'name' => 'Amazon Pay'];
 
             $this->paymentMethodRepository->createPaymentMethod($paymentMethodData);
             $paymentMethodId = $this->getPaymentMethod();
@@ -225,11 +226,26 @@ class AlkimAmazonLoginAndPayHelper
 
     public function assignPlentyPaymentToPlentyOrder(Payment $payment, int $orderId)
     {
-        $order = $this->orderRepository->findOrderById($orderId);
-        $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
-        if (!is_null($order) && $order instanceof Order) {
-            $this->paymentOrderRelationRepository->createOrderRelation($payment, $order);
+        try {
+            $this->log(__CLASS__, __METHOD__, 'start assign plenty payment to order', ['orderId' => $orderId, 'payment' => $payment]);
+            $order = $this->orderRepository->findOrderById($orderId);
+            $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
+            if (!is_null($order) && $order instanceof Order) {
+                $paymentOrderRepo = $this->paymentOrderRelationRepository;
+                /** @var AuthHelper $authHelper */
+                $authHelper = pluginApp(AuthHelper::class);
+                $return = $authHelper->processUnguarded(
+                    function () use ($paymentOrderRepo, $payment, $order) {
+                        return $paymentOrderRepo->createOrderRelation($payment, $order);
+                    }
+                );
+                $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order - result', $return);
+            }
+        } catch (\Exception $e) {
+            $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order failed', [$e, $e->getMessage()], true);
+            return false;
         }
+        return true;
     }
 
     public function getOrderTotalAndCurrency(int $orderId)
@@ -238,11 +254,10 @@ class AlkimAmazonLoginAndPayHelper
         $this->log(__CLASS__, __METHOD__, 'get order amount', ['order' => $order, 'amounts' => $order->amounts, 'amount' => $order->amounts[0], 'amount 1' => $order->amounts[0]->grossTotal, 'amount 2' => $order->amounts[0]["grossTotal"]]);
         $amount = (isset($order->amounts[1]) ? $order->amounts[1] : $order->amounts[0]);
         return [
-            'total' => ($amount->isNet?$amount->netTotal:$amount->grossTotal),
+            'total' => ($amount->isNet ? $amount->netTotal : $amount->grossTotal),
             'currency' => $amount->currency
         ];
     }
-
 
     public function reformatAmazonAddress($address, $emailAddress = null)
     {
@@ -283,7 +298,6 @@ class AlkimAmazonLoginAndPayHelper
         $postcode = $address["PostalCode"];
         $countryCode = $address["CountryCode"];
         $phone = $address["Phone"];
-
 
         $finalAddress["name1"] = $company;
         $finalAddress["name2"] = $firstName;
@@ -348,7 +362,6 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'set order status cancelled because of empty status', null);
         }
 
-
     }
 
     public function resetSession($keepBasket = false)
@@ -368,12 +381,36 @@ class AlkimAmazonLoginAndPayHelper
         $this->session->getPlugin()->setValue($key, $value);
     }
 
+    public function getAccessToken()
+    {
+        $token = $this->getFromSession('amzUserToken');
+        $token = '';
+        if (empty($token)) {
+            /** @var Request $request */
+            $request = pluginApp(Request::class);
+            $header = $request->header();
+            $cookie = $header["cookie"];
+            if (is_array($cookie)) {
+                $cookie = implode(' ', $cookie);
+            }
+            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', [$header, explode('; ', $cookie)], true);
+            foreach (explode('; ', $cookie) as $cookiePart) {
+                if (substr($cookiePart, 0, 25) === 'amazon_Login_accessToken=') {
+                    $token = substr($cookiePart, 25);
+                    $this->log(__CLASS__, __METHOD__, 'token from cookie', $token, true);
+                }
+            }
+        }
+        return $token;
+    }
+
     public function getFromSession($key)
     {
         return $this->session->getPlugin()->getValue($key);
     }
 
-    public function isNet(){
+    public function isNet()
+    {
         return (bool)$this->session->getCustomer()->showNetPrice;
     }
 
@@ -394,6 +431,4 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'set order id to transaction', $_transaction);
         }
     }
-
-
 }

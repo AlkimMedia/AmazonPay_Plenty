@@ -169,7 +169,7 @@ class AmzTransactionHelper
                 $this->capture($transaction->amzId, $transaction->amount);
             }
             $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
-            if ($transactionBeforeRefresh->status !== 'Open') {
+            if ($orderId && $transactionBeforeRefresh->status !== 'Open') {
                 $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
             }
         }
