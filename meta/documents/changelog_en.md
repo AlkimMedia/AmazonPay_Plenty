@@ -1,5 +1,15 @@
 # Release notes for Amazon Pay
 
+## 1.3.1
+
+### Added
+
+- handling of external captures
+
+### Gefixt
+
+- several IPN and transaction issues
+
 ## 1.3.0
 
 ### Added

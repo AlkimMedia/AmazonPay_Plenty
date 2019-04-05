@@ -228,12 +228,17 @@ class AlkimAmazonLoginAndPayHelper
     {
         try {
             $this->log(__CLASS__, __METHOD__, 'start assign plenty payment to order', ['orderId' => $orderId, 'payment' => $payment]);
-            $order = $this->orderRepository->findOrderById($orderId);
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $orderRepo = $this->orderRepository;
+            $order = $authHelper->processUnguarded(
+                function () use ($orderRepo, $orderId) {
+                    return $orderRepo->findOrderById($orderId);
+                }
+            );
             $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
             if (!is_null($order) && $order instanceof Order) {
                 $paymentOrderRepo = $this->paymentOrderRelationRepository;
-                /** @var AuthHelper $authHelper */
-                $authHelper = pluginApp(AuthHelper::class);
                 $return = $authHelper->processUnguarded(
                     function () use ($paymentOrderRepo, $payment, $order) {
                         return $paymentOrderRepo->createOrderRelation($payment, $order);

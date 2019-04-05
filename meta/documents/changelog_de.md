@@ -1,5 +1,15 @@
 # Release Notes für Amazon Pay
 
+## 1.3.1
+
+### Hinzugefügt
+
+- Erkennung von externen Captures (z.B. in Seller Central)
+
+### Gefixt
+
+- diverse IPN-/Transaktionsprobleme
+
 ## 1.3.0
 
 ### Hinzugefügt

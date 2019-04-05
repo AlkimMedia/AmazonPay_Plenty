@@ -169,18 +169,32 @@ class AjaxController extends Controller
                     $transaction->amzId = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
                     $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
                     $transaction->type = 'auth';
-                    if($orderReferenceTransactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $transaction], ['type', '=', 'order_ref']])){
-                        $orderReferenceTransaction = $orderReferenceTransactions[0];
-                        if($orderReferenceTransaction->order){
-                            $transaction->order = $orderReferenceTransaction->order;
-                        }
+                    if($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)){
+                        $transaction->order = $orderId;
                     }
-
                     $transaction = $repository->saveTransaction($transaction);
                 } else {
                     $transaction = $transactions[0];
                 }
                 $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
+                break;
+            case 'PaymentCapture':
+                $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->CaptureDetails->AmazonCaptureId]]);
+                $this->helper->log(__CLASS__, __METHOD__, 'ipn - capture', [$transactions]);
+                if (empty($transactions)) {
+                    /** @var AmzTransaction $transaction */
+                    $transaction = pluginApp(AmzTransaction::class);
+                    $transaction->amzId = $responseXml->CaptureDetails->AmazonCaptureId;
+                    $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
+                    $transaction->type = 'capture';
+                    if($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)){
+                        $transaction->order = $orderId;
+                    }
+                    $transaction = $repository->saveTransaction($transaction);
+                } else {
+                    $transaction = $transactions[0];
+                }
+                $this->transactionHelper->refreshCapture($transaction, empty($transaction->status));
                 break;
             case 'OrderReferenceNotification':
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->OrderReference->AmazonOrderReferenceId], ['type', '=', 'order_ref']]);
