@@ -25,17 +25,18 @@ class AjaxController extends Controller
 
     public function __construct(AmzTransactionRepositoryContract $amzTransactionRepo, Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, Request $request, AmzCheckoutHelper $checkoutHelper, AmzCustomerService $customerService)
     {
-        $this->response = $response;
-        $this->request = $request;
-        $this->helper = $helper;
-        $this->transactionHelper = $transactionHelper;
-        $this->checkoutHelper = $checkoutHelper;
+        $this->response           = $response;
+        $this->request            = $request;
+        $this->helper             = $helper;
+        $this->transactionHelper  = $transactionHelper;
+        $this->checkoutHelper     = $checkoutHelper;
         $this->amzTransactionRepo = $amzTransactionRepo;
-        $this->customerService = $customerService;
+        $this->customerService    = $customerService;
     }
 
     /**
      * @param Twig $twig
+     *
      * @return string
      */
 
@@ -46,9 +47,9 @@ class AjaxController extends Controller
         switch ($action) {
             case 'setAccessToken':
                 $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
-                $redirect = '/amazon-checkout';
+                $redirect  = '/amazon-checkout';
                 $cookieStr = '';
-                $header = $this->request->header();
+                $header    = $this->request->header();
                 if (isset($header['cookie']) && is_array($header['cookie'])) {
                     $cookieStr = implode('', $header['cookie']);
                     if (strpos($cookieStr, 'amzLoginType=Login') !== false) {
@@ -69,10 +70,12 @@ class AjaxController extends Controller
                     $this->customerService->loginWithAmazonUserData($userData, null, null, true);
                 }
                 $this->helper->setToSession('amazonLogout', 2);
+
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => json_encode(['redirect' => $redirect])]);
                 break;
             case 'setOrderReference':
                 $this->helper->setToSession('amzOrderReference', $this->request->get('orderReference'));
+
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $this->helper->getFromSession('amzOrderReference')]);
                 break;
             case 'getShippingList':
@@ -80,15 +83,17 @@ class AjaxController extends Controller
                 $templateData = ['shippingOptions' => [], 'basket' => []];
                 try {
                     $templateData['shippingOptions'] = $this->checkoutHelper->getShippingOptionsList();
-                    $templateData['basket'] = $this->checkoutHelper->getBasketData();
+                    $templateData['basket']          = $this->checkoutHelper->getBasketData();
                 } catch (\Exception $e) {
                     $this->helper->log(__CLASS__, __METHOD__, 'getShippingList data fetch failed', [$e, $e->getMessage()], true);
                 }
                 $this->helper->log(__CLASS__, __METHOD__, 'shipping list template data', $templateData);
+
                 return $twig->render('AmazonLoginAndPay::snippets.shipping-list', $templateData);
                 break;
             case 'setComment':
                 $this->helper->setToSession('orderContactWish', $this->request->get('comment'));
+
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'success']);
                 break;
             case 'setShippingProfileId':
@@ -98,15 +103,17 @@ class AjaxController extends Controller
                 $templateData = ['items' => [], 'basket' => []];
                 $this->helper->log(__CLASS__, __METHOD__, 'startGetOrderDetails', []);
                 try {
-                    $templateData['items'] = $this->checkoutHelper->getBasketItems();
+                    $templateData['items']  = $this->checkoutHelper->getBasketItems();
                     $templateData['basket'] = $this->checkoutHelper->getBasketData();
                 } catch (\Exception $e) {
                     $this->helper->log(__CLASS__, __METHOD__, 'getOrderDetails data fetch failed', [$e, $e->getMessage()], true);
                 }
                 $this->helper->log(__CLASS__, __METHOD__, 'basket list template data', $templateData);
+
                 return $twig->render('AmazonLoginAndPay::snippets.order-details', $templateData);
 
         }
+
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'No action found']);
     }
 
@@ -145,17 +152,18 @@ class AjaxController extends Controller
             $this->transactionHelper->intelligentRefresh($openTransaction);
             sleep(1);
         }
+
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => 'COMPLETED']);
     }
 
     public function ipn(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
-        $key = $this->request->get('key');
+        //$key = $this->request->get('key');
         //TODO: Check key
         $requestBody = $this->request->getContent();
 
         $requestData = json_decode($requestBody);
-        $message = json_decode($requestData->Message);
+        $message     = json_decode($requestData->Message);
 
         $responseXml = simplexml_load_string($message->NotificationData);
         $this->helper->log(__CLASS__, __METHOD__, 'ipn data', [$message, $responseXml]);
@@ -165,11 +173,11 @@ class AjaxController extends Controller
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - auth', [$transactions]);
                 if (empty($transactions)) {
                     /** @var AmzTransaction $transaction */
-                    $transaction = pluginApp(AmzTransaction::class);
-                    $transaction->amzId = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
+                    $transaction                 = pluginApp(AmzTransaction::class);
+                    $transaction->amzId          = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
                     $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
-                    $transaction->type = 'auth';
-                    if($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)){
+                    $transaction->type           = 'auth';
+                    if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
                         $transaction->order = $orderId;
                     }
                     $transaction = $repository->saveTransaction($transaction);
@@ -183,11 +191,11 @@ class AjaxController extends Controller
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - capture', [$transactions]);
                 if (empty($transactions)) {
                     /** @var AmzTransaction $transaction */
-                    $transaction = pluginApp(AmzTransaction::class);
-                    $transaction->amzId = $responseXml->CaptureDetails->AmazonCaptureId;
+                    $transaction                 = pluginApp(AmzTransaction::class);
+                    $transaction->amzId          = $responseXml->CaptureDetails->AmazonCaptureId;
                     $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
-                    $transaction->type = 'capture';
-                    if($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)){
+                    $transaction->type           = 'capture';
+                    if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
                         $transaction->order = $orderId;
                     }
                     $transaction = $repository->saveTransaction($transaction);
@@ -201,10 +209,10 @@ class AjaxController extends Controller
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - order reference', [$transactions]);
                 if (empty($transactions)) {
                     /** @var AmzTransaction $transaction */
-                    $transaction = pluginApp(AmzTransaction::class);
+                    $transaction                 = pluginApp(AmzTransaction::class);
                     $transaction->orderReference = $responseXml->OrderReference->AmazonOrderReferenceId;
-                    $transaction->type = 'order_ref';
-                    $transaction = $repository->saveTransaction($transaction);
+                    $transaction->type           = 'order_ref';
+                    $transaction                 = $repository->saveTransaction($transaction);
                 } else {
                     $transaction = $transactions[0];
                 }
@@ -214,19 +222,20 @@ class AjaxController extends Controller
         }
 
         $output = 'done';
+
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $output]);
     }
 
     public function shopwareConnect(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
-        $key = $this->request->get('key');
+        $key      = $this->request->get('key');
         $response = ['success' => true];
         $this->helper->log(__CLASS__, __METHOD__, 'shopware connect start', [$this->request->getContent(), $this->request->all()]);
         if (!empty($key) && $key === $this->helper->getFromConfig('amzShopwareConnectorKey')) {
-            $orderId = $this->request->get('order_id');
+            $orderId          = $this->request->get('order_id');
             $orderReferenceId = $this->request->get('order_reference_id');
             if (!empty($orderId) && !empty($orderReferenceId)) {
-                $transactions = $repository->getTransactions([['orderReference', '=', $orderReferenceId]]);
+                $transactions               = $repository->getTransactions([['orderReference', '=', $orderReferenceId]]);
                 $orderReferenceObjectExists = false;
                 if (!empty($transactions)) {
                     foreach ($transactions as $transaction) {
@@ -236,13 +245,13 @@ class AjaxController extends Controller
                         if (empty($transaction->order)) {
                             $transaction->order = (int)$orderId;
                             if ($transaction->type === 'auth') {
-                                if(empty($transaction->paymentId)) {
+                                if (empty($transaction->paymentId)) {
                                     $this->transactionHelper->doAuthorizationPaymentAction($transaction);
-                                }else{
+                                } else {
                                     $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - detected payment', [$transaction->paymentId, $orderId]);
                                     if ($payment = $this->helper->paymentRepository->getPaymentById($transaction->paymentId)) {
                                         $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign payment', [$payment, $orderId]);
-                                        if(!$this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)){
+                                        if (!$this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
                                             $this->transactionHelper->doAuthorizationPaymentAction($transaction);
                                         }
                                     }
@@ -252,13 +261,13 @@ class AjaxController extends Controller
                         }
                     }
                 }
-                if(!$orderReferenceObjectExists){
+                if (!$orderReferenceObjectExists) {
                     /** @var AmzTransaction $transaction */
-                    $transaction = pluginApp(AmzTransaction::class);
-                    $transaction->order = (int)$orderId;
+                    $transaction                 = pluginApp(AmzTransaction::class);
+                    $transaction->order          = (int)$orderId;
                     $transaction->orderReference = $orderReferenceId;
-                    $transaction->type = 'order_ref';
-                    $transaction = $repository->saveTransaction($transaction);
+                    $transaction->type           = 'order_ref';
+                    $transaction                 = $repository->saveTransaction($transaction);
                     $this->transactionHelper->refreshOrderReference($transaction, true);
                 }
             } else {
@@ -268,14 +277,23 @@ class AjaxController extends Controller
             $response = ['success' => false, 'error' => 'wrong key'];
         }
         $this->response->json($response, 200, ['Content-Type: application/json']);
+
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => json_encode($response)]);
 
+    }
+
+    public function preCheckoutActions(Twig $twig)
+    {
+        $return = $this->checkoutHelper->confirmOrderReference(0);
+        $this->response->json($return, 200, ['Content-Type: application/json']);
+
+        return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => json_encode($return)]);
     }
 
     public function getTable(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
         $transactions = $repository->getTransactions([]);
-        $html = '<table>';
+        $html         = '<table>';
         foreach ($transactions as $transaction) {
             $html .= '<tr>';
             foreach ($transaction as $k => $v) {
@@ -283,6 +301,7 @@ class AjaxController extends Controller
             }
             $html .= '</tr>';
         }
+
         return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $html]);
     }
 

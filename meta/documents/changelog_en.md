@@ -1,12 +1,18 @@
 # Release notes for Amazon Pay
 
+## 1.4.0
+
+### Added
+
+- multi factor authentication (PSD2)
+
 ## 1.3.1
 
 ### Added
 
 - handling of external captures
 
-### Gefixt
+### Fixed
 
 - several IPN and transaction issues
 

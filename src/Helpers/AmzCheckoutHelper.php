@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Services\AmzBasketService;
@@ -24,18 +25,19 @@ class AmzCheckoutHelper
 
     public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, AmzBasketService $basketService, AmzCheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
     {
-        $this->helper = $helper;
-        $this->transactionHelper = $transactionHelper;
-        $this->checkoutService = $checkoutService;
-        $this->basketService = $basketService;
-        $this->checkout = $checkout;
+        $this->helper               = $helper;
+        $this->transactionHelper    = $transactionHelper;
+        $this->checkoutService      = $checkoutService;
+        $this->basketService        = $basketService;
+        $this->checkout             = $checkout;
         $this->basketItemRepository = $basketItemRepository;
-        $this->orderRepository = $orderRepository;
+        $this->orderRepository      = $orderRepository;
     }
 
     public function getShippingOptionsList()
     {
         $checkoutData = $this->getCheckoutData();
+
         return $checkoutData["shippingProfileList"];
     }
 
@@ -54,6 +56,7 @@ class AmzCheckoutHelper
             $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems failed', [$e, $e->getMessage()], true);
         }
         $this->helper->log(__CLASS__, __METHOD__, 'getBasketItems return', [$return]);
+
         return $return;
     }
 
@@ -74,14 +77,14 @@ class AmzCheckoutHelper
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $formattedShippingAddress = null;
-        $shippingAddressObject = null;
+        $shippingAddressObject    = null;
         try {
-            $shippingAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
+            $shippingAddress          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
             $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress);
 
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
-            $contactId = $customerService->getContactId();
+            $contactId       = $customerService->getContactId();
 
             if ($contactId) {
                 $shippingAddressObject = $this->createContactAddress($contactId, $formattedShippingAddress);
@@ -94,13 +97,41 @@ class AmzCheckoutHelper
             $this->helper->log(__CLASS__, __METHOD__, 'set shipping address failed', [$e, $e->getMessage()], true);
         }
 
-
-
         $this->helper->log(__CLASS__, __METHOD__, 'shipping address', [
             'shippingAddressArray' => $formattedShippingAddress,
-            'shippingAddress' => $shippingAddressObject,
-            'checkout' => $this->checkout
+            'shippingAddress'      => $shippingAddressObject,
+            'checkout'             => $this->checkout
         ]);
+    }
+
+    public function createContactAddress($contactId, $data, $type = 'delivery')
+    {
+        /** @var ContactAddressRepositoryContract $contactAddressRepo */
+        $contactAddressRepo = pluginApp(ContactAddressRepositoryContract::class);
+        $addressObj         = null;
+        try {
+            $addressObj = $contactAddressRepo->createAddress($data, $contactId, ($type === 'delivery' ? AddressRelationType::DELIVERY_ADDRESS : AddressRelationType::BILLING_ADDRESS));
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'contact address creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'contact address created', [$data, $addressObj]);
+
+        return $addressObj;
+    }
+
+    public function createAddress($data)
+    {
+        /** @var AddressRepositoryContract $addressRepo */
+        $addressRepo = pluginApp(AddressRepositoryContract::class);
+        $addressObj  = null;
+        try {
+            $addressObj = $addressRepo->createAddress($data);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'address creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'address created', [$data, $addressObj]);
+
+        return $addressObj;
     }
 
     public function setInvoiceAddress($orderReferenceDetails = null)
@@ -109,18 +140,18 @@ class AmzCheckoutHelper
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $formattedInvoiceAddress = null;
-        $invoiceAddressObject = null;
+        $invoiceAddressObject    = null;
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
-            $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
-            if(empty($email)) {
+            $email          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            if (empty($email)) {
                 $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
-                $email = $userData["email"];
+                $email    = $userData["email"];
             }
             $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $email);
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
-            $contactId = $customerService->getContactId();
+            $contactId       = $customerService->getContactId();
 
             if ($contactId) {
                 $invoiceAddressObject = $this->createContactAddress($contactId, $formattedInvoiceAddress, 'invoice');
@@ -133,8 +164,8 @@ class AmzCheckoutHelper
         }
         $this->helper->log(__CLASS__, __METHOD__, 'invoice address', [
             'invoiceAddressArray' => $formattedInvoiceAddress,
-            'invoiceAddress' => $invoiceAddressObject,
-            'checkout' => $this->checkout
+            'invoiceAddress'      => $invoiceAddressObject,
+            'checkout'            => $this->checkout
         ]);
     }
 
@@ -143,71 +174,24 @@ class AmzCheckoutHelper
         $this->checkout->setShippingProfileId($id);
     }
 
-    public function createAddress($data)
+    public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false)
     {
-        /** @var AddressRepositoryContract $addressRepo */
-        $addressRepo = pluginApp(AddressRepositoryContract::class);
-        $addressObj = null;
-        try {
-            $addressObj = $addressRepo->createAddress($data);
-        } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'address creation failed', [$e, $e->getMessage()], true);
-        }
-        $this->helper->log(__CLASS__, __METHOD__, 'address created', [$data, $addressObj]);
-        return $addressObj;
-    }
-
-    public function createContactAddress($contactId, $data, $type = 'delivery')
-    {
-        /** @var ContactAddressRepositoryContract $contactAddressRepo */
-        $contactAddressRepo = pluginApp(ContactAddressRepositoryContract::class);
-        $addressObj = null;
-        try {
-            $addressObj = $contactAddressRepo->createAddress($data, $contactId, ($type === 'delivery' ? AddressRelationType::DELIVERY_ADDRESS : AddressRelationType::BILLING_ADDRESS));
-        } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'contact address creation failed', [$e, $e->getMessage()], true);
-        }
-        $this->helper->log(__CLASS__, __METHOD__, 'contact address created', [$data, $addressObj]);
-        return $addressObj;
-    }
-
-    public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false, $currency = 'EUR')
-    {
-        $return = [
-            'redirect' => ''
-        ];
-        $successTarget = ($this->helper->getFromConfig('submitOrderIds') == 'true' ? 'confirmation' : 'place-order');
+        $successTarget = 'place-order';
         if (!$walletOnly) {
             $this->setPaymentMethod();
-            $successTarget = 'place-order';
-        }
-        if ($amount === null) {
-            $basket = $this->getBasketData();
-            $amount = $basket["basketAmount"];
-            $currency = $basket["currency"];
         }
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
-        if (!$walletOnly) {
-            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, $orderId, $currency);
-            $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
-            $constraint = $constraints["Constraint"]["ConstraintID"];
-            if (!empty($constraint)) {
-                if (!empty($orderId)) {
-                    $this->cancelOrder($orderId);
-                    $this->restoreBasket();
-                }
-                $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
-                $return["redirect"] = 'amazon-checkout';
-                return $return;
-            }
-        }
-        $this->transactionHelper->confirmOrderReference($orderReferenceId, true, $orderId);
+
         if ($this->helper->getFromConfig('authorizationMode') != 'manually') {
+            if (empty($amount)) {
+                $basket = $this->getBasketData();
+                $amount = $basket["basketAmount"];
+            }
             $response = $this->transactionHelper->authorize($orderReferenceId, $amount, 0);
             $this->helper->log(__CLASS__, __METHOD__, 'amazonCheckoutAuthorizeResult', $response);
             if (is_array($response) && !empty($response["AuthorizeResult"])) {
                 $details = $response["AuthorizeResult"]["AuthorizationDetails"];
-                $status = $details["AuthorizationStatus"]["State"];
+                $status  = $details["AuthorizationStatus"]["State"];
                 if ($status == "Declined") {
                     $reason = $details["AuthorizationStatus"]["ReasonCode"];
                     if ($reason == 'TransactionTimedOut') {
@@ -219,17 +203,20 @@ class AmzCheckoutHelper
                             }
                             $this->helper->resetSession();
                             $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
+                            $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                             $return["redirect"] = 'basket';
+
                             return $return;
                         } else {
                             $response = $this->transactionHelper->authorize($orderReferenceId, $amount);
-                            $details = $response["AuthorizeResult"]["AuthorizationDetails"];
+                            $details  = $response["AuthorizeResult"]["AuthorizationDetails"];
                             $this->helper->setToSession('amazonAuthId', $details["AmazonAuthorizationId"]);
                             $this->helper->setToSession('paymentWarningTimeout', 1);
                         }
                     } elseif ($reason == 'InvalidPaymentMethod') {
                         $this->helper->setToSession('amzInvalidPaymentOrderReference', $orderReferenceId);
                         $return["redirect"] = 'amazon-checkout-wallet';
+
                         return $return;
                     } else {
                         //Hard Decline / AmazonRejected
@@ -239,8 +226,9 @@ class AmzCheckoutHelper
                             $this->restoreBasket();
                         }
                         $this->helper->resetSession();
-                        $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
+                        $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                         $return["redirect"] = 'basket';
+
                         return $return;
                     }
                 } else {
@@ -255,12 +243,15 @@ class AmzCheckoutHelper
                     $this->restoreBasket();
                 }
                 $this->helper->setToSession('amazonCheckoutError', 'UnknownError');
+                $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                 $return["redirect"] = 'basket';
+
                 return $return;
             }
         }
         $this->helper->setToSession('amzCheckoutOrderReference', $orderReferenceId);
         $return["redirect"] = $successTarget;
+
         return $return;
     }
 
@@ -269,7 +260,6 @@ class AmzCheckoutHelper
         $this->helper->log(__CLASS__, __METHOD__, 'try to set payment method', []);
         try {
             $paymentMethodId = $this->helper->createMopIfNotExistsAndReturnId();
-
             $this->checkout->setPaymentMethodId($paymentMethodId);
             $this->helper->log(__CLASS__, __METHOD__, 'paymentMethodId', ['id' => $paymentMethodId]);
         } catch (\Exception $e) {
@@ -284,18 +274,19 @@ class AmzCheckoutHelper
             $basket = $this->basketService->getBasket();
             $this->helper->log(__CLASS__, __METHOD__, 'basket', [$basket]);
             $returnBasket = $basket->toArray();
-            if($this->helper->isNet()) {
-                $returnBasket["itemSum"] = $returnBasket["itemSumNet"];
-                $returnBasket["basketAmount"] = $returnBasket["basketAmountNet"];
+            if ($this->helper->isNet()) {
+                $returnBasket["itemSum"]        = $returnBasket["itemSumNet"];
+                $returnBasket["basketAmount"]   = $returnBasket["basketAmountNet"];
                 $returnBasket["shippingAmount"] = $returnBasket["shippingAmountNet"];
             }
-            $basketAmount = $returnBasket["basketAmount"];
-            $basketNetAmount = $returnBasket["basketAmountNet"];
+            $basketAmount        = $returnBasket["basketAmount"];
+            $basketNetAmount     = $returnBasket["basketAmountNet"];
             $returnBasket["vat"] = $basketAmount - $basketNetAmount;
             $this->helper->log(__CLASS__, __METHOD__, '$returnBasket', [$returnBasket]);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'getBasketData failed', [$e, $e->getMessage()], true);
         }
+
         return $returnBasket;
 
         /*
@@ -336,7 +327,7 @@ class AmzCheckoutHelper
         $orderRepo = $this->orderRepository;
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
-        $response = $authHelper->processUnguarded(
+        $response   = $authHelper->processUnguarded(
             function () use ($orderRepo, $orderId) {
                 return $orderRepo->cancelOrder($orderId, ['message' => 'Amazon Pay']);
             }
@@ -352,7 +343,7 @@ class AmzCheckoutHelper
             foreach ($basketItems as $item) {
                 $basketItem = $this->basketItemRepository->addBasketItem([
                     'variationId' => $item["variationId"],
-                    'quantity' => $item["quantity"]
+                    'quantity'    => $item["quantity"]
                 ]);
                 $this->helper->log(__CLASS__, __METHOD__, 'added basket item', $basketItem);
             }
@@ -360,5 +351,35 @@ class AmzCheckoutHelper
         }
     }
 
+    public function confirmOrderReference($orderId = 0)
+    {
+        $return = [
+            'redirect' => ''
+        ];
+
+        $basket   = $this->getBasketData();
+        $amount   = $basket["basketAmount"];
+        $currency = $basket["currency"];
+
+        $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+
+        $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, $orderId, $currency);
+        $constraints                      = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
+        $constraint                       = $constraints["Constraint"]["ConstraintID"];
+        if (!empty($constraint)) {
+            if (!empty($orderId)) {
+                $this->cancelOrder($orderId);
+                $this->restoreBasket();
+            }
+            $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
+            $return["redirect"] = 'amazon-checkout';
+
+            return $return;
+        }
+
+        $this->transactionHelper->confirmOrderReference($orderReferenceId, true, $orderId);
+
+        return $return;
+    }
 
 }

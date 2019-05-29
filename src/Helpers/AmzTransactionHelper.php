@@ -32,7 +32,7 @@ class AmzTransactionHelper
         $requestParameters['platform_id']               = 'A1SGXK19QKIYNB';
         $requestParameters['merchant_id']               = $this->helper->getFromConfig('merchantId');
         $requestParameters['store_name']                = $this->helper->getWebstoreName();
-        $requestParameters['custom_information']        = 'Created by Alkim Media, Plentymarkets, V' . $this->helper->getCallConfig()['application_version'];
+        $requestParameters['custom_information']        = 'created by Alkim Media, Plentymarkets, V' . $this->helper->getCallConfig()['application_version'];
         if (!empty($orderId)) {
             $requestParameters['seller_order_id'] = $orderId;
         }
@@ -60,10 +60,23 @@ class AmzTransactionHelper
         return $result;
     }
 
+    public function setOrderId($orderRef, $orderId)
+    {
+        $requestParameters                              = [];
+        $requestParameters['amazon_order_reference_id'] = $orderRef;
+        $requestParameters['seller_order_id']           = $orderId;
+        $response                                       = $this->call('SetOrderAttributes', $requestParameters);
+        $this->helper->log(__CLASS__, __METHOD__, 'set order id result', $requestParameters, $response);
+
+        return $response;
+    }
+
     public function confirmOrderReference($orderRef, $saveTransaction = true, $orderId = '')
     {
         $requestParameters                              = [];
         $requestParameters['amazon_order_reference_id'] = $orderRef;
+        $requestParameters['success_url']               = $this->helper->getUrl('amazon-checkout-proceed');
+        $requestParameters['failure_url']               = $this->helper->getUrl('amazon-checkout');
         $response                                       = $this->call('confirmOrderReference', $requestParameters);
         if ($saveTransaction) {
             $details                     = $this->getOrderReferenceDetails($orderRef);
@@ -187,7 +200,8 @@ class AmzTransactionHelper
         $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $transaction]);
         $plentyPayment = null;
         try {
-            $plentyPayment = $this->helper->createPlentyPayment(($transaction->status == 'Declined' ? 0 : $transaction->amount), ($transaction->status == 'Open' || $transaction->status == 'Closed' ? 'approved' : ($transaction->status == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status,
+            $plentyPayment = $this->helper->createPlentyPayment(($transaction->status == 'Declined' ? 0 : $transaction->amount), ($transaction->status == 'Open' || $transaction->status == 'Closed' ? 'approved' : ($transaction->status == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'),
+                'Autorisierung: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status,
                 $transaction->amzId, 'credit', 2, $transaction->currency);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);

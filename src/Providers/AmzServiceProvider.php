@@ -25,15 +25,16 @@ class AmzServiceProvider extends ServiceProvider
 {
     public $transactionHelper;
 
-    public function boot(AlkimAmazonLoginAndPayHelper $helper,
-                         AmzCheckoutHelper $checkoutHelper,
-                         Dispatcher $eventDispatcher,
-                         AmzTransactionHelper $transactionHelper,
-                         EventProceduresService $eventProceduresService,
-                         PaymentRepositoryContract $paymentRepository,
-                         PaymentMethodContainer $payContainer,
-                         Request $request)
-    {
+    public function boot(
+        AlkimAmazonLoginAndPayHelper $helper,
+        AmzCheckoutHelper $checkoutHelper,
+        Dispatcher $eventDispatcher,
+        AmzTransactionHelper $transactionHelper,
+        EventProceduresService $eventProceduresService,
+        PaymentRepositoryContract $paymentRepository,
+        PaymentMethodContainer $payContainer,
+        Request $request
+    ) {
         //$helper->log(__CLASS__, __METHOD__, 'request uri', $request->getUri());
         if (strpos($request->getUri(), '/logout') !== false) {
             $helper->setToSession('amazonLogout', 1);
@@ -54,49 +55,40 @@ class AmzServiceProvider extends ServiceProvider
                 $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
                 if ($event->getMop() == $helper->createMopIfNotExistsAndReturnId()) {
                     $orderId = $event->getOrderId();
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - submit order id config value', $helper->getFromConfig('submitOrderIds'));
-                    if ($helper->getFromConfig('submitOrderIds') == 'true') {
-                        $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id pre', '');
-                        $totalAndCurrency = $helper->getOrderTotalAndCurrency($orderId);
-                        $amount = $totalAndCurrency["total"];
-                        $currency = $totalAndCurrency["currency"];
-                        $return = $checkoutHelper->doCheckoutActions($amount, $orderId, false, $currency);
-                        $helper->log(__CLASS__, __METHOD__, 'execute payment - with order id', ['order' => $orderId, 'return' => $return]);
-                        if (!empty($return["redirect"]) && $return["redirect"] != 'place-order') {
-                            $event->setType('redirectUrl');
-                            $event->setValue($return["redirect"]);
-                        }
-                    } else {
-                        $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
-                        if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
-                            if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
-                                if ($transaction->paymentId) {
-                                    if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
-                                        $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                        $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
-                                        $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
-                                        $helper->setToSession('amazonAuthId', '');
-                                        if ($transaction->status === 'Open' && $helper->getFromConfig('authorizedStatus')) {
-                                            $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
-                                        }
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
+                    if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
+                        if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
+                            if ($transaction->paymentId) {
+                                if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
+                                    $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
+                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
+                                    $helper->setToSession('amazonAuthId', '');
+                                    if ($transaction->status === 'Open' && $helper->getFromConfig('authorizedStatus')) {
+                                        $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
                                     }
                                 }
-                                $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);
-                                if ($captures = $transactionHelper->getCaptureTransactionsFromOrderRef($orderReference)) {
-                                    if (is_array($captures)) {
-                                        foreach ($captures as $capture) {
-                                            if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
-                                                $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                                $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
-                                            }
+                            }
+                            $orderReference = $transactionHelper->getOrderRefFromAmzId($amazonAuthId);
+                            if ($captures = $transactionHelper->getCaptureTransactionsFromOrderRef($orderReference)) {
+                                if (is_array($captures)) {
+                                    foreach ($captures as $capture) {
+                                        if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
+                                            $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
                                         }
                                     }
                                 }
                             }
-                        } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
-                            $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                         }
+                    } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
+                        $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
+                    $helper->log(__CLASS__, __METHOD__, 'set order id', $orderReference);
+                    if(!empty($orderReference)) {
+                        $transactionHelper->setOrderId($orderReference, $orderId);
+                    }
+
                 }
             }
         );

@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.4.0
+
+### Hinzugefügt
+
+- Multi Faktor Authentifizierung (nach PSD2)
+
 ## 1.3.1
 
 ### Hinzugefügt

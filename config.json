@@ -164,14 +164,6 @@
           "options": {
             "defaultValue": "true"
           }
-        },
-        "submitOrderIds": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.submitOrderIdsLabel",
-          "options": {
-            "defaultValue": "true"
-          }
         }
       }
     },

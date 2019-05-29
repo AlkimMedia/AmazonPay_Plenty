@@ -17,10 +17,12 @@ use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
+    public $pluginVersion = '1.4.0';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -29,17 +31,19 @@ class AlkimAmazonLoginAndPayHelper
     public $paymentOrderRelationRepository;
     public $statusMap;
     public $webstoreHelper;
+    public $translator;
     use Loggable;
 
-    public function __construct(WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
+    public function __construct(Translator $translator, WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
     {
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->paymentRepository = $paymentRepository;
-        $this->orderRepository = $orderRepository;
+        $this->paymentMethodRepository        = $paymentMethodRepository;
+        $this->paymentRepository              = $paymentRepository;
+        $this->orderRepository                = $orderRepository;
         $this->paymentOrderRelationRepository = $paymentOrderRelationRepository;
-        $this->session = $session;
-        $this->configRepo = $configRepository;
-        $this->webstoreHelper = $webstoreHelper;
+        $this->session                        = $session;
+        $this->configRepo                     = $configRepository;
+        $this->webstoreHelper                 = $webstoreHelper;
+        $this->translator                     = $translator;
     }
 
     public function getWebstoreName()
@@ -47,6 +51,7 @@ class AlkimAmazonLoginAndPayHelper
         $this->log(__CLASS__, __METHOD__, 'webstore helper', $this->webstoreHelper);
         $webstoreConfig = $this->webstoreHelper->getCurrentWebstoreConfiguration();
         $this->log(__CLASS__, __METHOD__, 'webstore config', $webstoreConfig);
+
         return $webstoreConfig->name;
     }
 
@@ -62,20 +67,19 @@ class AlkimAmazonLoginAndPayHelper
             $arg[] = $msg;
             $logger->info('AmazonLoginAndPay::Logger.infoCaption', $arg);
         }
-
     }
 
     public function getCallConfig()
     {
         return [
-            'sandbox' => ((string)$this->getFromConfig('sandbox') == 'true'),
-            'merchant_id' => $this->getFromConfig('merchantId'),
-            'access_key' => $this->getFromConfig('mwsAccessKey'),
-            'secret_key' => $this->getFromConfig('mwsSecretAccessKey'),
-            'client_id' => $this->getFromConfig('loginClientId'),
-            'application_name' => 'plentymarkets-alkim-amazon-pay',
-            'application_version' => '1.2.2',
-            'region' => 'de'
+            'sandbox'             => ((string)$this->getFromConfig('sandbox') == 'true'),
+            'merchant_id'         => $this->getFromConfig('merchantId'),
+            'access_key'          => $this->getFromConfig('mwsAccessKey'),
+            'secret_key'          => $this->getFromConfig('mwsSecretAccessKey'),
+            'client_id'           => $this->getFromConfig('loginClientId'),
+            'application_name'    => 'plentymarkets-alkim-amazon-pay',
+            'application_version' => $this->pluginVersion,
+            'region'              => 'de'
         ];
     }
 
@@ -92,15 +96,15 @@ class AlkimAmazonLoginAndPayHelper
     public function createPlentyPayment($amount, $status, $dateTime, $comment, $transactionId, $type = 'credit', $transactionType = 2, $currency = 'EUR')
     {
         /** @var Payment $payment */
-        $payment = pluginApp(Payment::class);
-        $payment->mopId = (int)$this->createMopIfNotExistsAndReturnId();
-        $payment->transactionType = $transactionType;
-        $payment->type = $type;
-        $payment->status = $this->mapStatus($status);
-        $payment->currency = $currency;
+        $payment                   = pluginApp(Payment::class);
+        $payment->mopId            = (int)$this->createMopIfNotExistsAndReturnId();
+        $payment->transactionType  = $transactionType;
+        $payment->type             = $type;
+        $payment->status           = $this->mapStatus($status);
+        $payment->currency         = $currency;
         $payment->isSystemCurrency = ($currency === 'EUR' ? true : false);
-        $payment->amount = $amount;
-        $payment->receivedAt = $dateTime;
+        $payment->amount           = $amount;
+        $payment->receivedAt       = $dateTime;
         if ($status != 'captured' && $status != 'refunded') {
             $payment->unaccountable = 1;
         } else {
@@ -109,14 +113,15 @@ class AlkimAmazonLoginAndPayHelper
         //TODO: remove after plenty fix
         $payment->hash = $dateTime . '_' . rand(100000, 999999);
 
-        $paymentProperties = [];
+        $paymentProperties   = [];
         $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, $comment);
         if (!empty($transactionId)) {
             $paymentProperties[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
         }
 
         $payment->properties = $paymentProperties;
-        $payment = $this->paymentRepository->createPayment($payment);
+        $payment             = $this->paymentRepository->createPayment($payment);
+
         return $payment;
     }
 
@@ -124,13 +129,16 @@ class AlkimAmazonLoginAndPayHelper
     {
         $paymentMethodId = $this->getPaymentMethod();
         if ($paymentMethodId === false) {
-            $paymentMethodData = ['pluginKey' => 'alkim_amazonpay',
-                                  'paymentKey' => 'AMAZONPAY',
-                                  'name' => 'Amazon Pay'];
+            $paymentMethodData = [
+                'pluginKey'  => 'alkim_amazonpay',
+                'paymentKey' => 'AMAZONPAY',
+                'name'       => 'Amazon Pay'
+            ];
 
             $this->paymentMethodRepository->createPaymentMethod($paymentMethodData);
             $paymentMethodId = $this->getPaymentMethod();
         }
+
         return $paymentMethodId;
     }
 
@@ -159,15 +167,16 @@ class AlkimAmazonLoginAndPayHelper
         if (!is_array($this->statusMap) || count($this->statusMap) <= 0) {
             $statusConstants = $this->paymentRepository->getStatusConstants();
             if (!is_null($statusConstants) && is_array($statusConstants)) {
-                $this->statusMap['captured'] = $statusConstants['captured'];
-                $this->statusMap['approved'] = $statusConstants['approved'];
-                $this->statusMap['refused'] = $statusConstants['refused'];
+                $this->statusMap['captured']           = $statusConstants['captured'];
+                $this->statusMap['approved']           = $statusConstants['approved'];
+                $this->statusMap['refused']            = $statusConstants['refused'];
                 $this->statusMap['partially_captured'] = $statusConstants['partially_captured'];
-                $this->statusMap['captured'] = $statusConstants['captured'];
-                $this->statusMap['awaiting_approval'] = $statusConstants['awaiting_approval'];
-                $this->statusMap['refunded'] = $statusConstants['refunded'];
+                $this->statusMap['captured']           = $statusConstants['captured'];
+                $this->statusMap['awaiting_approval']  = $statusConstants['awaiting_approval'];
+                $this->statusMap['refunded']           = $statusConstants['refunded'];
             }
         }
+
         return (int)$this->statusMap[$status];
     }
 
@@ -175,9 +184,10 @@ class AlkimAmazonLoginAndPayHelper
     {
         /** @var PaymentProperty $paymentProperty */
         /** @noinspection PhpUndefinedNamespaceInspection */
-        $paymentProperty = pluginApp(PaymentProperty::class);
+        $paymentProperty         = pluginApp(PaymentProperty::class);
         $paymentProperty->typeId = $typeId;
-        $paymentProperty->value = $value;
+        $paymentProperty->value  = $value;
+
         return $paymentProperty;
     }
 
@@ -230,8 +240,8 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'start assign plenty payment to order', ['orderId' => $orderId, 'payment' => $payment]);
             /** @var AuthHelper $authHelper */
             $authHelper = pluginApp(AuthHelper::class);
-            $orderRepo = $this->orderRepository;
-            $order = $authHelper->processUnguarded(
+            $orderRepo  = $this->orderRepository;
+            $order      = $authHelper->processUnguarded(
                 function () use ($orderRepo, $orderId) {
                     return $orderRepo->findOrderById($orderId);
                 }
@@ -239,7 +249,7 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
             if (!is_null($order) && $order instanceof Order) {
                 $paymentOrderRepo = $this->paymentOrderRelationRepository;
-                $return = $authHelper->processUnguarded(
+                $return           = $authHelper->processUnguarded(
                     function () use ($paymentOrderRepo, $payment, $order) {
                         return $paymentOrderRepo->createOrderRelation($payment, $order);
                     }
@@ -248,8 +258,10 @@ class AlkimAmazonLoginAndPayHelper
             }
         } catch (\Exception $e) {
             $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order failed', [$e, $e->getMessage()], true);
+
             return false;
         }
+
         return true;
     }
 
@@ -258,8 +270,9 @@ class AlkimAmazonLoginAndPayHelper
         $order = $this->orderRepository->findOrderById($orderId);
         $this->log(__CLASS__, __METHOD__, 'get order amount', ['order' => $order, 'amounts' => $order->amounts, 'amount' => $order->amounts[0], 'amount 1' => $order->amounts[0]->grossTotal, 'amount 2' => $order->amounts[0]["grossTotal"]]);
         $amount = (isset($order->amounts[1]) ? $order->amounts[1] : $order->amounts[0]);
+
         return [
-            'total' => ($amount->isNet ? $amount->netTotal : $amount->grossTotal),
+            'total'    => ($amount->isNet ? $amount->netTotal : $amount->grossTotal),
             'currency' => $amount->currency
         ];
     }
@@ -270,26 +283,26 @@ class AlkimAmazonLoginAndPayHelper
             'options' => []
         ];
 
-        $name = $address["Name"];
-        $t = explode(' ', $name);
+        $name        = $address["Name"];
+        $t           = explode(' ', $name);
         $lastNameKey = count($t) - 1;
-        $lastName = $t[$lastNameKey];
+        $lastName    = $t[$lastNameKey];
         unset($t[$lastNameKey]);
         $firstName = implode(' ', $t);
         if (empty($address["AddressLine1"])) { // sometimes AddressLine1 is array(0){}
             $address["AddressLine1"] = '';
         }
         if ((string)$address["AddressLine3"] != '') {
-            $street = trim($address["AddressLine3"]);
+            $street  = trim($address["AddressLine3"]);
             $company = trim($address["AddressLine1"] . ' ' . $address["AddressLine2"]);
         } elseif ((string)$address["AddressLine2"] != '') {
-            $street = trim($address["AddressLine2"]);
+            $street  = trim($address["AddressLine2"]);
             $company = trim($address["AddressLine1"]);
         } else {
             $company = '';
-            $street = trim($address["AddressLine1"]);
+            $street  = trim($address["AddressLine1"]);
         }
-        $houseNo = '';
+        $houseNo     = '';
         $streetParts = explode(' ', $street); //TODO: replace with preg_split('/[\s]+/', $street);
         if (count($streetParts) > 1) {
             $houseNoKey = max(array_keys($streetParts));
@@ -299,14 +312,14 @@ class AlkimAmazonLoginAndPayHelper
                 $street = implode(' ', $streetParts);
             }
         }
-        $city = $address["City"];
-        $postcode = $address["PostalCode"];
+        $city        = $address["City"];
+        $postcode    = $address["PostalCode"];
         $countryCode = $address["CountryCode"];
-        $phone = $address["Phone"];
+        $phone       = $address["Phone"];
 
-        $finalAddress["name1"] = $company;
-        $finalAddress["name2"] = $firstName;
-        $finalAddress["name3"] = $lastName;
+        $finalAddress["name1"]    = $company;
+        $finalAddress["name2"]    = $firstName;
+        $finalAddress["name3"]    = $lastName;
         $finalAddress["address1"] = $street;
 
         if (!empty($houseNo)) {
@@ -314,24 +327,25 @@ class AlkimAmazonLoginAndPayHelper
         }
 
         $finalAddress["postalCode"] = $postcode;
-        $finalAddress["town"] = $city;
-        $finalAddress["countryId"] = $this->getCountryId($countryCode);
+        $finalAddress["town"]       = $city;
+        $finalAddress["countryId"]  = $this->getCountryId($countryCode);
         if (!empty($phone)) {
-            $finalAddress["phone"] = $phone;
+            $finalAddress["phone"]     = $phone;
             $finalAddress["options"][] = [
                 'typeId' => 4,
-                'value' => $phone
+                'value'  => $phone
             ];
 
         }
         if (!empty($emailAddress)) {
-            $finalAddress["email"] = $emailAddress;
+            $finalAddress["email"]     = $emailAddress;
             $finalAddress["options"][] = [
                 'typeId' => 5,
-                'value' => $emailAddress
+                'value'  => $emailAddress
             ];
         }
         $this->log(__CLASS__, __METHOD__, 'formatted address', [$finalAddress]);
+
         return $finalAddress;
     }
 
@@ -339,8 +353,9 @@ class AlkimAmazonLoginAndPayHelper
     {
         /** @var CountryRepositoryContract $countryContract */
         $countryContract = pluginApp(CountryRepositoryContract::class);
-        $country = $countryContract->getCountryByIso($countryIso2, 'isoCode2');
+        $country         = $countryContract->getCountryByIso($countryIso2, 'isoCode2');
         $this->log(__CLASS__, __METHOD__, 'get country id', [$countryIso2, $country]);
+
         return (!empty($country) ? $country->id : 1);
     }
 
@@ -348,13 +363,13 @@ class AlkimAmazonLoginAndPayHelper
     {
         $this->log(__CLASS__, __METHOD__, 'try to set order status', ['order' => $orderId, 'status' => $status]);
         if (!empty($status)) {
-            $order = ['statusId' => (float)$status];
+            $order    = ['statusId' => (float)$status];
             $response = '';
             try {
                 $orderRepo = $this->orderRepository;
                 /** @var AuthHelper $authHelper */
                 $authHelper = pluginApp(AuthHelper::class);
-                $response = $authHelper->processUnguarded(
+                $response   = $authHelper->processUnguarded(
                     function () use ($orderRepo, $order, $orderId) {
                         return $orderRepo->updateOrder($order, (int)$orderId);
                     }
@@ -392,8 +407,8 @@ class AlkimAmazonLoginAndPayHelper
         if (empty($token)) {
             /** @var Request $request */
             $request = pluginApp(Request::class);
-            $header = $request->header();
-            $cookie = $header["cookie"];
+            $header  = $request->header();
+            $cookie  = $header["cookie"];
             if (is_array($cookie)) {
                 $cookie = implode(' ', $cookie);
             }
@@ -405,6 +420,7 @@ class AlkimAmazonLoginAndPayHelper
                 }
             }
         }
+
         return $token;
     }
 
@@ -422,11 +438,11 @@ class AlkimAmazonLoginAndPayHelper
     {
         /** @var AmzTransactionRepositoryContract $amzTransactionRepository */
         $amzTransactionRepository = pluginApp(AmzTransactionRepositoryContract::class);
-        $transactions = $amzTransactionRepository->getTransactions([
+        $transactions             = $amzTransactionRepository->getTransactions([
             ['orderReference', '=', $orderReference]
         ]);
         $this->log(__CLASS__, __METHOD__, 'transactions with order ref for setting order id', [
-            'orderRef' => $orderReference,
+            'orderRef'     => $orderReference,
             'transactions' => $transactions
         ]);
         foreach ($transactions as $_transaction) {
@@ -435,4 +451,44 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'set order id to transaction', $_transaction);
         }
     }
+
+    public function getUrl($path)
+    {
+        return $this->getUrlBase() . '/' . trim($path, "/") . $this->getUrlExtension();
+    }
+
+    public function getUrlBase()
+    {
+        /** @var WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(WebstoreHelper::class);
+        $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
+
+        return $configuration->domainSsl;
+    }
+
+    public function getUrlExtension()
+    {
+        /** @var WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(WebstoreHelper::class);
+        $config         = $webstoreHelper->getCurrentWebstoreConfiguration();
+
+        return $config->urlFileExtension;
+    }
+
+    public function scheduleNotification($message, $type = 'error')
+    {
+        $notification         = [
+            'message'    => $message,
+            'code'       => 0,
+            'stackTrace' => []
+        ];
+        $notifications[$type] = $notification;
+        $this->setToSession('notifications', json_encode($notifications));
+    }
+
+    public function translate($textId)
+    {
+        return $this->translator->trans($textId);
+    }
+
 }

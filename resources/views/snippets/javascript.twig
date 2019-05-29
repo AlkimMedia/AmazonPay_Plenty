@@ -35,7 +35,7 @@
 <script src="{{ plugin_path('AmazonLoginAndPay') }}/js/amz-main.min.js"></script>
 <!--<script src="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main-1.0.3.js"></script>-->
 {% if config('AmazonLoginAndPay.sandbox') == "true" %}
-    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/eur/sandbox/lpa/js/Widgets.js'></script>
+    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/sandbox/lpa/js/Widgets.js'></script>
 {% else %}
-    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/eur/lpa/js/Widgets.js'></script>
+    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/lpa/js/Widgets.js'></script>
 {% endif %}

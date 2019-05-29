@@ -1,4 +1,6 @@
 {% extends getPartial('page-design') %}
+{% import "Ceres::PageDesign.Macros.LayoutContainer" as LayoutContainer %}
+
 {% block PageBody %}
     <input type="hidden" id="currency-input" value="{{ currency }}"/>
     <div class="container-max">
@@ -7,7 +9,9 @@
             <div class="alert alert-danger">
                 {% if (error == 'InvalidPaymentMethod') or (error == 'TransactionTimeout') or (walletOnly == 1) %}
                     {{ trans("AmazonLoginAndPay::AmazonPay.pleaseChangePaymentMethod") }}
-                {% else %}
+                 {% elseif (error == 'MfaAbandoned') %}
+                        {{ trans("AmazonLoginAndPay::AmazonPay.errorMfaAbandoned") }}
+                 {% else %}
                     {{ error }}
                 {% endif %}
             </div>

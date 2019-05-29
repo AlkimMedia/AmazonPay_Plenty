@@ -12,6 +12,7 @@ var PlentyMarketsAmazonPay = {
     isCompletelyInitialized: false,
     isDocumentReady: false,
     amazonScope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
+    orderReference: null,
     getLanguage: function () {
         var language = 'en-GB';
         if (typeof App !== 'undefined') {
@@ -106,6 +107,7 @@ var PlentyMarketsAmazonPay = {
                             },
 
                             onSignIn: function (orderReference) {
+                                PlentyMarketsAmazonPay.orderReference = orderReference;
                                 if (amazonLoginAndPay.config.popup && isArticleCheckout) {
                                     PlentyMarketsAmazonPay.buyProduct(function () {
                                         location.href = '/amazon-login-processing/?access_token=' + authRequest.access_token;
@@ -171,8 +173,8 @@ var PlentyMarketsAmazonPay = {
                     sellerId: amazonLoginAndPay.config.merchantId,
                     scope: PlentyMarketsAmazonPay.amazonScope,
                     onOrderReferenceCreate: function (orderReference) {
-                        // Here is where you can grab the Order Reference ID.
                         orderReference = orderReference.getAmazonOrderReferenceId();
+                        PlentyMarketsAmazonPay.orderReference = orderReference;
                         if (PlentyMarketsAmazonPay.isInitialized === false) {
                             amz$.get('/amazon-ajax-handle', {
                                 action: 'setOrderReference',
@@ -187,8 +189,8 @@ var PlentyMarketsAmazonPay = {
                             });
                         }
                     },
-                    onAddressSelect: function (orderReference) {
-                        PlentyMarketsAmazonPay.isAddressInitialized = true;
+                    onAddressSelect: function () {
+                       PlentyMarketsAmazonPay.isAddressInitialized = true;
                         if (PlentyMarketsAmazonPay.isInitialized) {
                             PlentyMarketsAmazonPay.getShippingList();
                             PlentyMarketsAmazonPay.getOrderDetails();
@@ -334,27 +336,60 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
     amz$(function () {
         PlentyMarketsAmazonPay.isDocumentReady = true;
-        amz$('.amz-checkout-order-button-wr a').bind('click', function (e) {
+        amz$('.amz-checkout-order-button-wr:not(.wallet-only) a').bind('click', function (e) {
+            e.preventDefault();
             if (amz$('#gtc-accept').length && !amz$('#gtc-accept').is(':checked')) {
                 e.preventDefault();
                 alert(amz$('#gtc-accept').data('error'));
                 return;
             }
-
             var $link = amz$(this);
             $link.css({opacity: 0.5, cursor: 'default'});
-            $link.bind('click', function (e) {
+            $link.unbind('click').bind('click', function (e) {
                 e.preventDefault();
             });
 
+            var confirmOrderReference = function(confirmationFlow){
+                amz$.get('/amazon-pre-checkout', function (data) {
+                    if(typeof data === 'object' && data.redirect) {
+                        confirmationFlow.error();
+                        location.href = data.redirect;
+                    }else{
+                        confirmationFlow.success();
+                    }
+                });
+            };
+
+            var startCheckout = function(){
+                OffAmazonPayments.initConfirmationFlow(amazonLoginAndPay.config.merchantId, PlentyMarketsAmazonPay.orderReference, function(confirmationFlow) {
+                    confirmOrderReference(confirmationFlow);
+                });
+            };
+
             var $commentInput = amz$('.amz-comment-textarea');
             if ($commentInput.length) {
-                e.preventDefault();
                 amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function (data) {
-                    location.href = $link.attr('href');
+                    startCheckout();
                 });
+            }else{
+                startCheckout();
             }
+        });
 
+        amz$('.amz-checkout-order-button-wr.wallet-only a').bind('click', function (e) {
+            e.preventDefault();
+            var $link = amz$(this);
+            $link.css({opacity: 0.5, cursor: 'default'});
+            $link.unbind('click').bind('click', function (e) {
+                e.preventDefault();
+            });
+            amz$.get('/amazon-pre-checkout', function (data) {
+                if (typeof data === 'object' && data.redirect) {
+                    location.href = data.redirect;
+                } else {
+                    location.href = $link.attr('href');
+                }
+            });
         });
     });
 }

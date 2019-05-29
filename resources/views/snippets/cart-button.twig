@@ -1,7 +1,4 @@
 {% if error == 'AmazonRejected' %}
-    <div class="alert alert-danger">{{ trans("AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo") }}
-    </div>
     <input type="hidden" name="amazon-pay-action" value="logout"/>
 {% endif %}
-
 <div class="amzPayButton"></div>
