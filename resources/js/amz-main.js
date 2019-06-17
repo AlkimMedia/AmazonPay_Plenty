@@ -76,7 +76,7 @@ var PlentyMarketsAmazonPay = {
         if (useTimeout) {
             PlentyMarketsAmazonPay.getShippingListTimeout = setTimeout(function () {
                 PlentyMarketsAmazonPay.getShippingList(PlentyMarketsAmazonPay.getOrderDetails);
-            }, 500);
+            }, 1000);
         } else {
             PlentyMarketsAmazonPay.getShippingList(PlentyMarketsAmazonPay.getOrderDetails);
         }
