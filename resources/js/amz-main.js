@@ -11,6 +11,7 @@ var PlentyMarketsAmazonPay = {
     isAddressInitialized: false,
     isCompletelyInitialized: false,
     isDocumentReady: false,
+    getShippingListTimeout: null,
     amazonScope: 'profile postal_code payments:widget payments:shipping_address payments:billing_address',
     orderReference: null,
     getLanguage: function () {
@@ -19,23 +20,23 @@ var PlentyMarketsAmazonPay = {
             if (typeof App.language !== 'undefined') {
                 switch (App.language) {
                     case 'de':
-                        language = 'de-DE'
+                        language = 'de-DE';
                         break;
                     case 'es':
-                        language = 'es-ES'
+                        language = 'es-ES';
                         break;
                     case 'fr':
-                        language = 'fr-FR'
+                        language = 'fr-FR';
                         break;
                     case 'it':
-                        language = 'it-IT'
+                        language = 'it-IT';
                         break;
                 }
             }
         }
         return language;
     },
-    getShippingList: function () {
+    getShippingList: function (callback) {
         amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
@@ -43,6 +44,9 @@ var PlentyMarketsAmazonPay = {
                 amz$('.amz-checkout-order-button-wr').show();
             }
             amz$('#shippingOptionsListWr').html(data);
+            if (typeof callback !== 'undefined') {
+                callback();
+            }
         });
     },
     getOrderDetails: function () {
@@ -63,6 +67,19 @@ var PlentyMarketsAmazonPay = {
         return decodeURIComponent((new RegExp('[?|&|#]' + name + '=' +
             '([^&]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g,
             '%20')) || null;
+    },
+
+    getShippingListService: function (useTimeout) {
+        if (PlentyMarketsAmazonPay.getShippingListTimeout) {
+            clearTimeout(PlentyMarketsAmazonPay.getShippingListTimeout);
+        }
+        if (useTimeout) {
+            PlentyMarketsAmazonPay.getShippingListTimeout = setTimeout(function () {
+                PlentyMarketsAmazonPay.getShippingList(PlentyMarketsAmazonPay.getOrderDetails);
+            }, 500);
+        } else {
+            PlentyMarketsAmazonPay.getShippingList(PlentyMarketsAmazonPay.getOrderDetails);
+        }
     },
 
 
@@ -126,7 +143,7 @@ var PlentyMarketsAmazonPay = {
                                 } else {
                                     $button.hide();
                                 }
-                            }
+                            };
                             buttonChecker();
                             setInterval(buttonChecker, 200);
                         }
@@ -182,18 +199,16 @@ var PlentyMarketsAmazonPay = {
                             }, function () {
                                 PlentyMarketsAmazonPay.isInitialized = true;
                                 if (PlentyMarketsAmazonPay.isAddressInitialized) {
-                                    PlentyMarketsAmazonPay.getShippingList();
-                                    PlentyMarketsAmazonPay.getOrderDetails();
+                                    PlentyMarketsAmazonPay.getShippingListService(true);
                                     setTimeout(PlentyMarketsAmazonPay.getShippingList, 2000);
                                 }
                             });
                         }
                     },
                     onAddressSelect: function () {
-                       PlentyMarketsAmazonPay.isAddressInitialized = true;
+                        PlentyMarketsAmazonPay.isAddressInitialized = true;
                         if (PlentyMarketsAmazonPay.isInitialized) {
-                            PlentyMarketsAmazonPay.getShippingList();
-                            PlentyMarketsAmazonPay.getOrderDetails();
+                            PlentyMarketsAmazonPay.getShippingListService(true);
                         }
                     },
                     design: {
@@ -223,8 +238,8 @@ var PlentyMarketsAmazonPay = {
                     design: {
                         designMode: 'responsive'
                     },
-                    onPaymentSelect: function (orderReference) {
-
+                    onPaymentSelect: function () {
+                        PlentyMarketsAmazonPay.getShippingListService(false);
                     },
                     onError: function (error) {
                         // your error handling code
@@ -248,7 +263,7 @@ var PlentyMarketsAmazonPay = {
                     PlentyMarketsAmazonPay.initialize();
                 }
             }
-        }, 500);
+        }, 1000);
 
     },
     getCookieValue: function (name) {
@@ -294,7 +309,7 @@ window.onAmazonLoginReady = function () {
     amazon.Login.setUseCookie(true);
     amazon.Login.setRegion("EU");
     if (amazonLoginAndPay.config.sandbox) {
-        amazon.Login.setSandboxMode((amazonLoginAndPay.config.sandbox && amazonLoginAndPay.config.sandbox == 'true' ? true : false));
+        amazon.Login.setSandboxMode(!!(amazonLoginAndPay.config.sandbox && amazonLoginAndPay.config.sandbox === 'true'));
     }
 };
 
@@ -304,10 +319,11 @@ window.onAmazonPaymentsReady = function () {
 };
 
 if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
+    var accessToken;
     if (location.href.indexOf('amazon-login-processing/?access_token=') !== -1) {
-        var accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.href);
+        accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.href);
     } else {
-        var accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.hash);
+        accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.hash);
     }
 
     if (typeof accessToken === 'string' && accessToken.match(/^Atza/)) {
@@ -349,29 +365,29 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
                 e.preventDefault();
             });
 
-            var confirmOrderReference = function(confirmationFlow){
+            var confirmOrderReference = function (confirmationFlow) {
                 amz$.get('/amazon-pre-checkout', function (data) {
-                    if(typeof data === 'object' && data.redirect) {
+                    if (typeof data === 'object' && data.redirect) {
                         confirmationFlow.error();
                         location.href = data.redirect;
-                    }else{
+                    } else {
                         confirmationFlow.success();
                     }
                 });
             };
 
-            var startCheckout = function(){
-                OffAmazonPayments.initConfirmationFlow(amazonLoginAndPay.config.merchantId, PlentyMarketsAmazonPay.orderReference, function(confirmationFlow) {
+            var startCheckout = function () {
+                OffAmazonPayments.initConfirmationFlow(amazonLoginAndPay.config.merchantId, PlentyMarketsAmazonPay.orderReference, function (confirmationFlow) {
                     confirmOrderReference(confirmationFlow);
                 });
             };
 
             var $commentInput = amz$('.amz-comment-textarea');
             if ($commentInput.length) {
-                amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function (data) {
+                amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function () {
                     startCheckout();
                 });
-            }else{
+            } else {
                 startCheckout();
             }
         });

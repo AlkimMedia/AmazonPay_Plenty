@@ -1,5 +1,14 @@
 # Release Notes für Amazon Pay
 
+
+## 1.4.1
+
+### Gefixt
+
+- Kaufabbruch wegen fehlender Rechnungsadresse
+- sich überlagernde Ajax-Calls
+- Abhängigkeiten aktualisiert
+
 ## 1.4.0
 
 ### Hinzugefügt

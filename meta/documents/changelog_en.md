@@ -1,5 +1,13 @@
 # Release notes for Amazon Pay
 
+## 1.4.1
+
+### Fixed
+
+- fatal error because of missing invoice address
+- messy AJAX call stack
+- updated dependencies
+
 ## 1.4.0
 
 ### Added

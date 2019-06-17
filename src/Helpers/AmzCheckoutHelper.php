@@ -64,6 +64,10 @@ class AmzCheckoutHelper
     {
         if ($orderReferenceDetails === null) {
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
+            if(!empty($orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"])){
+                $this->transactionHelper->setOrderReferenceDetailsAuto();
+                $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
+            }
         }
         $this->helper->log(__CLASS__, __METHOD__, 'set addresses', $orderReferenceDetails);
         $this->setShippingAddress($orderReferenceDetails);
@@ -134,15 +138,20 @@ class AmzCheckoutHelper
         return $addressObj;
     }
 
-    public function setInvoiceAddress($orderReferenceDetails = null)
+    public function setInvoiceAddress($orderReferenceDetails = null, $fromShippingAddress = false)
     {
         if ($orderReferenceDetails === null) {
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
         }
         $formattedInvoiceAddress = null;
         $invoiceAddressObject    = null;
+
         try {
-            $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
+            if($fromShippingAddress){
+                $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
+            }else {
+                $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
+            }
             $email          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
             if (empty($email)) {
                 $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
@@ -160,12 +169,17 @@ class AmzCheckoutHelper
             }
             $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
         } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage()], true);
+            $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage(), $fromShippingAddress], true);
+            if(!$fromShippingAddress){
+                $this->setInvoiceAddress($orderReferenceDetails, true);
+            }
         }
+
         $this->helper->log(__CLASS__, __METHOD__, 'invoice address', [
             'invoiceAddressArray' => $formattedInvoiceAddress,
             'invoiceAddress'      => $invoiceAddressObject,
-            'checkout'            => $this->checkout
+            'checkout'            => $this->checkout,
+            'fromShippingAddress' => $fromShippingAddress
         ]);
     }
 

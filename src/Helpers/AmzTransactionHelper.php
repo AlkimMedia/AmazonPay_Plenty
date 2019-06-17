@@ -14,6 +14,7 @@ class AmzTransactionHelper
     public $callLib;
     public $helper;
     public $amzTransactionRepository;
+    public $orderReferenceDetailsIsSet = false;
 
     public function __construct(AmzTransactionRepositoryContract $amzTransactionRepository, PaymentMethodRepositoryContract $paymentMethodRepository, LibraryCallContract $libCall, AlkimAmazonLoginAndPayHelper $helper)
     {
@@ -42,6 +43,19 @@ class AmzTransactionHelper
         return $response;
     }
 
+    public function setOrderReferenceDetailsAuto(){
+        if(!$this->orderReferenceDetailsIsSet) {
+            /** @var AmzCheckoutHelper $checkoutHelper */
+            $checkoutHelper   = pluginApp(AmzCheckoutHelper::class);
+            $basket           = $checkoutHelper->getBasketData();
+            $amount           = $basket["basketAmount"];
+            $currency         = $basket["currency"];
+            $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+            $this->setOrderReferenceDetails($orderReferenceId, $amount, null, $currency);
+            $this->orderReferenceDetailsIsSet = true;
+        }
+    }
+
     public function call($action, $parameters)
     {
         $startTime = microtime(true);
@@ -66,7 +80,7 @@ class AmzTransactionHelper
         $requestParameters['amazon_order_reference_id'] = $orderRef;
         $requestParameters['seller_order_id']           = $orderId;
         $response                                       = $this->call('SetOrderAttributes', $requestParameters);
-        $this->helper->log(__CLASS__, __METHOD__, 'set order id result', $requestParameters, $response);
+        $this->helper->log(__CLASS__, __METHOD__, 'set order id result', [$requestParameters, $response]);
 
         return $response;
     }

@@ -75,7 +75,6 @@ class AjaxController extends Controller
                 break;
             case 'setOrderReference':
                 $this->helper->setToSession('amzOrderReference', $this->request->get('orderReference'));
-
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $this->helper->getFromSession('amzOrderReference')]);
                 break;
             case 'getShippingList':
@@ -284,6 +283,7 @@ class AjaxController extends Controller
 
     public function preCheckoutActions(Twig $twig)
     {
+        $this->checkoutHelper->setAddresses();
         $return = $this->checkoutHelper->confirmOrderReference(0);
         $this->response->json($return, 200, ['Content-Type: application/json']);
 
