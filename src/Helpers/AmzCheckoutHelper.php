@@ -84,7 +84,15 @@ class AmzCheckoutHelper
         $shippingAddressObject    = null;
         try {
             $shippingAddress          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
-            $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress);
+            $email = null;
+            if($this->helper->getFromConfig('useEmailInShippingAddress') == 'true'){
+                $email          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+                if (empty($email)) {
+                    $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
+                    $email    = $userData["email"];
+                }
+            }
+            $formattedShippingAddress = $this->helper->reformatAmazonAddress($shippingAddress, $email);
 
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);

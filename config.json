@@ -164,6 +164,14 @@
           "options": {
             "defaultValue": "true"
           }
+        },
+        "useEmailInShippingAddress": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.useEmailInShippingAddressLabel",
+          "options": {
+            "defaultValue": "true"
+          }
         }
       }
     },

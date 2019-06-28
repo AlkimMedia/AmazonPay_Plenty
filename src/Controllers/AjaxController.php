@@ -171,19 +171,23 @@ class AjaxController extends Controller
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->AuthorizationDetails->AmazonAuthorizationId]]);
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - auth', [$transactions]);
                 if (empty($transactions)) {
-                    /** @var AmzTransaction $transaction */
-                    $transaction                 = pluginApp(AmzTransaction::class);
-                    $transaction->amzId          = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
-                    $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
-                    $transaction->type           = 'auth';
-                    if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
-                        $transaction->order = $orderId;
+                    if(empty($responseXml->AuthorizationDetails->AuthorizationStatus->State) || $responseXml->AuthorizationDetails->AuthorizationStatus->State !== 'Closed') {
+                        /** @var AmzTransaction $transaction */
+                        $transaction                 = pluginApp(AmzTransaction::class);
+                        $transaction->amzId          = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
+                        $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
+                        $transaction->type           = 'auth';
+                        if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
+                            $transaction->order = $orderId;
+                        }
+                        $transaction = $repository->saveTransaction($transaction);
                     }
-                    $transaction = $repository->saveTransaction($transaction);
                 } else {
                     $transaction = $transactions[0];
                 }
-                $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
+                if(!empty($transaction)) {
+                    $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
+                }
                 break;
             case 'PaymentCapture':
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->CaptureDetails->AmazonCaptureId]]);

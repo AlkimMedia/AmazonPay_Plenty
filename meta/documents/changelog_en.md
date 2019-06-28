@@ -1,5 +1,16 @@
 # Release notes for Amazon Pay
 
+## 1.5.0
+
+### Added
+
+- optional: email address in shipping address
+
+### Fixed
+
+- IPN - removed adding closed authorisation transactions
+- URL generation
+
 ## 1.4.1
 
 ### Fixed

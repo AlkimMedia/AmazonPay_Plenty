@@ -1,5 +1,15 @@
 # Release Notes für Amazon Pay
 
+## 1.5.0
+
+### Hinzugefügt
+
+- optionales Hinzufügen der E-Mail-Adresse zur Versandadresse 
+
+### Gefixt
+
+- IPN - Hinzufügen von abgelaufenen Autorisierungstransaktionen entfernt
+- URL-Generierung 
 
 ## 1.4.1
 

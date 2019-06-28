@@ -412,11 +412,11 @@ class AlkimAmazonLoginAndPayHelper
             if (is_array($cookie)) {
                 $cookie = implode(' ', $cookie);
             }
-            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', [$header, explode('; ', $cookie)], true);
+            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', [$header, explode('; ', $cookie)]);
             foreach (explode('; ', $cookie) as $cookiePart) {
                 if (substr($cookiePart, 0, 25) === 'amazon_Login_accessToken=') {
                     $token = urldecode(substr($cookiePart, 25));
-                    $this->log(__CLASS__, __METHOD__, 'token from cookie', $token, true);
+                    $this->log(__CLASS__, __METHOD__, 'token from cookie', $token);
                 }
             }
         }
@@ -454,7 +454,7 @@ class AlkimAmazonLoginAndPayHelper
 
     public function getUrl($path)
     {
-        return $this->getUrlBase() . '/' . trim($path, "/") . $this->getUrlExtension();
+        return $this->getUrlBase() . '/' . trim($path, "/");
     }
 
     public function getUrlBase()
@@ -465,16 +465,16 @@ class AlkimAmazonLoginAndPayHelper
 
         return $configuration->domainSsl;
     }
-
+    /*
     public function getUrlExtension()
     {
-        /** @var WebstoreHelper $webstoreHelper */
+        //@var WebstoreHelper $webstoreHelper
         $webstoreHelper = pluginApp(WebstoreHelper::class);
         $config         = $webstoreHelper->getCurrentWebstoreConfiguration();
 
         return $config->urlFileExtension;
     }
-
+    */
     public function scheduleNotification($message, $type = 'error')
     {
         $notification         = [
