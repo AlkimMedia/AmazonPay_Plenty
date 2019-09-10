@@ -29,6 +29,11 @@
             merchantId: '{{ config('AmazonLoginAndPay.merchantId') }}',
             sandbox: '{{ config('AmazonLoginAndPay.sandbox') }}'
         },
+        urls:{
+            amazonLoginProcessing: '{{ urls.amazon_login_processing }}',
+            amazonAjaxHandle: '{{ urls.amazon_ajax_handle }}',
+            amazonPreCheckout: '{{ urls.amazon_pre_checkout }}'
+        },
         widgets: {}
     }
 </script>

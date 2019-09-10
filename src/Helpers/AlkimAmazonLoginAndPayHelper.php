@@ -3,11 +3,16 @@
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
+use IO\Services\SessionStorageService;
+use IO\Services\UrlBuilder\UrlQuery;
+use IO\Services\WebstoreConfigurationService;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Order\Models\Order;
+use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
+use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentOrderRelationRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
@@ -450,21 +455,71 @@ class AlkimAmazonLoginAndPayHelper
             $amzTransactionRepository->updateTransaction($_transaction);
             $this->log(__CLASS__, __METHOD__, 'set order id to transaction', $_transaction);
         }
+        $this->setOrderExternalId($orderId, $orderReference);
+    }
+
+    public function setOrderExternalId($orderId, $externalId)
+    {
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+
+        /** @var \Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract $orderPropertyRepository */
+        $orderPropertyRepository = pluginApp(OrderPropertyRepositoryContract::class);
+        $helper                  = $this;
+        $authHelper->processUnguarded(
+            function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
+                try {
+                    /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
+                    $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()]);
+                    $existingArray = $existing->toArray();
+                    if ($existing && !empty($existingArray)) {
+                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [$existingArray]);
+
+                        return;
+                    }
+                    $orderProperty = $orderPropertyRepository->create([
+                        'orderId' => $orderId,
+                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
+                        'value'   => $externalId
+                    ]);
+                    $helper->log(__CLASS__, __METHOD__, 'external order id set', [$orderProperty]);
+                } catch (\Exception $e) {
+                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e->getCode(), $e->getMessage(), $e->getLine()], true);
+                }
+
+            });
     }
 
     public function getUrl($path)
     {
-        return $this->getUrlBase() . '/' . trim($path, "/");
+        return $this->getAbsoluteUrl($path);
+        //return $this->getUrlBase() . '/' . trim($path, "/");
     }
 
-    public function getUrlBase()
+    //public function getUrlBase()
+    //{
+    //    /** @var WebstoreHelper $webstoreHelper */
+    //    $webstoreHelper = pluginApp(WebstoreHelper::class);
+    //    $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
+    //    return $configuration->domainSsl;
+    //}
+
+    public function getAbsoluteUrl($path)
     {
-        /** @var WebstoreHelper $webstoreHelper */
-        $webstoreHelper = pluginApp(WebstoreHelper::class);
-        $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
+        /** @var WebstoreConfigurationService $webstoreConfigurationService */
+        $webstoreConfigurationService = pluginApp(WebstoreConfigurationService::class);
+        /** @var SessionStorageService $sessionStorage */
+        $sessionStorage  = pluginApp(SessionStorageService::class);
+        $defaultLanguage = $webstoreConfigurationService->getDefaultLanguage();
+        $lang            = $sessionStorage->getLang();
 
-        return $configuration->domainSsl;
+        $includeLanguage = $lang !== null && $lang !== $defaultLanguage;
+        /** @var UrlQuery $urlQuery */
+        $urlQuery = pluginApp(UrlQuery::class, ['path' => $path, 'lang' => $lang]);
+        return $urlQuery->toAbsoluteUrl($includeLanguage);
     }
+
     /*
     public function getUrlExtension()
     {
@@ -475,6 +530,7 @@ class AlkimAmazonLoginAndPayHelper
         return $config->urlFileExtension;
     }
     */
+
     public function scheduleNotification($message, $type = 'error')
     {
         $notification         = [

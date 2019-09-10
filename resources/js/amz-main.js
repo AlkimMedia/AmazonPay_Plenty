@@ -1,4 +1,3 @@
-//v2018-08-22_15:05
 if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
     var amz$ = $;
 }
@@ -37,7 +36,7 @@ var PlentyMarketsAmazonPay = {
         return language;
     },
     getShippingList: function (callback) {
-        amz$.get('/amazon-ajax-handle', {action: 'getShippingList'}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getShippingList', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
             } else {
@@ -50,7 +49,7 @@ var PlentyMarketsAmazonPay = {
         });
     },
     getOrderDetails: function () {
-        amz$.get('/amazon-ajax-handle', {action: 'getOrderDetails'}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getOrderDetails', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
             amz$('#orderDetailsWr').html(data);
         });
     },
@@ -113,7 +112,7 @@ var PlentyMarketsAmazonPay = {
                                     if (amazonLoginAndPay.config.popup && isArticleCheckout) {
                                         authRequest = amazon.Login.authorize(loginOptions);
                                     } else {
-                                        authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                                        authRequest = amazon.Login.authorize(loginOptions, amazonLoginAndPay.urls.amazonLoginProcessing);
                                     }
                                 };
                                 if (isArticleCheckout && !amazonLoginAndPay.config.popup) {
@@ -127,7 +126,7 @@ var PlentyMarketsAmazonPay = {
                                 PlentyMarketsAmazonPay.orderReference = orderReference;
                                 if (amazonLoginAndPay.config.popup && isArticleCheckout) {
                                     PlentyMarketsAmazonPay.buyProduct(function () {
-                                        location.href = '/amazon-login-processing/?access_token=' + authRequest.access_token;
+                                        location.href = amazonLoginAndPay.urls.amazonLoginProcessing + '?access_token=' + authRequest.access_token;
                                     });
                                 }
                             },
@@ -174,7 +173,7 @@ var PlentyMarketsAmazonPay = {
                             } else {
                                 document.cookie = "amzLoginType=Login;path=/";
                             }
-                            authRequest = amazon.Login.authorize(loginOptions, '/amazon-login-processing/');
+                            authRequest = amazon.Login.authorize(loginOptions, amazonLoginAndPay.urls.amazonLoginProcessing);
                         },
                         onError: function (error) {
                             console.error(error.getErrorMessage(), error.getErrorCode());
@@ -193,7 +192,7 @@ var PlentyMarketsAmazonPay = {
                         orderReference = orderReference.getAmazonOrderReferenceId();
                         PlentyMarketsAmazonPay.orderReference = orderReference;
                         if (PlentyMarketsAmazonPay.isInitialized === false) {
-                            amz$.get('/amazon-ajax-handle', {
+                            amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
                                 action: 'setOrderReference',
                                 orderReference: orderReference
                             }, function () {
@@ -327,7 +326,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
     }
 
     if (typeof accessToken === 'string' && accessToken.match(/^Atza/)) {
-        amz$.get('/amazon-ajax-handle', {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
             action: 'setAccessToken',
             access_token: accessToken,
             do_login: (PlentyMarketsAmazonPay.getCookieValue('amzLoginType') === 'Login' ? 1 : 0)
@@ -343,7 +342,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
     amz$(document).on('change', '#shippingOptionsListWr [name="ShippingProfileID"]', function () {
         if (amz$(this).is(':checked')) {
             var id = amz$(this).val();
-            amz$.get('/amazon-ajax-handle', {action: 'setShippingProfileId', id: id}, function (data) {
+            amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'setShippingProfileId', id: id}, function (data) {
                 amz$('#orderDetailsWr').html(data);
             });
         }
@@ -366,7 +365,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
             });
 
             var confirmOrderReference = function (confirmationFlow) {
-                amz$.get('/amazon-pre-checkout', function (data) {
+                amz$.get(amazonLoginAndPay.urls.amazonPreCheckout, function (data) {
                     if (typeof data === 'object' && data.redirect) {
                         confirmationFlow.error();
                         location.href = data.redirect;
@@ -384,7 +383,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
             var $commentInput = amz$('.amz-comment-textarea');
             if ($commentInput.length) {
-                amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function () {
+                amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'setComment', comment: $commentInput.val()}, function () {
                     startCheckout();
                 });
             } else {
@@ -399,7 +398,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
             $link.unbind('click').bind('click', function (e) {
                 e.preventDefault();
             });
-            amz$.get('/amazon-pre-checkout', function (data) {
+            amz$.get(amazonLoginAndPay.urls.amazonPreCheckout, function (data) {
                 if (typeof data === 'object' && data.redirect) {
                     location.href = data.redirect;
                 } else {

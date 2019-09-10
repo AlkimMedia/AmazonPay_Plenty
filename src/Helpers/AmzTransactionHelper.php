@@ -81,7 +81,7 @@ class AmzTransactionHelper
         $requestParameters['seller_order_id']           = $orderId;
         $response                                       = $this->call('SetOrderAttributes', $requestParameters);
         $this->helper->log(__CLASS__, __METHOD__, 'set order id result', [$requestParameters, $response]);
-
+        $this->helper->setOrderExternalId($orderId, $orderRef);
         return $response;
     }
 
@@ -427,15 +427,20 @@ class AmzTransactionHelper
             $orderId                                        = $this->getOrderIdFromOrderRef($orderRef);
 
             if (!empty($response["Error"])) {
-                $plentyPayment = null;
-                try {
-                    $plentyPayment = $this->helper->createPlentyPayment($amount, 'refused', date('Y-m-d H-i-s'), 'Zahlungseinzug fehlgeschlagen: ' . $response["Error"]["Message"], '', 'credit', 2, $requestParameters['currency_code']);
-                } catch (\Exception $e) {
-                    $this->helper->log(__CLASS__, __METHOD__, 'capture error notice - creation failed', [$e, $e->getMessage()], true);
-                }
-                $this->helper->log(__CLASS__, __METHOD__, 'capture error notice created', ['payment' => $plentyPayment]);
-                if ($plentyPayment instanceof Payment && !empty($orderId)) {
-                    $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
+                if($response["Error"]["Code"] === 'TransactionCountExceeded'){
+                    //sometimes double capture attempts occur because of misconfiguration or slow execution - get out silently
+                    return $response;
+                }else {
+                    $plentyPayment = null;
+                    try {
+                        $plentyPayment = $this->helper->createPlentyPayment($amount, 'refused', date('Y-m-d H-i-s'), 'Zahlungseinzug fehlgeschlagen: ' . $response["Error"]["Message"], '', 'credit', 2, $requestParameters['currency_code']);
+                    } catch (\Exception $e) {
+                        $this->helper->log(__CLASS__, __METHOD__, 'capture error notice - creation failed', [$e, $e->getMessage()], true);
+                    }
+                    $this->helper->log(__CLASS__, __METHOD__, 'capture error notice created', ['payment' => $plentyPayment]);
+                    if ($plentyPayment instanceof Payment && !empty($orderId)) {
+                        $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
+                    }
                 }
             } else {
                 $details            = $response["CaptureResult"]["CaptureDetails"];

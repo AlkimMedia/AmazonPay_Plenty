@@ -44,10 +44,13 @@ class AjaxController extends Controller
     {
         $action = $this->request->get('action');
         $this->helper->log(__CLASS__, __METHOD__, 'ajax handle action', ['action' => $action, 'orderReference' => $this->helper->getFromSession('amzOrderReference')]);
+        if($orderReference = (string)$this->request->get('orderReference')){
+            $this->helper->setToSession('amzOrderReference', $orderReference);
+        }
         switch ($action) {
             case 'setAccessToken':
                 $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
-                $redirect  = '/amazon-checkout';
+                $redirect  = $this->helper->getUrl('/amazon-checkout');
                 $cookieStr = '';
                 $header    = $this->request->header();
                 if (isset($header['cookie']) && is_array($header['cookie'])) {
@@ -254,7 +257,11 @@ class AjaxController extends Controller
                                     $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - detected payment', [$transaction->paymentId, $orderId]);
                                     if ($payment = $this->helper->paymentRepository->getPaymentById($transaction->paymentId)) {
                                         $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign payment', [$payment, $orderId]);
-                                        if (!$this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
+                                        if ($this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
+                                            if ($transaction->status === 'Open' && $this->helper->getFromConfig('authorizedStatus')) {
+                                                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                                            }
+                                        }else{
                                             $this->transactionHelper->doAuthorizationPaymentAction($transaction);
                                         }
                                     }
@@ -296,7 +303,7 @@ class AjaxController extends Controller
 
     public function getTable(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
-        $transactions = $repository->getTransactions([]);
+        $transactions = $repository->getTransactions([['time', '>', date('Y-m-d', time()-86400*60)]]);
         $html         = '<table>';
         foreach ($transactions as $transaction) {
             $html .= '<tr>';

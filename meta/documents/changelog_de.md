@@ -1,5 +1,13 @@
 # Release Notes für Amazon Pay
 
+## 1.5.1
+
+### Gefixt
+
+- besseres URL Handling (Sprach-Präfix)
+- zuverlässigere Übertragung der OrderReference
+- Shopware Connector - Status setzen
+
 ## 1.5.0
 
 ### Hinzugefügt
