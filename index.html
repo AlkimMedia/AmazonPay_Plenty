@@ -263,23 +263,6 @@
                 <a href="#anchor_7">
                     7. Häufige Fehler
                 </a>
-                <ul>
-                    <li>
-                        <a href="#anchor_71">
-                            7.1 {"error":{"message":"Internal Server error"}} bei Checkout
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#anchor_72">
-                            7.2 Dem Auftrag wird eine andere Zahlungsart zugeordnet
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#anchor_73">
-                            7.3  "Die gewählte Zahlungsweise ist für diesen Einkauf nicht verfügbar. Wählen Sie eine andere Zahlungsweise"
-                        </a>
-                    </li>
-                </ul>
             </li>
             <li>
                 <a href="#anchor_8">
@@ -323,6 +306,8 @@
             Bitte denke wie bei allen Plugins daran, dass du es im richtigen Set für den jeweiligen Mandaten aktivierst
             und
             bereitstellst.
+            <br /><br />
+            Außerdem muss das Plugin unbedingt im Plugin-Set des Hauptmandanten installiert werden.
         </div>
         <h3 id="anchor_22">2.2 Amazon Pay Account anlegen</h3>
         <div>
@@ -489,6 +474,10 @@
             Hier kannst du Einstellungen zum Aussehen der Amazon-Buttons treffen.
         </div>
         <h2 id="anchor_3">3. Ereignisaktionen</h2>
+        <div class="alert alert-warning">
+            Bei den Ereignisaktionen wird die Plugin-Konfiguration des Hauptmandanten geladen. Bitte trage die unter
+            <a href="#anchor_234">2.3.4</a> verwendeten Zugangsdaten deshalb auch im Plugin-Set des Hauptmandanten ein.
+        </div>
         <h3 id="anchor_31">3.1 Amazon Pay Zahlung autorisieren</h3>
         <div>Diese Ereignisaktionen wird für den normalen Workflow nicht gebraucht und ist nur dann relevant, wenn
             ungewöhnliche
@@ -655,6 +644,10 @@
         <h3 id="anchor_73">7.3  "Die gewählte Zahlungsweise ist für diesen Einkauf nicht verfügbar. Wählen Sie eine andere Zahlungsweise"</h3>
         <div>
             Wenn diese Fehlermeldung von Amazon zurückgegeben wird, hast du vermutlich die Einstellugen unter <a href="#anchor_231">2.3.1</a> nicht richtig vorgenommen. Bitte überprüfe diese noch einmal.
+        </div>
+        <h3 id="anchor_74">7.4 Ereignisaktionen funktionieren nicht, obwohl sie ausgelöst wurden</h3>
+        <div>
+            Bitte überprüfe, ob du die Amazon Pay Zugangsdaten auch im Plugin-Set des Hauptmandanten eingetragen hast. Dieses wird in Ereignisaktionen geladen.
         </div>
 
         <h2 id="anchor_8">8. FAQ</h2>
