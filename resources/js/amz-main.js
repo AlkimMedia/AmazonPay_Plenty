@@ -319,7 +319,7 @@ window.onAmazonPaymentsReady = function () {
 
 if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
     var accessToken;
-    if (location.href.indexOf('amazon-login-processing/?access_token=') !== -1) {
+    if (location.href.indexOf('amazon-login-processing/?access_token=') !== -1 || location.href.indexOf('amazon-login-processing?access_token=') !== -1) {
         accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.href);
     } else {
         accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.hash);

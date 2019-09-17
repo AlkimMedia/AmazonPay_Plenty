@@ -1,5 +1,11 @@
 # Release notes for Amazon Pay
 
+## 1.5.2
+
+### Fixed
+
+- better recognition for access token in redirect
+
 ## 1.5.1
 
 ### Fixed
