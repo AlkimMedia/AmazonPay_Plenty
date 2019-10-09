@@ -4,8 +4,8 @@ namespace AmazonLoginAndPay\Providers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
-use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
+use AmazonLoginAndPay\Helpers\PaymentMethodHelper;
 use AmazonLoginAndPay\Methods\AmzPaymentMethod;
 use AmazonLoginAndPay\Procedures\AmzCaptureProcedure;
 use AmazonLoginAndPay\Repositories\AmzTransactionRepository;
@@ -26,8 +26,7 @@ class AmzServiceProvider extends ServiceProvider
     public $transactionHelper;
 
     public function boot(
-        AlkimAmazonLoginAndPayHelper $helper,
-        AmzCheckoutHelper $checkoutHelper,
+        PaymentMethodHelper $paymentMethodHelper,
         Dispatcher $eventDispatcher,
         AmzTransactionHelper $transactionHelper,
         EventProceduresService $eventProceduresService,
@@ -37,10 +36,10 @@ class AmzServiceProvider extends ServiceProvider
     ) {
         //$helper->log(__CLASS__, __METHOD__, 'request uri', $request->getUri());
         if (strpos($request->getUri(), '/logout') !== false) {
-            $helper->setToSession('amazonLogout', 1);
+            pluginApp(AlkimAmazonLoginAndPayHelper::class)->setToSession('amazonLogout', 1);
         }
 
-        $helper->createMopIfNotExistsAndReturnId();
+        $paymentMethodHelper->createMopIfNotExistsAndReturnId();
         $payContainer->register('alkim_amazonpay::AMAZONPAY', AmzPaymentMethod::class,
             [
                 AfterBasketChanged::class,
@@ -51,18 +50,23 @@ class AmzServiceProvider extends ServiceProvider
         $this->transactionHelper = $transactionHelper;
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
-            function (ExecutePayment $event) use ($helper, $transactionHelper, $paymentRepository, $checkoutHelper) {
+            function (ExecutePayment $event) use ($paymentMethodHelper, $transactionHelper, $paymentRepository) {
+                /** @var AlkimAmazonLoginAndPayHelper $helper */
+                $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
                 $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
-                if ($event->getMop() == $helper->createMopIfNotExistsAndReturnId()) {
+                if ($event->getMop() == $paymentMethodHelper->createMopIfNotExistsAndReturnId()) {
                     $orderId = $event->getOrderId();
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id',
+                        $helper->getFromSession('amazonAuthId'));
                     if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
                         if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
                             if ($transaction->paymentId) {
                                 if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
                                     $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
-                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
+                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId),
+                                        $orderId);
+                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order',
+                                        [$payment, $orderId]);
                                     $helper->setToSession('amazonAuthId', '');
                                     if ($transaction->status === 'Open' && $helper->getFromConfig('authorizedStatus')) {
                                         $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
@@ -75,7 +79,8 @@ class AmzServiceProvider extends ServiceProvider
                                     foreach ($captures as $capture) {
                                         if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
                                             $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
+                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order',
+                                                [$payment, $orderId]);
                                         }
                                     }
                                 }
@@ -85,7 +90,7 @@ class AmzServiceProvider extends ServiceProvider
                         $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
                     $helper->log(__CLASS__, __METHOD__, 'set order id', $orderReference);
-                    if(!empty($orderReference)) {
+                    if (!empty($orderReference)) {
                         $transactionHelper->setOrderId($orderReference, $orderId);
                     }
 

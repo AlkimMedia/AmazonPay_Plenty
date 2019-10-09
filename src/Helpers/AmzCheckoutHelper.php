@@ -23,7 +23,21 @@ class AmzCheckoutHelper
     public $basketItemRepository;
     public $orderRepository;
 
-    public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, AmzBasketService $basketService, AmzCheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper)
+    /**
+     * @var PaymentMethodHelper
+     */
+    private $paymentMethodHelper;
+
+    public function __construct(
+        OrderRepositoryContract $orderRepository,
+        BasketItemRepositoryContract $basketItemRepository,
+        AlkimAmazonLoginAndPayHelper $helper,
+        AmzBasketService $basketService,
+        AmzCheckoutService $checkoutService,
+        Checkout $checkout,
+        AmzTransactionHelper $transactionHelper,
+        PaymentMethodHelper $paymentMethodHelper
+    )
     {
         $this->helper               = $helper;
         $this->transactionHelper    = $transactionHelper;
@@ -32,6 +46,7 @@ class AmzCheckoutHelper
         $this->checkout             = $checkout;
         $this->basketItemRepository = $basketItemRepository;
         $this->orderRepository      = $orderRepository;
+        $this->paymentMethodHelper  = $paymentMethodHelper;
     }
 
     public function getShippingOptionsList()
@@ -281,7 +296,7 @@ class AmzCheckoutHelper
     {
         $this->helper->log(__CLASS__, __METHOD__, 'try to set payment method', []);
         try {
-            $paymentMethodId = $this->helper->createMopIfNotExistsAndReturnId();
+            $paymentMethodId = $this->paymentMethodHelper->createMopIfNotExistsAndReturnId();
             $this->checkout->setPaymentMethodId($paymentMethodId);
             $this->helper->log(__CLASS__, __METHOD__, 'paymentMethodId', ['id' => $paymentMethodId]);
         } catch (\Exception $e) {

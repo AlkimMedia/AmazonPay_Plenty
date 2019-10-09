@@ -16,7 +16,6 @@ use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentOrderRelationRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
-use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Plugin\ConfigRepository;
@@ -37,11 +36,25 @@ class AlkimAmazonLoginAndPayHelper
     public $statusMap;
     public $webstoreHelper;
     public $translator;
+
+    /**
+     * @var PaymentMethodHelper
+     */
+    private $paymentMethodHelper;
+
     use Loggable;
 
-    public function __construct(Translator $translator, WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
+    public function __construct(
+        Translator $translator,
+        WebstoreHelper $webstoreHelper,
+        PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository,
+        OrderRepositoryContract $orderRepository,
+        PaymentRepositoryContract $paymentRepository,
+        FrontendSessionStorageFactoryContract $session,
+        ConfigRepository $configRepository,
+        PaymentMethodHelper $paymentMethodHelper
+    )
     {
-        $this->paymentMethodRepository        = $paymentMethodRepository;
         $this->paymentRepository              = $paymentRepository;
         $this->orderRepository                = $orderRepository;
         $this->paymentOrderRelationRepository = $paymentOrderRelationRepository;
@@ -49,6 +62,7 @@ class AlkimAmazonLoginAndPayHelper
         $this->configRepo                     = $configRepository;
         $this->webstoreHelper                 = $webstoreHelper;
         $this->translator                     = $translator;
+        $this->paymentMethodHelper            = $paymentMethodHelper;
     }
 
     public function getWebstoreName()
@@ -102,7 +116,7 @@ class AlkimAmazonLoginAndPayHelper
     {
         /** @var Payment $payment */
         $payment                   = pluginApp(Payment::class);
-        $payment->mopId            = (int)$this->createMopIfNotExistsAndReturnId();
+        $payment->mopId            = (int)$this->paymentMethodHelper->createMopIfNotExistsAndReturnId();
         $payment->transactionType  = $transactionType;
         $payment->type             = $type;
         $payment->status           = $this->mapStatus($status);
@@ -130,42 +144,7 @@ class AlkimAmazonLoginAndPayHelper
         return $payment;
     }
 
-    public function createMopIfNotExistsAndReturnId()
-    {
-        $paymentMethodId = $this->getPaymentMethod();
-        if ($paymentMethodId === false) {
-            $paymentMethodData = [
-                'pluginKey'  => 'alkim_amazonpay',
-                'paymentKey' => 'AMAZONPAY',
-                'name'       => 'Amazon Pay'
-            ];
 
-            $this->paymentMethodRepository->createPaymentMethod($paymentMethodData);
-            $paymentMethodId = $this->getPaymentMethod();
-        }
-
-        return $paymentMethodId;
-    }
-
-    /**
-     * Load the ID of the payment method for the given plugin key
-     * Return the ID for the payment method
-     *
-     * @return string|int
-     */
-    public function getPaymentMethod()
-    {
-        $paymentMethods = $this->paymentMethodRepository->allForPlugin('alkim_amazonpay');
-        if (!is_null($paymentMethods)) {
-            foreach ($paymentMethods as $paymentMethod) {
-                if ($paymentMethod->paymentKey == 'AMAZONPAY') {
-                    return $paymentMethod->id;
-                }
-            }
-        }
-
-        return false;
-    }
 
     public function mapStatus(string $status)
     {
