@@ -23,12 +23,9 @@ use Plenty\Plugin\ServiceProvider;
 
 class AmzServiceProvider extends ServiceProvider
 {
-    public $transactionHelper;
-
     public function boot(
         PaymentMethodHelper $paymentMethodHelper,
         Dispatcher $eventDispatcher,
-        AmzTransactionHelper $transactionHelper,
         EventProceduresService $eventProceduresService,
         PaymentRepositoryContract $paymentRepository,
         PaymentMethodContainer $payContainer,
@@ -46,11 +43,9 @@ class AmzServiceProvider extends ServiceProvider
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-
-        $this->transactionHelper = $transactionHelper;
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
-            function (ExecutePayment $event) use ($paymentMethodHelper, $transactionHelper, $paymentRepository) {
+            function (ExecutePayment $event) use ($paymentMethodHelper, $paymentRepository) {
                 /** @var AlkimAmazonLoginAndPayHelper $helper */
                 $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
                 $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
@@ -58,6 +53,8 @@ class AmzServiceProvider extends ServiceProvider
                     $orderId = $event->getOrderId();
                     $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id',
                         $helper->getFromSession('amazonAuthId'));
+                    /** @var AmzTransactionHelper $transactionHelper */
+                    $transactionHelper = pluginApp(AmzTransactionHelper::class);
                     if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
                         if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
                             if ($transaction->paymentId) {
