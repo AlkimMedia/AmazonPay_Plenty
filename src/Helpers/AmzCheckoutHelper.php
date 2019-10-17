@@ -28,16 +28,7 @@ class AmzCheckoutHelper
      */
     private $paymentMethodHelper;
 
-    public function __construct(
-        OrderRepositoryContract $orderRepository,
-        BasketItemRepositoryContract $basketItemRepository,
-        AlkimAmazonLoginAndPayHelper $helper,
-        AmzBasketService $basketService,
-        AmzCheckoutService $checkoutService,
-        Checkout $checkout,
-        AmzTransactionHelper $transactionHelper,
-        PaymentMethodHelper $paymentMethodHelper
-    )
+    public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, AmzBasketService $basketService, AmzCheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper, PaymentMethodHelper $paymentMethodHelper)
     {
         $this->helper               = $helper;
         $this->transactionHelper    = $transactionHelper;

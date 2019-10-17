@@ -36,24 +36,11 @@ class AlkimAmazonLoginAndPayHelper
     public $statusMap;
     public $webstoreHelper;
     public $translator;
-
-    /**
-     * @var PaymentMethodHelper
-     */
     private $paymentMethodHelper;
 
     use Loggable;
 
-    public function __construct(
-        Translator $translator,
-        WebstoreHelper $webstoreHelper,
-        PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository,
-        OrderRepositoryContract $orderRepository,
-        PaymentRepositoryContract $paymentRepository,
-        FrontendSessionStorageFactoryContract $session,
-        ConfigRepository $configRepository,
-        PaymentMethodHelper $paymentMethodHelper
-    )
+    public function __construct(Translator $translator, WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository, PaymentMethodHelper $paymentMethodHelper)
     {
         $this->paymentRepository              = $paymentRepository;
         $this->orderRepository                = $orderRepository;
