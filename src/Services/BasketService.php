@@ -31,10 +31,10 @@ class BasketService
     public function __construct(BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, VariationRepositoryContract $variationRepository, ItemRepositoryContract $itemRepository, ItemImageRepositoryContract $itemImageRepository)
     {
         $this->basketItemRepository = $basketItemRepository;
-        $this->helper = $helper;
-        $this->variationRepository = $variationRepository;
-        $this->itemRepository = $itemRepository;
-        $this->itemImageRepository = $itemImageRepository;
+        $this->helper               = $helper;
+        $this->variationRepository  = $variationRepository;
+        $this->itemRepository       = $itemRepository;
+        $this->itemImageRepository  = $itemImageRepository;
     }
 
     /**
@@ -52,38 +52,24 @@ class BasketService
      */
     public function getBasketItems(): array
     {
-
-
         $basketItems = $this->basketItemRepository->all();
         $this->helper->log(__CLASS__, __METHOD__, 'basket items', $basketItems);
         $return = [];
         foreach ($basketItems as $basketItem) {
-            $item = $basketItem->toArray();
+            $item                = $basketItem->toArray();
             $item["final_price"] = $item["price"] * $item["quantity"];
             $this->helper->log(__CLASS__, __METHOD__, 'basket items details pre', $item);
             $variationData = $this->variationRepository->show($item["variationId"], ['images', 'texts'], 'de');
-            $itemData = $this->itemRepository->show($item["itemId"]);
-            $imageData = $this->itemImageRepository->findByVariationId($item["variationId"]);
+            $itemData      = $this->itemRepository->show($item["itemId"]);
+            $imageData     = $this->itemImageRepository->findByVariationId($item["variationId"]);
             //$itemImageData = $this->itemImageRepository->findByItemId($item["itemId"]);
             $this->helper->log(__CLASS__, __METHOD__, 'basket item details', [$itemData, $variationData, $imageData, $itemData[""]]);
             $item["name"] = $itemData["texts"][0]["name1"];
-            $return[] = $item;
+            $return[]     = $item;
         }
         $this->helper->log(__CLASS__, __METHOD__, 'basket items return', $return);
+
         return $return;
-        /*
-        $basketItemData = $this->getBasketItemData( $basketItems );
-
-        foreach( $basketItems as $basketItem )
-        {
-            array_push(
-                $result,
-                $this->addVariationData($basketItem, $basketItemData[$basketItem->variationId])
-            );
-        }
-
-        return $result;*/
     }
-
 
 }

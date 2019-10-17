@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Migrations;
 
 use AmazonLoginAndPay\Models\AmzTransaction;

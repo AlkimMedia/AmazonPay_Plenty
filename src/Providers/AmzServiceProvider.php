@@ -31,7 +31,7 @@ class AmzServiceProvider extends ServiceProvider
         PaymentMethodContainer $payContainer,
         Request $request
     ) {
-        //$helper->log(__CLASS__, __METHOD__, 'request uri', $request->getUri());
+
         if (strpos($request->getUri(), '/logout') !== false) {
             pluginApp(AlkimAmazonLoginAndPayHelper::class)->setToSession('amazonLogout', 1);
         }
@@ -43,6 +43,7 @@ class AmzServiceProvider extends ServiceProvider
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
+
         // Listen for the event that executes the payment
         $eventDispatcher->listen(ExecutePayment::class,
             function (ExecutePayment $event) use ($paymentMethodHelper, $paymentRepository) {
@@ -51,8 +52,7 @@ class AmzServiceProvider extends ServiceProvider
                 $helper->log(__CLASS__, __METHOD__, 'execute payment event', $event);
                 if ($event->getMop() == $paymentMethodHelper->createMopIfNotExistsAndReturnId()) {
                     $orderId = $event->getOrderId();
-                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id',
-                        $helper->getFromSession('amazonAuthId'));
+                    $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
                     /** @var AmzTransactionHelper $transactionHelper */
                     $transactionHelper = pluginApp(AmzTransactionHelper::class);
                     if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
@@ -60,10 +60,8 @@ class AmzServiceProvider extends ServiceProvider
                             if ($transaction->paymentId) {
                                 if ($payment = $paymentRepository->getPaymentById($transaction->paymentId)) {
                                     $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId),
-                                        $orderId);
-                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order',
-                                        [$payment, $orderId]);
+                                    $helper->setOrderIdToAmazonTransactions($transactionHelper->getOrderRefFromAmzId($amazonAuthId), $orderId);
+                                    $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
                                     $helper->setToSession('amazonAuthId', '');
                                     if ($transaction->status === 'Open' && $helper->getFromConfig('authorizedStatus')) {
                                         $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
@@ -76,8 +74,7 @@ class AmzServiceProvider extends ServiceProvider
                                     foreach ($captures as $capture) {
                                         if ($payment = $paymentRepository->getPaymentById($capture->paymentId)) {
                                             $helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order',
-                                                [$payment, $orderId]);
+                                            $helper->log(__CLASS__, __METHOD__, 'assign capture to order', [$payment, $orderId]);
                                         }
                                     }
                                 }
@@ -87,7 +84,7 @@ class AmzServiceProvider extends ServiceProvider
                         $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
                     $helper->log(__CLASS__, __METHOD__, 'set order id', $orderReference);
-                    if(!empty($orderReference)) {
+                    if (!empty($orderReference)) {
                         $transactionHelper->setOrderId($orderReference, $orderId);
                     }
 

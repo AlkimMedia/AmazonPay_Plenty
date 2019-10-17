@@ -2,7 +2,6 @@
 
 namespace AmazonLoginAndPay\Services;
 
-
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use Plenty\Modules\Account\Contact\Contracts\ContactRepositoryContract;
 use Plenty\Modules\Account\Contact\Models\Contact;
@@ -16,6 +15,7 @@ use Plenty\Plugin\ExternalAuth\Services\ExternalAuthService;
  */
 class AmzCustomerService
 {
+    const EXTERNAL_AUTH_SLUG = 'Amazon';
     private $contactRepository;
     private $contactAuthenticationRepository;
     /** @var AccountService $accountService */
@@ -25,33 +25,20 @@ class AmzCustomerService
     /** @var ExternalAuthService $externalAuthService */
     private $externalAuthService;
 
-    const EXTERNAL_AUTH_SLUG = 'Amazon';
-
     /**
      * CustomerService constructor.
+     *
      * @param ContactRepositoryContract $contactRepository
      * @param ContactAuthenticationRepositoryContract $contactAuthenticationRepository
-
      */
     public function __construct(
         ContactRepositoryContract $contactRepository,
         ContactAuthenticationRepositoryContract $contactAuthenticationRepository
 
-    )
-    {
-        $this->contactRepository = $contactRepository;
+    ) {
+        $this->contactRepository               = $contactRepository;
         $this->contactAuthenticationRepository = $contactAuthenticationRepository;
 
-    }
-
-    /**
-     *
-     */
-    public function init()
-    {
-        $this->accountService = pluginApp(AccountService::class);
-        $this->externalAccessRepository = pluginApp(ExternalAccessRepositoryContract::class);
-        $this->externalAuthService = pluginApp(ExternalAuthService::class);
     }
 
     /**
@@ -63,12 +50,8 @@ class AmzCustomerService
         if ($this->getContactId() > 0) {
             return $this->contactRepository->findContactById($this->getContactId());
         }
-        return null;
-    }
 
-    public function getContactIdByEmail($email)
-    {
-        return $this->contactRepository->getContactIdByEmail($email);
+        return null;
     }
 
     /**
@@ -78,7 +61,26 @@ class AmzCustomerService
     public function getContactId()
     {
         $this->init();
+
         return $this->accountService->getAccountContactId();
+    }
+
+    /**
+     *
+     */
+    public function init()
+    {
+        $this->accountService           = pluginApp(AccountService::class);
+        $this->externalAccessRepository = pluginApp(ExternalAccessRepositoryContract::class);
+        $this->externalAuthService      = pluginApp(ExternalAuthService::class);
+    }
+
+    public function connectAccounts($data, $email, $password)
+    {
+        $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
+        $helper->log(__CLASS__, __METHOD__, 'connectAccounts', [$data, $email, $password]);
+
+        return $this->loginWithAmazonUserData($data, $email, $password);
     }
 
     public function loginWithAmazonUserData($data, $connectEmail = null, $connectPassword = null, $onlyIfExisting = false)
@@ -92,11 +94,11 @@ class AmzCustomerService
             'success' => false
         ];
 
-        $email = $data["email"];
-        $name = $data["name"];
+        $email        = $data["email"];
+        $name         = $data["name"];
         $amazonUserId = $data["user_id"];
         if (!empty($amazonUserId) && !empty($email)) {
-            $doLogin = false;
+            $doLogin            = false;
             $externalAccessInfo = null;
             try {
                 $externalAccessInfo = $this->externalAccessRepository->findForTypeAndExternalId(self::EXTERNAL_AUTH_SLUG, $amazonUserId);
@@ -108,32 +110,32 @@ class AmzCustomerService
                     $contactIdByEmail = $this->getContactIdByEmail($email);
                     if (empty($contactIdByEmail)) {
                         $contactData = [
-                            'typeId' => 1,
-                            'fullName' => $name,
-                            'email' => $email,
+                            'typeId'     => 1,
+                            'fullName'   => $name,
+                            'email'      => $email,
                             'referrerId' => 1,
-                            'options' => [
+                            'options'    => [
                                 [
-                                    'typeId' => 2,
+                                    'typeId'    => 2,
                                     'subTypeId' => 4,
-                                    'value' => $email,
-                                    'priority' => 0
+                                    'value'     => $email,
+                                    'priority'  => 0
                                 ],
                                 [
-                                    'typeId' => 8,
+                                    'typeId'    => 8,
                                     'subTypeId' => 4,
-                                    'value' => $name,
-                                    'priority' => 0
+                                    'value'     => $name,
+                                    'priority'  => 0
                                 ]
                             ]
                         ];
 
                         $contact = $this->contactRepository->createContact($contactData);
                         $helper->log(__CLASS__, __METHOD__, 'contact created', [$contact, $contactData]);
-                        $contactId = $contact->id;
+                        $contactId                 = $contact->id;
                         $externalAccessCreatedInfo = $this->externalAccessRepository->create([
-                            'contactId' => $contactId,
-                            'accessType' => self::EXTERNAL_AUTH_SLUG,
+                            'contactId'         => $contactId,
+                            'accessType'        => self::EXTERNAL_AUTH_SLUG,
                             'externalContactId' => $amazonUserId,
                         ]);
                         $helper->log(__CLASS__, __METHOD__, 'external access created', [$externalAccessCreatedInfo]);
@@ -144,8 +146,8 @@ class AmzCustomerService
                             $helper->log(__CLASS__, __METHOD__, 'login result', ['result' => $loginResult, 'contact_id' => $this->getContactId()]);
                             if ($this->getContactId() == $contactIdByEmail && $connectEmail == $email) {
                                 $externalAccessCreatedInfo = $this->externalAccessRepository->create([
-                                    'contactId' => $contactIdByEmail,
-                                    'accessType' => self::EXTERNAL_AUTH_SLUG,
+                                    'contactId'         => $contactIdByEmail,
+                                    'accessType'        => self::EXTERNAL_AUTH_SLUG,
                                     'externalContactId' => $amazonUserId,
                                 ]);
                                 $helper->log(__CLASS__, __METHOD__, 'external access created', [$externalAccessCreatedInfo]);
@@ -171,15 +173,13 @@ class AmzCustomerService
             $helper->log(__CLASS__, __METHOD__, 'no amazon user data given for login', ['data' => $data], true);
         }
         $helper->log(__CLASS__, __METHOD__, 'return value', $return);
+
         return $return;
     }
 
-    public function connectAccounts($data, $email, $password)
+    public function getContactIdByEmail($email)
     {
-        $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
-        $helper->log(__CLASS__, __METHOD__, 'connectAccounts', [$data, $email, $password]);
-        return $this->loginWithAmazonUserData($data, $email, $password);
+        return $this->contactRepository->getContactIdByEmail($email);
     }
-
 
 }

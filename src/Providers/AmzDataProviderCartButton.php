@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Providers;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
@@ -10,8 +11,9 @@ class AmzDataProviderCartButton
     {
         /** @var AlkimAmazonLoginAndPayHelper $helper */
         $helper = pluginApp(AlkimAmazonLoginAndPayHelper::class);
-        $error = $helper->getFromSession('amazonCheckoutError');
+        $error  = $helper->getFromSession('amazonCheckoutError');
         $helper->setToSession('amazonCheckoutError', '');
+
         return $twig->render('AmazonLoginAndPay::snippets.cart-button', ['error' => $error]);
     }
 }

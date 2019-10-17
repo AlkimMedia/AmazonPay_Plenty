@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
@@ -6,14 +7,10 @@ use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Plenty\Modules\Order\Models\Order;
 
-
 class AmzCaptureProcedure
 {
 
-    public function run(EventProceduresTriggered $eventTriggered,
-                        AmzTransactionHelper $transactionHelper,
-                        AlkimAmazonLoginAndPayHelper $helper
-    )
+    public function run(EventProceduresTriggered $eventTriggered, AmzTransactionHelper $transactionHelper, AlkimAmazonLoginAndPayHelper $helper)
     {
         /** @var Order $order */
         $order = $eventTriggered->getOrder();
@@ -49,7 +46,7 @@ class AmzCaptureProcedure
                 ['order', '=', $orderId],
                 ['type', '=', 'order_ref']
             ]);
-            $oro = $oroArr[0];
+            $oro    = $oroArr[0];
             $amount = $oro->amount;
             $transactionHelper->authorize($oro->orderReference, $amount, 0);
 

@@ -44,7 +44,7 @@ class AjaxController extends Controller
     {
         $action = $this->request->get('action');
         $this->helper->log(__CLASS__, __METHOD__, 'ajax handle action', ['action' => $action, 'orderReference' => $this->helper->getFromSession('amzOrderReference')]);
-        if($orderReference = (string)$this->request->get('orderReference')){
+        if ($orderReference = (string)$this->request->get('orderReference')) {
             $this->helper->setToSession('amzOrderReference', $orderReference);
         }
         switch ($action) {
@@ -78,6 +78,7 @@ class AjaxController extends Controller
                 break;
             case 'setOrderReference':
                 $this->helper->setToSession('amzOrderReference', $this->request->get('orderReference'));
+
                 return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $this->helper->getFromSession('amzOrderReference')]);
                 break;
             case 'getShippingList':
@@ -174,7 +175,7 @@ class AjaxController extends Controller
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->AuthorizationDetails->AmazonAuthorizationId]]);
                 $this->helper->log(__CLASS__, __METHOD__, 'ipn - auth', [$transactions]);
                 if (empty($transactions)) {
-                    if(empty($responseXml->AuthorizationDetails->AuthorizationStatus->State) || $responseXml->AuthorizationDetails->AuthorizationStatus->State !== 'Closed') {
+                    if (empty($responseXml->AuthorizationDetails->AuthorizationStatus->State) || $responseXml->AuthorizationDetails->AuthorizationStatus->State !== 'Closed') {
                         /** @var AmzTransaction $transaction */
                         $transaction                 = pluginApp(AmzTransaction::class);
                         $transaction->amzId          = $responseXml->AuthorizationDetails->AmazonAuthorizationId;
@@ -188,7 +189,7 @@ class AjaxController extends Controller
                 } else {
                     $transaction = $transactions[0];
                 }
-                if(!empty($transaction)) {
+                if (!empty($transaction)) {
                     $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
                 }
                 break;
@@ -261,7 +262,7 @@ class AjaxController extends Controller
                                             if ($transaction->status === 'Open' && $this->helper->getFromConfig('authorizedStatus')) {
                                                 $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
                                             }
-                                        }else{
+                                        } else {
                                             $this->transactionHelper->doAuthorizationPaymentAction($transaction);
                                         }
                                     }
@@ -303,7 +304,7 @@ class AjaxController extends Controller
 
     public function getTable(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
-        $transactions = $repository->getTransactions([['time', '>', date('Y-m-d', time()-86400*60)]]);
+        $transactions = $repository->getTransactions([['time', '>', date('Y-m-d', time() - 86400 * 60)]]);
         $html         = '<table>';
         foreach ($transactions as $transaction) {
             $html .= '<tr>';

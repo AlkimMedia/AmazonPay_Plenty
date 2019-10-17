@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
@@ -6,28 +7,24 @@ use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Plenty\Modules\Order\Models\Order;
 
-
 class AmzRefundProcedure
 {
 
-    public function run(EventProceduresTriggered $eventTriggered,
-                        AmzTransactionHelper $transactionHelper,
-                        AlkimAmazonLoginAndPayHelper $helper
-    )
+    public function run(EventProceduresTriggered $eventTriggered, AmzTransactionHelper $transactionHelper, AlkimAmazonLoginAndPayHelper $helper)
     {
         try {
             /** @var Order $order */
             $creditNote = $eventTriggered->getOrder();
             $helper->log(__CLASS__, __METHOD__, 'refundProcedure', $creditNote);
-            $orderId = 0;
-            $amount = 0;
+            $orderId      = 0;
+            $amount       = 0;
             $creditNoteId = 0;
             switch ($creditNote->typeId) {
 
                 case 4: //credit note
-                    $parentOrder = $creditNote->parentOrder;
+                    $parentOrder  = $creditNote->parentOrder;
                     $creditNoteId = $creditNote->id;
-                    $amount = $creditNote->amounts[0]->invoiceTotal;
+                    $amount       = $creditNote->amounts[0]->invoiceTotal;
                     $helper->log(__CLASS__, __METHOD__, 'refundProcedure first note', ['orderReferences' => $creditNote->orderReferences, 'isObject' => is_object($creditNote->orderReferences), 'isArray' => is_array($creditNote->orderReferences)]);
                     if (isset($creditNote->orderReferences)) {
                         foreach ($creditNote->orderReferences as $reference) {

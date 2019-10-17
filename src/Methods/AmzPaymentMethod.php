@@ -4,7 +4,6 @@ namespace AmazonLoginAndPay\Methods;
 
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 
-
 /**
  * Class PayUponPickupPaymentMethod
  * @package PayUponPickup\Methods

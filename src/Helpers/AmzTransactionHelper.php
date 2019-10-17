@@ -24,6 +24,20 @@ class AmzTransactionHelper
         $this->amzTransactionRepository = $amzTransactionRepository;
     }
 
+    public function setOrderReferenceDetailsAuto()
+    {
+        if (!$this->orderReferenceDetailsIsSet) {
+            /** @var AmzCheckoutHelper $checkoutHelper */
+            $checkoutHelper   = pluginApp(AmzCheckoutHelper::class);
+            $basket           = $checkoutHelper->getBasketData();
+            $amount           = $basket["basketAmount"];
+            $currency         = $basket["currency"];
+            $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+            $this->setOrderReferenceDetails($orderReferenceId, $amount, null, $currency);
+            $this->orderReferenceDetailsIsSet = true;
+        }
+    }
+
     public function setOrderReferenceDetails($orderRef, $amount, $orderId, $currency = 'EUR')
     {
         $requestParameters                              = [];
@@ -41,19 +55,6 @@ class AmzTransactionHelper
         $response                         = $this->call('SetOrderReferenceDetails', $requestParameters);
 
         return $response;
-    }
-
-    public function setOrderReferenceDetailsAuto(){
-        if(!$this->orderReferenceDetailsIsSet) {
-            /** @var AmzCheckoutHelper $checkoutHelper */
-            $checkoutHelper   = pluginApp(AmzCheckoutHelper::class);
-            $basket           = $checkoutHelper->getBasketData();
-            $amount           = $basket["basketAmount"];
-            $currency         = $basket["currency"];
-            $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
-            $this->setOrderReferenceDetails($orderReferenceId, $amount, null, $currency);
-            $this->orderReferenceDetailsIsSet = true;
-        }
     }
 
     public function call($action, $parameters)
@@ -82,6 +83,7 @@ class AmzTransactionHelper
         $response                                       = $this->call('SetOrderAttributes', $requestParameters);
         $this->helper->log(__CLASS__, __METHOD__, 'set order id result', [$requestParameters, $response]);
         $this->helper->setOrderExternalId($orderId, $orderRef);
+
         return $response;
     }
 
@@ -427,10 +429,10 @@ class AmzTransactionHelper
             $orderId                                        = $this->getOrderIdFromOrderRef($orderRef);
 
             if (!empty($response["Error"])) {
-                if($response["Error"]["Code"] === 'TransactionCountExceeded'){
+                if ($response["Error"]["Code"] === 'TransactionCountExceeded') {
                     //sometimes double capture attempts occur because of misconfiguration or slow execution - get out silently
                     return $response;
-                }else {
+                } else {
                     $plentyPayment = null;
                     try {
                         $plentyPayment = $this->helper->createPlentyPayment($amount, 'refused', date('Y-m-d H-i-s'), 'Zahlungseinzug fehlgeschlagen: ' . $response["Error"]["Message"], '', 'credit', 2, $requestParameters['currency_code']);

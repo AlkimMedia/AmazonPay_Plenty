@@ -27,6 +27,7 @@ class AmzBasketService
 
     /**
      * BasketService constructor.
+     *
      * @param BasketItemRepositoryContract $basketItemRepository
      * @param AlkimAmazonLoginAndPayHelper $helper
      * @param VariationRepositoryContract $variationRepository
@@ -36,10 +37,10 @@ class AmzBasketService
     public function __construct(BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, VariationRepositoryContract $variationRepository, ItemRepositoryContract $itemRepository, ItemImageRepositoryContract $itemImageRepository)
     {
         $this->basketItemRepository = $basketItemRepository;
-        $this->helper = $helper;
-        $this->variationRepository = $variationRepository;
-        $this->itemRepository = $itemRepository;
-        $this->itemImageRepository = $itemImageRepository;
+        $this->helper               = $helper;
+        $this->variationRepository  = $variationRepository;
+        $this->itemRepository       = $itemRepository;
+        $this->itemImageRepository  = $itemImageRepository;
     }
 
     /**
@@ -50,14 +51,17 @@ class AmzBasketService
     {
         /** @var BasketRepositoryContract $basketRepository */
         $basketRepository = pluginApp(BasketRepositoryContract::class);
+
         return $basketRepository->load();
     }
 
     public function getBasketItemsForTemplate(): array
     {
         $basketServiceOriginal = pluginApp(\IO\Services\BasketService::class);
+
         return $basketServiceOriginal->getBasketItems();
     }
+
     /**
      * List the basket items
      * @return array
@@ -65,30 +69,27 @@ class AmzBasketService
     public function getBasketItems(): array
     {
 
-
         /** @var BasketItem[] $basketItems */
         $basketItems = $this->basketItemRepository->all();
         $this->helper->log(__CLASS__, __METHOD__, 'basket items', ['test' => $basketItems]);
         $return = [];
         foreach ($basketItems as $basketItem) {
-            $item = $basketItem->toArray();
+            $item                = $basketItem->toArray();
             $item["final_price"] = $item["price"] * $item["quantity"];
             $this->helper->log(__CLASS__, __METHOD__, 'basket items details pre', $item);
             $variationData = $this->variationRepository->show($item["variationId"], ['images', 'texts', 'variationProperties'], 'de');
 
-
-
-            $itemData = $this->itemRepository->show($item["itemId"]);
+            $itemData  = $this->itemRepository->show($item["itemId"]);
             $imageData = $this->itemImageRepository->findByVariationId($item["variationId"]);
 
             //$itemImageData = $this->itemImageRepository->findByItemId($item["itemId"]);
             $this->helper->log(__CLASS__, __METHOD__, 'basket item details', [
-                'itemData' => $itemData,
+                'itemData'      => $itemData,
                 'variationData' => $variationData,
-                'imageData' => $imageData,
-                'image' => $imageData[0],
-                'preview' => $imageData[0]['urlPreview'],
-                'is_object' => is_object($imageData[0])
+                'imageData'     => $imageData,
+                'image'         => $imageData[0],
+                'preview'       => $imageData[0]['urlPreview'],
+                'is_object'     => is_object($imageData[0])
 
             ]);
             $item["image"] = '';
@@ -96,22 +97,11 @@ class AmzBasketService
                 $item["image"] = $imageData[0]->urlPreview;
             }
             $item["name"] = $itemData["texts"][0]["name1"];
-            $return[] = $item;
+            $return[]     = $item;
         }
         $this->helper->log(__CLASS__, __METHOD__, 'basket items return', $return);
+
         return $return;
-        /*
-        $basketItemData = $this->getBasketItemData( $basketItems );
-
-        foreach( $basketItems as $basketItem )
-        {
-            array_push(
-                $result,
-                $this->addVariationData($basketItem, $basketItemData[$basketItem->variationId])
-            );
-        }
-
-        return $result;*/
     }
 
     public function getBasketItem(int $basketItemId): array
@@ -121,11 +111,8 @@ class AmzBasketService
             return [];
         }
         $this->helper->log(__CLASS__, __METHOD__, 'basket item details', $basketItem);
+
         return $basketItem->toArray();
     }
-
-
-
-
 
 }

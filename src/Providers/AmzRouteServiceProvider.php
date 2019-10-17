@@ -9,7 +9,7 @@ class AmzRouteServiceProvider extends RouteServiceProvider
 {
     public function map(Router $router)
     {
-        $router->get('amazon-checkout','AmazonLoginAndPay\Controllers\AmzContentController@amazonCheckoutAction');
+        $router->get('amazon-checkout', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonCheckoutAction');
         $router->get('amazon-checkout-wallet', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonCheckoutWalletAction');
         $router->get('amazon-login-processing', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonLoginProcessingAction');
         $router->match(['post', 'get'], 'amazon-connect-accounts', 'AmazonLoginAndPay\Controllers\AmzContentController@amazonConnectAccountsAction');
@@ -19,6 +19,8 @@ class AmzRouteServiceProvider extends RouteServiceProvider
         $router->get('amazon-cron', 'AmazonLoginAndPay\Controllers\AjaxController@cron');
         $router->post('amazon-ipn', 'AmazonLoginAndPay\Controllers\AjaxController@ipn');
         $router->post('amazon-shopware-connect', 'AmazonLoginAndPay\Controllers\AjaxController@shopwareConnect');
+
+        //This is for debugging only:
         //$router->get('amazon-get-table', 'AmazonLoginAndPay\Controllers\AjaxController@getTable');
     }
 }

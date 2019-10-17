@@ -2,7 +2,6 @@
 
 namespace AmazonLoginAndPay\Services;
 
-
 use Plenty\Modules\Account\Contact\Contracts\ContactRepositoryContract;
 use Plenty\Modules\Frontend\Services\AccountService;
 
@@ -18,23 +17,22 @@ class CustomerService
     /**
      * CustomerService constructor.
      */
-    public function __construct(
-        ContactRepositoryContract $contactRepository,
-        AccountService $accountService)
+    public function __construct(ContactRepositoryContract $contactRepository, AccountService $accountService)
     {
         $this->contactRepository = $contactRepository;
-        $this->accountService = $accountService;
+        $this->accountService    = $accountService;
     }
 
     /**
      * Find the current contact by ID
-     * @return null|Contact
+     * @return null|\Plenty\Modules\Account\Contact\Models\Contact
      */
     public function getContact()
     {
         if ($this->getContactId() > 0) {
             return $this->contactRepository->findContactById($this->getContactId());
         }
+
         return null;
     }
 

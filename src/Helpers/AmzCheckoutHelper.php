@@ -66,7 +66,7 @@ class AmzCheckoutHelper
     {
         if ($orderReferenceDetails === null) {
             $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
-            if(!empty($orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"])){
+            if (!empty($orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"])) {
                 $this->transactionHelper->setOrderReferenceDetailsAuto();
                 $orderReferenceDetails = $this->transactionHelper->getOrderReferenceDetails($this->helper->getFromSession('amzOrderReference'), $this->helper->getAccessToken());
             }
@@ -85,10 +85,10 @@ class AmzCheckoutHelper
         $formattedShippingAddress = null;
         $shippingAddressObject    = null;
         try {
-            $shippingAddress          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
-            $email = null;
-            if($this->helper->getFromConfig('useEmailInShippingAddress') == 'true'){
-                $email          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            $shippingAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
+            $email           = null;
+            if ($this->helper->getFromConfig('useEmailInShippingAddress') == 'true') {
+                $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
                 if (empty($email)) {
                     $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
                     $email    = $userData["email"];
@@ -157,12 +157,12 @@ class AmzCheckoutHelper
         $invoiceAddressObject    = null;
 
         try {
-            if($fromShippingAddress){
+            if ($fromShippingAddress) {
                 $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Destination"]["PhysicalDestination"];
-            }else {
+            } else {
                 $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
             }
-            $email          = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
             if (empty($email)) {
                 $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getAccessToken()]);
                 $email    = $userData["email"];
@@ -180,7 +180,7 @@ class AmzCheckoutHelper
             $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage(), $fromShippingAddress], true);
-            if(!$fromShippingAddress){
+            if (!$fromShippingAddress) {
                 $this->setInvoiceAddress($orderReferenceDetails, true);
             }
         }
@@ -312,37 +312,6 @@ class AmzCheckoutHelper
         }
 
         return $returnBasket;
-
-        /*
-         * "id": 37,
-    "sessionId": "7e6ad5c459065d346d0d310ff432a8685403c677",
-    "orderId": ,
-    "customerId": ,
-    "customerShippingAddressId": 35,
-    "currency": "EUR",
-    "referrerId": 1,
-    "shippingCountryId": 1,
-    "methodOfPaymentId": 0,
-    "shippingProviderId": 101,
-    "shippingProfileId": 6,
-    "itemSum": 415.31,
-    "itemSumNet": 349,
-    "basketAmount": 415.31,
-    "basketAmountNet": 349,
-    "shippingAmount": 0,
-    "shippingAmountNet": 0,
-    "paymentAmount": 0,
-    "couponCode": "",
-    "couponDiscount": 0,
-    "shippingDeleteByCoupon": false,
-    "basketRebate": 0,
-    "maxFsk": 0,
-    "orderTimestamp": ,
-    "createdAt": "2017-03-10T17:11:51+01:00",
-    "updatedAt": "2017-03-10T19:57:39+01:00",
-    "basketRebateType": 0,
-
-         */
     }
 
     public function cancelOrder($orderId)

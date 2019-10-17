@@ -5,6 +5,7 @@ if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
 
 var PlentyMarketsAmazonPay = {
     isFirstAddressCall: true,
+    amazonButtonCounter: 0,
     isInitialized: false,
     isInitStarted: false,
     isAddressInitialized: false,
@@ -36,7 +37,10 @@ var PlentyMarketsAmazonPay = {
         return language;
     },
     getShippingList: function (callback) {
-        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getShippingList', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
+            action: 'getShippingList',
+            orderReference: String(PlentyMarketsAmazonPay.orderReference)
+        }, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
             } else {
@@ -49,7 +53,10 @@ var PlentyMarketsAmazonPay = {
         });
     },
     getOrderDetails: function () {
-        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getOrderDetails', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
+            action: 'getOrderDetails',
+            orderReference: String(PlentyMarketsAmazonPay.orderReference)
+        }, function (data) {
             amz$('#orderDetailsWr').html(data);
         });
     },
@@ -86,15 +93,14 @@ var PlentyMarketsAmazonPay = {
         if (typeof amz$ !== 'undefined' && PlentyMarketsAmazonPay.isInitStarted === false && PlentyMarketsAmazonPay.isDocumentReady) {
             PlentyMarketsAmazonPay.isInitStarted = true;
             var authRequest;
-            var amzI = 0;
+
             var $payButton = amz$('.amzPayButton');
             if ($payButton.length) {
                 $payButton.each(function () {
                     var $button = amz$(this);
                     if ($button.find('img').length === 0 || !$button.attr('id')) {
                         var isArticleCheckout = $button.hasClass('articleCheckout');
-                        var id = 'amzPayButton_' + amzI;
-                        amzI++;
+                        var id = 'amzPayButton_' + PlentyMarketsAmazonPay.amazonButtonCounter++;
                         $button.attr('id', id);
                         OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
                             type: 'PwA',
@@ -342,7 +348,10 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
     amz$(document).on('change', '#shippingOptionsListWr [name="ShippingProfileID"]', function () {
         if (amz$(this).is(':checked')) {
             var id = amz$(this).val();
-            amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'setShippingProfileId', id: id}, function (data) {
+            amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
+                action: 'setShippingProfileId',
+                id: id
+            }, function (data) {
                 amz$('#orderDetailsWr').html(data);
             });
         }
@@ -383,7 +392,10 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
             var $commentInput = amz$('.amz-comment-textarea');
             if ($commentInput.length) {
-                amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'setComment', comment: $commentInput.val()}, function () {
+                amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {
+                    action: 'setComment',
+                    comment: $commentInput.val()
+                }, function () {
                     startCheckout();
                 });
             } else {
@@ -408,5 +420,3 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
         });
     });
 }
-
-

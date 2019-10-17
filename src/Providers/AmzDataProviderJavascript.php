@@ -1,4 +1,5 @@
 <?php
+
 namespace AmazonLoginAndPay\Providers;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
@@ -16,10 +17,11 @@ class AmzDataProviderJavascript
             $helper->setToSession('amazonLogout', 2);
         }
         $urls = [
-            'amazon_login_processing'=>$helper->getAbsoluteUrl('amazon-login-processing'),
-            'amazon_ajax_handle'=>$helper->getAbsoluteUrl('amazon-ajax-handle'),
-            'amazon_pre_checkout'=>$helper->getAbsoluteUrl('amazon-pre-checkout')
+            'amazon_login_processing' => $helper->getAbsoluteUrl('amazon-login-processing'),
+            'amazon_ajax_handle'      => $helper->getAbsoluteUrl('amazon-ajax-handle'),
+            'amazon_pre_checkout'     => $helper->getAbsoluteUrl('amazon-pre-checkout')
         ];
-        return $twig->render('AmazonLoginAndPay::snippets.javascript', ['logout' => $logout, 'urls'=>$urls]);
+
+        return $twig->render('AmazonLoginAndPay::snippets.javascript', ['logout' => $logout, 'urls' => $urls]);
     }
 }

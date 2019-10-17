@@ -26,7 +26,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
-    public $pluginVersion = '1.4.0';
+    public $pluginVersion = '1.5.3';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -130,8 +130,6 @@ class AlkimAmazonLoginAndPayHelper
 
         return $payment;
     }
-
-
 
     public function mapStatus(string $status)
     {
@@ -460,16 +458,7 @@ class AlkimAmazonLoginAndPayHelper
     public function getUrl($path)
     {
         return $this->getAbsoluteUrl($path);
-        //return $this->getUrlBase() . '/' . trim($path, "/");
     }
-
-    //public function getUrlBase()
-    //{
-    //    /** @var WebstoreHelper $webstoreHelper */
-    //    $webstoreHelper = pluginApp(WebstoreHelper::class);
-    //    $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
-    //    return $configuration->domainSsl;
-    //}
 
     public function getAbsoluteUrl($path)
     {
@@ -483,19 +472,9 @@ class AlkimAmazonLoginAndPayHelper
         $includeLanguage = $lang !== null && $lang !== $defaultLanguage;
         /** @var UrlQuery $urlQuery */
         $urlQuery = pluginApp(UrlQuery::class, ['path' => $path, 'lang' => $lang]);
+
         return $urlQuery->toAbsoluteUrl($includeLanguage);
     }
-
-    /*
-    public function getUrlExtension()
-    {
-        //@var WebstoreHelper $webstoreHelper
-        $webstoreHelper = pluginApp(WebstoreHelper::class);
-        $config         = $webstoreHelper->getCurrentWebstoreConfiguration();
-
-        return $config->urlFileExtension;
-    }
-    */
 
     public function scheduleNotification($message, $type = 'error')
     {

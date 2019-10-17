@@ -1,5 +1,10 @@
 # Release Notes für Amazon Pay
 
+## 1.5.3
+
+- Besseres JS-Handling für Button
+- Optimiertes Booting (Danke an @marcusschmidt)
+
 ## 1.5.2
 
 ### Gefixt

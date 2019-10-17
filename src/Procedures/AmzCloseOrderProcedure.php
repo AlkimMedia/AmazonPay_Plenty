@@ -1,18 +1,15 @@
 <?php
+
 namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 
-
 class AmzCloseOrderProcedure
 {
 
-    public function run(EventProceduresTriggered $eventTriggered,
-                        AmzTransactionHelper $transactionHelper,
-                        AlkimAmazonLoginAndPayHelper $helper
-    )
+    public function run(EventProceduresTriggered $eventTriggered, AmzTransactionHelper $transactionHelper, AlkimAmazonLoginAndPayHelper $helper)
     {
         $order = $eventTriggered->getOrder();
         $helper->log(__CLASS__, __METHOD__, 'closeOrderProcedure', $order);
@@ -29,7 +26,7 @@ class AmzCloseOrderProcedure
             ['order', '=', $orderId],
             ['type', '=', 'order_ref']
         ]);
-        $oro = $oroArr[0];
+        $oro    = $oroArr[0];
         $transactionHelper->closeOrder($oro->orderReference);
     }
 }
