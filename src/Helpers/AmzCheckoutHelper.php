@@ -22,10 +22,6 @@ class AmzCheckoutHelper
     public $transactionHelper;
     public $basketItemRepository;
     public $orderRepository;
-
-    /**
-     * @var PaymentMethodHelper
-     */
     private $paymentMethodHelper;
 
     public function __construct(OrderRepositoryContract $orderRepository, BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, AmzBasketService $basketService, AmzCheckoutService $checkoutService, Checkout $checkout, AmzTransactionHelper $transactionHelper, PaymentMethodHelper $paymentMethodHelper)
