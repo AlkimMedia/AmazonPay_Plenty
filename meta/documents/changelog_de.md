@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.5.4
+
+- Warenbestandsautomatik
+- Reduzierter Capture Betrag möglich
+- Debug Modus für Login Button
+
 ## 1.5.3
 
 - Besseres JS-Handling für Button

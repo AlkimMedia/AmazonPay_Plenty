@@ -229,7 +229,7 @@ class AmzTransactionHelper
             $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
             $this->helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$plentyPayment, $orderId]);
             if ($setStatus && $transaction->status === 'Open') {
-                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                $this->helper->setOrderStatusAuthorized($orderId);
             }
         }
         $transaction->paymentId = $plentyPayment->id;
@@ -396,7 +396,7 @@ class AmzTransactionHelper
             }
             $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);
             if ($orderId && $transactionBeforeRefresh->status !== 'Open') {
-                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                $this->helper->setOrderStatusAuthorized($orderId);
             }
         }
 

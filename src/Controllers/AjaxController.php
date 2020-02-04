@@ -260,7 +260,7 @@ class AjaxController extends Controller
                                         $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign payment', [$payment, $orderId]);
                                         if ($this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
                                             if ($transaction->status === 'Open' && $this->helper->getFromConfig('authorizedStatus')) {
-                                                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                                                $this->helper->setOrderStatusAuthorized($orderId);
                                             }
                                         } else {
                                             $this->transactionHelper->doAuthorizationPaymentAction($transaction);

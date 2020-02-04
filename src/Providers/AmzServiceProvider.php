@@ -64,7 +64,7 @@ class AmzServiceProvider extends ServiceProvider
                                     $helper->log(__CLASS__, __METHOD__, 'assign payment to order', [$payment, $orderId]);
                                     $helper->setToSession('amazonAuthId', '');
                                     if ($transaction->status === 'Open' && $helper->getFromConfig('authorizedStatus')) {
-                                        $helper->setOrderStatus($orderId, $helper->getFromConfig('authorizedStatus'));
+                                        $helper->setOrderStatusAuthorized($orderId);
                                     }
                                 }
                             }

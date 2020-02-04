@@ -6,9 +6,11 @@
 <style>
     .amzPayButton {
         margin: 10px 0;
+    }
+
+    .amzPayButton, .amzLoginButton {
     {%  if config('AmazonLoginAndPay.hideButtons') == "true" %} display: none !important;
     {%  endif %}
-
     }
 </style>
 <!--<link href="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main.css" rel="stylesheet"/>-->

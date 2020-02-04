@@ -1,4 +1,10 @@
 # Release notes for Amazon Pay
+## 1.5.4
+
+- oder status handling
+- reduced capture amount
+- debug mode for login button 
+
 ## 1.5.3
 
 - improved JS handling for button

@@ -59,7 +59,9 @@ class AmzCaptureProcedure
         }
 
         foreach ($openAuths as $openAuth) {
-            $transactionHelper->capture($openAuth->amzId, $openAuth->amount);
+            $helper->log(__CLASS__, __METHOD__, 'amounts', [$openAuth->amount, $order->amount->invoiceTotal]);
+            $amountToCapture = min($openAuth->amount, $order->amount->invoiceTotal);
+            $transactionHelper->capture($openAuth->amzId, $amountToCapture);
         }
 
     }
