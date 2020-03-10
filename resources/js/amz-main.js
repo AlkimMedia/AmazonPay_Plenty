@@ -61,7 +61,7 @@ var PlentyMarketsAmazonPay = {
         });
     },
     logout: function () {
-        if (typeof(amazon) !== 'undefined') {
+        if (typeof (amazon) !== 'undefined') {
             amazon.Login.logout();
             if (PlentyMarketsAmazonPay.logoutInterval) {
                 clearInterval(PlentyMarketsAmazonPay.logoutInterval);
@@ -162,30 +162,32 @@ var PlentyMarketsAmazonPay = {
                 i = 0;
                 $loginButton.each(function () {
                     var $button = amz$(this);
-                    var id = 'amzLoginButton_' + i++;
-                    $button.attr('id', id);
-                    OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
-                        type: 'LwA',
-                        color: amazonLoginAndPay.config.loginButtonColor,
-                        size: amazonLoginAndPay.config.loginButtonSize,
-                        language: PlentyMarketsAmazonPay.getLanguage(),
-                        authorization: function () {
-                            var loginOptions = {
-                                scope: PlentyMarketsAmazonPay.amazonScope,
-                                popup: amazonLoginAndPay.config.popup
-                            };
-                            if (location.href.indexOf('%2Fcheckout') !== -1 || location.href.indexOf('/checkout') !== -1) {
-                                document.cookie = "amzLoginType=Pay;path=/";
-                            } else {
-                                document.cookie = "amzLoginType=Login;path=/";
+                    if ($button.find('img').length === 0 || !$button.attr('id')) {
+                        var id = 'amzLoginButton_' + i++;
+                        $button.attr('id', id);
+                        OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
+                            type: 'LwA',
+                            color: amazonLoginAndPay.config.loginButtonColor,
+                            size: amazonLoginAndPay.config.loginButtonSize,
+                            language: PlentyMarketsAmazonPay.getLanguage(),
+                            authorization: function () {
+                                var loginOptions = {
+                                    scope: PlentyMarketsAmazonPay.amazonScope,
+                                    popup: amazonLoginAndPay.config.popup
+                                };
+                                if (location.href.indexOf('%2Fcheckout') !== -1 || location.href.indexOf('/checkout') !== -1) {
+                                    document.cookie = "amzLoginType=Pay;path=/";
+                                } else {
+                                    document.cookie = "amzLoginType=Login;path=/";
+                                }
+                                authRequest = amazon.Login.authorize(loginOptions, amazonLoginAndPay.urls.amazonLoginProcessing);
+                            },
+                            onError: function (error) {
+                                console.error(error.getErrorMessage(), error.getErrorCode());
                             }
-                            authRequest = amazon.Login.authorize(loginOptions, amazonLoginAndPay.urls.amazonLoginProcessing);
-                        },
-                        onError: function (error) {
-                            console.error(error.getErrorMessage(), error.getErrorCode());
-                        }
-                    });
-                    $button.find('img').show();
+                        });
+                        $button.find('img').show();
+                    }
                 });
             }
 
@@ -323,7 +325,7 @@ window.onAmazonPaymentsReady = function () {
     PlentyMarketsAmazonPay.cron();
 };
 
-if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
+if (typeof (amz$) !== 'undefined' && amz$.fn.on) {
     var accessToken;
     if (location.href.indexOf('amazon-login-processing/?access_token=') !== -1 || location.href.indexOf('amazon-login-processing?access_token=') !== -1) {
         accessToken = PlentyMarketsAmazonPay.getURLParameter("access_token", location.href);

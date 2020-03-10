@@ -1,5 +1,10 @@
 # Release Notes für Amazon Pay
 
+## 1.5.5
+
+- JS Korrektur (Login-Button)
+- Standard Container-Verknüpfungen 
+
 ## 1.5.4
 
 - Warenbestandsautomatik

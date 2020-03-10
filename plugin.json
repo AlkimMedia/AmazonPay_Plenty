@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.5.4",
+  "version": "1.5.5",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -32,27 +32,32 @@
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderCartButton",
       "name": "Amazon Login & Pay - Checkout-Button",
-      "description": "Amazon Login & Pay - Checkout-Button"
+      "description": "Amazon Login & Pay - Checkout-Button",
+      "defaultLayoutContainer": "Ceres::Checkout.AfterPaymentList"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderArticleCheckoutButton",
       "name": "Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)",
-      "description": "Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)"
+      "description": "Amazon Login & Pay - Checkout-Button auf Artikelseite (Schnellkauf)",
+      "defaultLayoutContainer": "Ceres::SingleItem.AfterAddToBasket"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderLoginButton",
       "name": "Amazon Login & Pay - Login-Button",
-      "description": "Amazon Login & Pay - Login-Button"
+      "description": "Amazon Login & Pay - Login-Button",
+      "defaultLayoutContainer": "Ceres::LoginOverlay.ExtendOverlayButtons"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderOrderConfirmation",
       "name": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite",
-      "description": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite"
+      "description": "Amazon Login & Pay - Zahlungshinweis auf Bestätigungsseite",
+      "defaultLayoutContainer": "Ceres::OrderConfirmation.AdditionalPaymentInformation"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderJavascript",
       "name": "Amazon Login & Pay - JavaScript",
-      "description": "Amazon Login & Pay - JavaScript"
+      "description": "Amazon Login & Pay - JavaScript",
+      "defaultLayoutContainer": "Ceres::Script.AfterScriptsLoaded"
     },
     {
       "key": "AmazonLoginAndPay\\Providers\\AmzDataProviderPaymentLogo",

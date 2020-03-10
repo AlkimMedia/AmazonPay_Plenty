@@ -1,4 +1,10 @@
 # Release notes for Amazon Pay
+
+## 1.5.5
+
+- JS bug fix (login button)
+- default container links
+
 ## 1.5.4
 
 - oder status handling
