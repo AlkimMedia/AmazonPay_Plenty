@@ -5,14 +5,12 @@ namespace AmazonLoginAndPay\Procedures;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
-use Plenty\Modules\Order\Models\Order;
 
 class AmzAuthorizeProcedure
 {
 
     public function run(EventProceduresTriggered $eventTriggered, AmzTransactionHelper $transactionHelper, AlkimAmazonLoginAndPayHelper $helper)
     {
-        /** @var Order $order */
         $order = $eventTriggered->getOrder();
         $helper->log(__CLASS__, __METHOD__, 'authorizeProcedure', $order);
         // only sales orders and credit notes are allowed order types to refund

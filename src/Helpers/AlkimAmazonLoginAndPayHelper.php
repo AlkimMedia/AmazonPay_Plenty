@@ -26,7 +26,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
-    public $pluginVersion = '1.5.5';
+    public $pluginVersion = '1.6.0';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -152,7 +152,6 @@ class AlkimAmazonLoginAndPayHelper
     private function getPaymentProperty($typeId, $value)
     {
         /** @var PaymentProperty $paymentProperty */
-        /** @noinspection PhpUndefinedNamespaceInspection */
         $paymentProperty         = pluginApp(PaymentProperty::class);
         $paymentProperty->typeId = $typeId;
         $paymentProperty->value  = $value;

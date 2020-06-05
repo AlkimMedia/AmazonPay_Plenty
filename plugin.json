@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.5.5",
+  "version": "1.6.0",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,

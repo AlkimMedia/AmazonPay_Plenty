@@ -5,6 +5,7 @@ namespace AmazonLoginAndPay\Repositories;
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Models\AmzTransaction;
+use Exception;
 use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 
 class AmzTransactionRepository implements AmzTransactionRepositoryContract
@@ -63,7 +64,7 @@ class AmzTransactionRepository implements AmzTransactionRepositoryContract
         try {
             /** @var AmzTransaction $response */
             $response = $database->save($transaction);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'save transaction - exception', [$e, $e->getMessage()], true);
         }
         $this->helper->log(__CLASS__, __METHOD__, 'save transaction - after save', ['input' => $transaction, 'output' => $response]);

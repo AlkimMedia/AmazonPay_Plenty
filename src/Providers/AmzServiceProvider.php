@@ -17,9 +17,11 @@ use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
+use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\ServiceProvider;
+use Plenty\Modules\Webshop\Consent\Contracts\ConsentRepositoryContract;
 
 class AmzServiceProvider extends ServiceProvider
 {
@@ -55,6 +57,7 @@ class AmzServiceProvider extends ServiceProvider
                     $helper->log(__CLASS__, __METHOD__, 'execute payment - auth id', $helper->getFromSession('amazonAuthId'));
                     /** @var AmzTransactionHelper $transactionHelper */
                     $transactionHelper = pluginApp(AmzTransactionHelper::class);
+                    $orderReference = null;
                     if ($amazonAuthId = $helper->getFromSession('amazonAuthId')) {
                         if ($transaction = $transactionHelper->getTransactionFromAmzId($amazonAuthId)) {
                             if ($transaction->paymentId) {
@@ -149,8 +152,39 @@ class AmzServiceProvider extends ServiceProvider
 
     public function register()
     {
+        /** @var ConsentRepositoryContract $consentRepository */
+        $consentRepository = pluginApp(ConsentRepositoryContract::class);
+
+        /** @var ConfigRepository $config */
+        $config = pluginApp(ConfigRepository::class);
+
         $this->getApplication()->register(AmzRouteServiceProvider::class);
         $this->getApplication()->bind(AmzTransactionRepositoryContract::class, AmzTransactionRepository::class);
         $this->getApplication()->bind(AmzCaptureProcedure::class);
+        $consentRepository->registerConsent(
+            'amazonPay',
+            'AmazonLoginAndPay::AmazonPay.consentLabel',
+            [
+                'description' => 'AmazonLoginAndPay::AmazonPay.consentDescription',
+                'provider' => 'AmazonLoginAndPay::AmazonPay.consentProvider',
+                'lifespan' => 'AmazonLoginAndPay::AmazonPay.consentLifespan',
+                'policyUrl' => 'https://pay.amazon.de/help/201212490',
+                'group' => $config->get('AmazonLoginAndPay.consentGroup', 'necessary'),
+                'necessary' => $config->get('AmazonLoginAndPay.consentNecessary') === 'true',
+                'isOptOut' => $config->get('AmazonLoginAndPay.consentOptOut') === 'true',
+                'cookieNames' => [
+                    'amazon-pay-abtesting-apa-migration',
+                    'amazon-pay-abtesting-new-widgets',
+                    'amazon-pay-connectedAuth',
+                    'apay-session-set',
+                    'language',
+                    'amazon_Login_state_cache',
+                    'amazon_Login_accessToken',
+                    'apayLoginState',
+                    'amzLoginType',
+                    'amzDummy'
+                ]
+            ]
+        );
     }
 }

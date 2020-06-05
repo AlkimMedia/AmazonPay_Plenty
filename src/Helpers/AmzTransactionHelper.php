@@ -195,7 +195,7 @@ class AmzTransactionHelper
 
     public function getOrderRefFromAmzId($amzId)
     {
-        if (preg_match('/([0-9A-Z]+\-[0-9]+\-[0-9]+)\-[0-9A-Z]+/', $amzId, $matches)) {
+        if (preg_match('/([0-9A-Z]+-[0-9]+-[0-9]+)-[0-9A-Z]+/', $amzId, $matches)) {
             $this->helper->log(__CLASS__, __METHOD__, 'or matches', [$matches]);
 
             return $matches[1];

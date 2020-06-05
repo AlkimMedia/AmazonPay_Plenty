@@ -1,5 +1,14 @@
 # Release notes for Amazon Pay
 
+## 1.6.0
+
+- Ceres Cookie Bar support
+- Ceres 5 compatibility
+- allow complete refund from sales order w/o needing a credit note
+- minified css
+- remove additional jQuery instance
+- implement new PaymentMethodBaseService
+
 ## 1.5.5
 
 - JS bug fix (login button)

@@ -3,6 +3,7 @@
 namespace AmazonLoginAndPay\Services;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
+use Exception;
 use Plenty\Modules\Account\Contact\Contracts\ContactRepositoryContract;
 use Plenty\Modules\Account\Contact\Models\Contact;
 use Plenty\Modules\Authentication\Contracts\ContactAuthenticationRepositoryContract;
@@ -102,7 +103,7 @@ class AmzCustomerService
             $externalAccessInfo = null;
             try {
                 $externalAccessInfo = $this->externalAccessRepository->findForTypeAndExternalId(self::EXTERNAL_AUTH_SLUG, $amazonUserId);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $helper->log(__CLASS__, __METHOD__, 'no external access info received', [$e, $e->getMessage()]);
             }
             if (!is_object($externalAccessInfo) || empty($externalAccessInfo->contactId)) {

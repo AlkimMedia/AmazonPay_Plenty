@@ -4,15 +4,14 @@ namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
+use Exception;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
-use Plenty\Modules\Order\Models\Order;
 
 class AmzCaptureProcedure
 {
 
     public function run(EventProceduresTriggered $eventTriggered, AmzTransactionHelper $transactionHelper, AlkimAmazonLoginAndPayHelper $helper)
     {
-        /** @var Order $order */
         $order = $eventTriggered->getOrder();
         $helper->log(__CLASS__, __METHOD__, 'captureProcedure', $order);
         // only sales orders and credit notes are allowed order types to refund
@@ -22,7 +21,7 @@ class AmzCaptureProcedure
                 break;
         }
         if (empty($orderId)) {
-            throw new \Exception('Amazon Pay Capture failed! The given order is invalid!');
+            throw new Exception('Amazon Pay Capture failed! The given order is invalid!');
         }
 
         $openAuths = $transactionHelper->amzTransactionRepository->getTransactions([

@@ -16,6 +16,9 @@ class CustomerService
 
     /**
      * CustomerService constructor.
+     *
+     * @param \Plenty\Modules\Account\Contact\Contracts\ContactRepositoryContract $contactRepository
+     * @param \Plenty\Modules\Frontend\Services\AccountService $accountService
      */
     public function __construct(ContactRepositoryContract $contactRepository, AccountService $accountService)
     {
