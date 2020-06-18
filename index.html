@@ -251,7 +251,19 @@
             </li>
             <li>
                 <a href="#anchor_5">
-                    5. Content Container
+                    5. Content Container & ShopBuilder
+                    <ul>
+                        <li>
+                            <a href="#anchor_51">
+                                5.1 Content Container
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#anchor_52">
+                                5.2 ShopBuilder
+                            </a>
+                        </li>
+                    </ul>
                 </a>
             </li>
             <li>
@@ -543,7 +555,8 @@
                 Ablehnung</a>
         </div>
 
-        <h2 id="anchor_5">5. Content Container</h2>
+        <h2 id="anchor_5">5. Content Container und ShopBuilder</h2>
+        <h3 id="anchor_51">5.1 Content Container</h3>
         Damit das Plugin im Frontend deines Shops erscheint, musst du in deinem plentymarkets Backend unter <i>CMS</i> »
         <i>Container-Verknüpfungen</i>
         folgende Zuordnungen vornehmen:<br/><br/>
@@ -622,6 +635,39 @@
                 </div>
             </div>
         </div>
+        <h3 id="anchor_52">5.2 ShopBuilder</h3>
+        Um die Amazon Buttons auf Seiten einzubinden, die mit dem ShopBuilder gestaltet wurden, kann das Code-Element verwendet werden.
+        <div class="card">
+            <div class="card-header">
+                Login-Button
+            </div>
+            <div class="card-body">
+                Verwende diesen Code für einen Login-Button, der ein Kundenkonto anlegt, aber den Kunden nicht notwendigerweise zur Kasse führt:
+                <br /><br />
+
+                <pre><code>&lt;div class="amzLoginButton"&gt;&lt;/div&gt;</code></pre>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Checkout-Button
+            </div>
+            <div class="card-body">
+                Verwende diesen Code für einen Checkout-Button, der den Amazon Pay Checkout einleitet:
+                <br /><br />
+
+                <pre><code>&lt;div class="amzPayButton"&gt;&lt;/div&gt;</code></pre>
+            </div>
+        </div>
+
+        <br />
+        <br />
+        <strong>Beispiel:</strong>
+        Dieser Code:<br />
+        <img src="images/code_sample.png" />
+        <br /><br />
+        erzeugt diese Anzeige:<br />
+        <img src="images/code_preview.png" />
         <h2 id="anchor_6">6. Loslegen</h2>
         <div>
             Damit sollte alles erledigt sein, um deinen Kunden ein reibungsloses Amazon Pay Einkaufserlebnis zu
