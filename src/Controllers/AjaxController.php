@@ -267,6 +267,14 @@ class AjaxController extends Controller
                                         }
                                     }
                                 }
+                            }elseif ($transaction->type === 'capture') {
+                                if (!empty($transaction->paymentId)) {
+                                    $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - detected capture payment', [$transaction->paymentId, $orderId]);
+                                    if ($payment = $this->helper->paymentRepository->getPaymentById($transaction->paymentId)) {
+                                        $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign capture payment', [$payment, $orderId]);
+                                        $this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+                                    }
+                                }
                             }
                             $repository->updateTransaction($transaction);
                         }

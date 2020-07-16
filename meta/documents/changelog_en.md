@@ -1,5 +1,8 @@
 # Release notes for Amazon Pay
 
+## 1.6.1
+- removed PaymentMethodBaseService
+
 ## 1.6.0
 
 - Ceres Cookie Bar support

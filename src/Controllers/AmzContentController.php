@@ -132,7 +132,7 @@ class AmzContentController extends Controller
             $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session - done', $basketItems);
         }
         */
-
+        $this->helper->log(__CLASS__, __METHOD__, 'payment method before place-order', ['methodId'=>$this->checkoutHelper->checkout->getPaymentMethodId()]);
         return $this->response->redirectTo('place-order');
     }
 

@@ -2,128 +2,72 @@
 
 namespace AmazonLoginAndPay\Methods;
 
-use Plenty\Modules\Payment\Method\Services\PaymentMethodBaseService;
+use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 
 /**
  * Class AmzPaymentMethod
  * @package AmazonLoginAndPay\Methods
  */
-class AmzPaymentMethod extends PaymentMethodBaseService
-
+class AmzPaymentMethod extends PaymentMethodService
 {
     /**
+     * Check the configuration if the payment method is active
+     * Return true if the payment method is active, else return false
+     *
      * @return bool
      */
-    public function isActive(): bool
+    public function isActive()
     {
         return false;
     }
 
     /**
-     * @param string $lang
-     *
      * @return string
      */
-    public function getIcon(string $lang = ''): string
-    {
-        return '';
-    }
-
-    /**
-     * @param string $lang
-     *
-     * @return string
-     */
-    public function getDescription(string $lang = ''): string
-    {
-        return '';
-    }
-
-    /**
-     * @return float
-     */
-    public function getFee(): float
-    {
-        return 0;
-    }
-
-    /**
-     * @param string $lang
-     *
-     * @return string
-     */
-    public function getSourceUrl(string $lang = ''): string
-    {
-        return '';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSwitchableTo(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSwitchableFrom(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isBackendSearchable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isBackendActive(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @param string $lang
-     *
-     * @return string
-     */
-    public function getBackendName(string $lang = ''): string
-    {
-        return $this->getName($lang);
-    }
-
-    /**
-     * @param string $lang
-     *
-     * @return string
-     */
-    public function getName(string $lang = ''): string
+    public function getName()
     {
         return 'Amazon Pay';
 
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function canHandleSubscriptions(): bool
+    public function getIcon()
     {
-        return false;
+        return '';
     }
 
     /**
      * @return string
      */
-    public function getBackendIcon(): string
+    public function getDescription()
     {
-        //TODO
-        return 'images/amazon_pay_logo.png';
+        return '';
+    }
+
+    public function isExpressCheckout()
+    {
+        return true;
+    }
+
+    public function isBackendSearchable(): bool
+    {
+        return true;
+    }
+
+    public function isBackendActive(): bool
+    {
+        return true;
+    }
+
+    public function getBackendName(string $lang): string
+    {
+        return $this->getName();
+    }
+
+    public function canHandleSubscriptions(): bool
+    {
+        return false;
     }
 }
