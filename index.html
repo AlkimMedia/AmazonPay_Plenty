@@ -339,17 +339,34 @@
             <img src="images/integration_central_link.png"/>
             <br />
             Ganz unten findest du die Möglichkeit, deine Client-IDs und Store-IDs zu verwalten. Lege dort eine neue Konfiguration an und fülle die
-            vorhandenen Felder entsprechend deinen Anforderungen aus.
+            vorhandenen Felder entsprechend deinen Anforderungen aus. Bitte beachte dabei, dass Name und Beschreibung f&uuml;r deine Kunden sichtbar sind.
             Zwei Angaben sind für die Integration mit plentymarkets obligatorisch, nämlich "Zulässige
             JavaScript-Ursprünge" und
             "Zulässige Rückleitungs-URLs". Diese sind entsprechend des folgenden Screenshots auszufüllen. Ersetze dafür
-            www.domain.com mit deiner Shop-Domain:
-            <div>
-                <b>Zulässige JavaScript-Ursprünge:</b> https://www.domain.com/
-            </div>
-            <div>
-                <b>Zulässige Rückleitungs-URLs:</b> https://www.domain.com/amazon-login-processing/ und https://www.domain.com/amazon-login-processing (bitte mit und ohne den Slash am Ende, um Fehler bei veränderter Shop-Konfiguration zu vermeiden)
-            </div>
+            www.domain.com mit deiner Shop-Domain:<br><br>
+            <table>
+                <tr valign="top">
+                    <td>
+                        <b>Zulässige JavaScript-Ursprünge:</b>
+                    </td>
+                    <td>
+                        <i>https://www.domain.com/</i><br><br>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td>
+                        <b>Zulässige Rückleitungs-URLs:</b>
+                    </td>
+                    <td>
+                        <i>https://www.domain.com/amazon-login-processing/</i><br>
+                        <i>https://www.domain.com/amazon-login-processing</i><br>
+                        (mit und ohne den Slash am Ende, um Fehler bei veränderter Shop-URL-Konfiguration zu vermeiden)<br><br>
+                        Wenn du weitere URL-Varianten in deinem Shop hast, die z.B. ein K&uuml;rzel f&uuml;r die Sprache enthalten, solltest du diese ebenfalls eingeben.<br>Wenn du wei&szlig;t, wie die Browser-Konsole zu benutzen ist, kannst du auch dar&uuml;ber die Rückleitungs-URL abfragen. Sie befindet sich in der JS-Variable <i>amazonLoginAndPay.urls.amazonLoginProcessing</i>:
+                        <div><img src="images/login_return_url_console.png"/></div>
+                    </td>
+                </tr>
+            </table><br><br>
+
             <img src="images/integration_central_form.png"/>
             <div>
                 Weitere Hilfe dazu gibt es in <a
