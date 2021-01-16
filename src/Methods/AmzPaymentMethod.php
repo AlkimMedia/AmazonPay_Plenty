@@ -5,8 +5,8 @@ namespace AmazonLoginAndPay\Methods;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 
 /**
- * Class AmzPaymentMethod
- * @package AmazonLoginAndPay\Methods
+ * Class PayUponPickupPaymentMethod
+ * @package PayUponPickup\Methods
  */
 class AmzPaymentMethod extends PaymentMethodService
 {
@@ -49,25 +49,5 @@ class AmzPaymentMethod extends PaymentMethodService
     public function isExpressCheckout()
     {
         return true;
-    }
-
-    public function isBackendSearchable(): bool
-    {
-        return true;
-    }
-
-    public function isBackendActive(): bool
-    {
-        return true;
-    }
-
-    public function getBackendName(string $lang): string
-    {
-        return $this->getName();
-    }
-
-    public function canHandleSubscriptions(): bool
-    {
-        return false;
     }
 }

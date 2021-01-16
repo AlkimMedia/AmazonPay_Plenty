@@ -275,53 +275,6 @@
           }
         }
       }
-    },
-    "Config.CookiesTab": {
-      "label": "Config.CookiesTab",
-      "formFields": {
-        "consentGroup": {
-          "type": "selectBox",
-          "required": false,
-          "label": "Config.consentGroupLabel",
-          "options": {
-            "defaultValue": "necessary",
-            "selectBoxValues": [
-              {
-                "value": "necessary",
-                "caption": "Config.consentGroupNecessary"
-              },
-              {
-                "value": "tracking",
-                "caption": "Config.consentGroupTracking"
-              },
-              {
-                "value": "marketing",
-                "caption": "Config.consentGroupMarketing"
-              },
-              {
-                "value": "media",
-                "caption": "Config.consentGroupMedia"
-              }
-            ]
-          }
-        },
-        "consentNecessary": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.consentNecessaryLabel",
-          "options": {
-            "defaultValue": "true"
-          }
-        },
-        "consentOptOut": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.consentOptOutLabel",
-          "options": {
-            "defaultValue": "false"
-          }
-        }
-      }
     }
   }
 }

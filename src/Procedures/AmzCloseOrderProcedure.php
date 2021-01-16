@@ -4,7 +4,6 @@ namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
-use Exception;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 
 class AmzCloseOrderProcedure
@@ -20,7 +19,7 @@ class AmzCloseOrderProcedure
                 break;
         }
         if (empty($orderId)) {
-            throw new Exception('Amazon Pay Close Order failed! The given order is invalid!');
+            throw new \Exception('Amazon Pay Close Order failed! The given order is invalid!');
         }
 
         $oroArr = $transactionHelper->amzTransactionRepository->getTransactions([

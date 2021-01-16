@@ -89,9 +89,8 @@
 }
 
 #add-item-to-basket-overlay .amzPayButton {
-    margin: 3px 15px 5px 0;
+    margin: 3px 0 0 0;
     display: inline-block;
-    text-align:right;
 }
 
 #add-item-to-basket-overlay .amzPayButton img {
@@ -128,6 +127,7 @@
 
 @media (min-width: 992px) {
     .amzPayButton.articleCheckout {
-        margin-left: 15px;
+        float: right;
+        margin-right: 15px;
     }
 }

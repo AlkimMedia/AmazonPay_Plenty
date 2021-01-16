@@ -6,6 +6,7 @@ use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 use Plenty\Modules\Basket\Models\Basket;
+use Plenty\Modules\Basket\Models\BasketItem;
 use Plenty\Modules\Item\Item\Contracts\ItemRepositoryContract;
 use Plenty\Modules\Item\ItemImage\Contracts\ItemImageRepositoryContract;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
@@ -26,12 +27,6 @@ class BasketService
 
     /**
      * BasketService constructor.
-     *
-     * @param \Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract $basketItemRepository
-     * @param \AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper $helper
-     * @param \Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract $variationRepository
-     * @param \Plenty\Modules\Item\Item\Contracts\ItemRepositoryContract $itemRepository
-     * @param \Plenty\Modules\Item\ItemImage\Contracts\ItemImageRepositoryContract $itemImageRepository
      */
     public function __construct(BasketItemRepositoryContract $basketItemRepository, AlkimAmazonLoginAndPayHelper $helper, VariationRepositoryContract $variationRepository, ItemRepositoryContract $itemRepository, ItemImageRepositoryContract $itemImageRepository)
     {
@@ -53,7 +48,7 @@ class BasketService
 
     /**
      * List the basket items
-     * @return \Plenty\Modules\Basket\Models\BasketItem[]
+     * @return array
      */
     public function getBasketItems(): array
     {

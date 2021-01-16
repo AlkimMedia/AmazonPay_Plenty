@@ -4,7 +4,6 @@ namespace AmazonLoginAndPay\Procedures;
 
 use AmazonLoginAndPay\Helpers\AlkimAmazonLoginAndPayHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
-use Exception;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Plenty\Modules\Order\Models\Order;
 
@@ -15,17 +14,20 @@ class AmzRefundProcedure
     {
         try {
             /** @var Order $order */
-            $procedureOrderObject = $eventTriggered->getOrder();
-            $helper->log(__CLASS__, __METHOD__, 'refundProcedure', $procedureOrderObject);
+            $creditNote = $eventTriggered->getOrder();
+            $helper->log(__CLASS__, __METHOD__, 'refundProcedure', $creditNote);
             $orderId      = 0;
             $amount       = 0;
-            switch ($procedureOrderObject->typeId) {
+            $creditNoteId = 0;
+            switch ($creditNote->typeId) {
+
                 case 4: //credit note
-                    $parentOrder  = $procedureOrderObject->parentOrder;
-                    $amount       = $procedureOrderObject->amounts[0]->invoiceTotal;
-                    $helper->log(__CLASS__, __METHOD__, 'refundProcedure first note', ['orderReferences' => $procedureOrderObject->orderReferences, 'isObject' => is_object($procedureOrderObject->orderReferences), 'isArray' => is_array($procedureOrderObject->orderReferences)]);
-                    if (isset($procedureOrderObject->orderReferences)) {
-                        foreach ($procedureOrderObject->orderReferences as $reference) {
+                    $parentOrder  = $creditNote->parentOrder;
+                    $creditNoteId = $creditNote->id;
+                    $amount       = $creditNote->amounts[0]->invoiceTotal;
+                    $helper->log(__CLASS__, __METHOD__, 'refundProcedure first note', ['orderReferences' => $creditNote->orderReferences, 'isObject' => is_object($creditNote->orderReferences), 'isArray' => is_array($creditNote->orderReferences)]);
+                    if (isset($creditNote->orderReferences)) {
+                        foreach ($creditNote->orderReferences as $reference) {
                             $helper->log(__CLASS__, __METHOD__, 'refundProcedure note', ['reference' => $reference, 'isObject' => is_object($reference), 'amount' => $amount]);
                             if ($reference->referenceType == 'parent') {
                                 $orderId = $reference->originOrderId;
@@ -35,16 +37,21 @@ class AmzRefundProcedure
 
                     if (empty($orderId) && $parentOrder instanceof Order && $parentOrder->typeId == 1) {
                         $orderId = $parentOrder->id;
+
+                        /*
+                        else {
+                            $parentParentOrder = $parentOrder->parentOrder;
+                            if ($parentParentOrder instanceof Order) {
+                                $orderId = $parentParentOrder->id;
+                            }
+                        }
+                        */
                     }
                     break;
-                case 1: //sales order
-                    $orderId = $procedureOrderObject->id;
-                    $amount  = $procedureOrderObject->amounts[0]->invoiceTotal;
-                    break;
             }
-            $helper->log(__CLASS__, __METHOD__, 'refundProcedure infos', ['orderId' => $orderId, 'procedureOrderObjectId' => $procedureOrderObject->id, 'amount' => $amount]);
+            $helper->log(__CLASS__, __METHOD__, 'refundProcedure infos', ['orderId' => $orderId, 'creditNoteId' => $creditNoteId, 'amount' => $amount]);
             if (empty($orderId)) {
-                throw new Exception('Amazon Pay Refund failed! The given order is invalid!');
+                throw new \Exception('Amazon Pay Refund failed! The given order is invalid!');
             }
 
             $captures = $transactionHelper->amzTransactionRepository->getTransactions([
@@ -62,11 +69,11 @@ class AmzRefundProcedure
                 ]);
                 $helper->log(__CLASS__, __METHOD__, 'refundProcedure captures - 2nd try', $captures);
             }
-            if (is_array($captures) && isset($captures[0]) && !empty($procedureOrderObject->id)) {
+            if (is_array($captures) && isset($captures[0]) && !empty($creditNoteId)) {
                 $capture = $captures[0];
-                $transactionHelper->refund($capture->amzId, $amount, $procedureOrderObject->id);
+                $transactionHelper->refund($capture->amzId, $amount, $creditNoteId);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $helper->log(__CLASS__, __METHOD__, 'plenty refund failed', [$e, $e->getMessage()], true);
         }
 

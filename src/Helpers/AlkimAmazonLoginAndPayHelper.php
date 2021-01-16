@@ -26,7 +26,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
-    public $pluginVersion = '1.6.0';
+    public $pluginVersion = '1.5.3';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -152,6 +152,7 @@ class AlkimAmazonLoginAndPayHelper
     private function getPaymentProperty($typeId, $value)
     {
         /** @var PaymentProperty $paymentProperty */
+        /** @noinspection PhpUndefinedNamespaceInspection */
         $paymentProperty         = pluginApp(PaymentProperty::class);
         $paymentProperty->typeId = $typeId;
         $paymentProperty->value  = $value;
@@ -325,28 +326,6 @@ class AlkimAmazonLoginAndPayHelper
         $this->log(__CLASS__, __METHOD__, 'get country id', [$countryIso2, $country]);
 
         return (!empty($country) ? $country->id : 1);
-    }
-
-    public function setOrderStatusAuthorized($orderId)
-    {
-        $newOrderStatus = $this->getFromConfig('authorizedStatus');
-        if ($newOrderStatus === '4/5') {
-            try {
-            $this->log(__CLASS__, __METHOD__, 'start intelligent stock', ['order' => $orderId]);
-            $orderRepo = $this->orderRepository;
-            /** @var AuthHelper $authHelper */
-            $authHelper = pluginApp(AuthHelper::class);
-            $authHelper->processUnguarded(
-                function () use ($orderRepo, $orderId) {
-                    return $orderRepo->setOrderStatus45((int)$orderId);
-                }
-            );
-            } catch (\Exception $e) {
-                $this->log(__CLASS__, __METHOD__, 'set intelligent stock order status failed', [$e, $e->getMessage()], true);
-            }
-        } else {
-            $this->setOrderStatus($orderId, $newOrderStatus);
-        }
     }
 
     public function setOrderStatus($orderId, $status)

@@ -6,14 +6,17 @@
 <style>
     .amzPayButton {
         margin: 10px 0;
-    }
-
-    .amzPayButton, .amzLoginButton {
     {%  if config('AmazonLoginAndPay.hideButtons') == "true" %} display: none !important;
     {%  endif %}
+
     }
 </style>
+<!--<link href="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main.css" rel="stylesheet"/>-->
 <link href="{{ plugin_path('AmazonLoginAndPay') }}/css/amz-main.min.css" rel="stylesheet"/>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script type="text/javascript">
+    var amz$ = $.noConflict(true);
+</script>
 <script type="text/javascript">
     var amazonLoginAndPay = {
         config: {
@@ -31,16 +34,13 @@
             amazonAjaxHandle: '{{ urls.amazon_ajax_handle }}',
             amazonPreCheckout: '{{ urls.amazon_pre_checkout }}'
         },
-        widgets: {},
-        isAmazonLoginReady:false,
-        isAmazonPaymentsReady:false
+        widgets: {}
     }
-    window.onAmazonLoginReady = function(){amazonLoginAndPay.isAmazonLoginReady = true;};
-    window.onAmazonPaymentsReady = function(){amazonLoginAndPay.isAmazonPaymentsReady = true;};
 </script>
-<script src="{{ plugin_path('AmazonLoginAndPay') }}/js/amz-main.min.js" type="text/plain" data-cookie-consent="{{ config('AmazonLoginAndPay.consentGroup') }}.amazonPay"></script>
+<script src="{{ plugin_path('AmazonLoginAndPay') }}/js/amz-main.min.js"></script>
+<!--<script src="//www.alkim.de/AmazonPaymentsShops/plentymarkets/js/amz-main-1.0.3.js"></script>-->
 {% if config('AmazonLoginAndPay.sandbox') == "true" %}
-    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/sandbox/lpa/js/Widgets.js' type="text/plain" data-cookie-consent="{{ config('AmazonLoginAndPay.consentGroup') }}.amazonPay"></script>
+    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/sandbox/lpa/js/Widgets.js'></script>
 {% else %}
-    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/lpa/js/Widgets.js' type="text/plain" data-cookie-consent="{{ config('AmazonLoginAndPay.consentGroup') }}.amazonPay"></script>
+    <script async src='https://static-eu.payments-amazon.com/OffAmazonPayments/{% if config('AmazonLoginAndPay.accountCountry') == "UK" %}uk{%  else %}eur{% endif %}/lpa/js/Widgets.js'></script>
 {% endif %}
