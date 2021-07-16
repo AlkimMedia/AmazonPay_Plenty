@@ -1,5 +1,12 @@
 # Release notes for Amazon Pay
 
+## 1.6.3
+- capture only complete orders
+
+## 1.6.2
+- handle possible checkout errors
+- support for CV2 Shopware plugin
+
 ## 1.6.1
 - removed PaymentMethodBaseService
 

@@ -7,6 +7,7 @@ use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use AmazonLoginAndPay\Services\AmzBasketService;
 use AmazonLoginAndPay\Services\AmzCustomerService;
+use Plenty\Modules\Webshop\Contracts\SessionStorageRepositoryContract;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Http\Response;
@@ -14,7 +15,6 @@ use Plenty\Plugin\Templates\Twig;
 
 class AmzContentController extends Controller
 {
-    public $configRepo;
     public $response;
     public $request;
     public $helper;
@@ -118,7 +118,33 @@ class AmzContentController extends Controller
             $amount = $this->transactionHelper->getAmountFromOrderRef($orderReferenceId);
         }
         $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly);
-        $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', $return);
+
+        /** @var SessionStorageRepositoryContract $sessionStorageRepository */
+        $sessionStorageRepository = pluginApp(SessionStorageRepositoryContract::class);
+        $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', [
+                'return'           => $return,
+                'items'            => $this->checkoutHelper->getBasketItems(),
+                'invoice_address'  => $this->checkoutHelper->checkout->getCustomerInvoiceAddressId(),
+                'shipping_address' => $this->checkoutHelper->checkout->getCustomerShippingAddressId(),
+                'guest_mail'       => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL)
+            ]
+        );
+
+        if(!$this->checkoutHelper->areAddressesValid()){
+            $this->helper->resetSession();
+            $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
+            $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
+            $this->helper->log(__CLASS__, __METHOD__, 'addresses are invalid', [
+                    'return'           => $return,
+                    'items'            => $this->checkoutHelper->getBasketItems(),
+                    'invoice_address'  => $this->checkoutHelper->checkout->getCustomerInvoiceAddressId(),
+                    'shipping_address' => $this->checkoutHelper->checkout->getCustomerShippingAddressId(),
+                    'guest_mail'       => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL)
+                ], true
+            );
+            return $this->response->redirectTo('basket');
+        }
+
         if (!empty($return["redirect"])) {
             return $this->response->redirectTo($return["redirect"]);
         }
@@ -132,7 +158,8 @@ class AmzContentController extends Controller
             $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session - done', $basketItems);
         }
         */
-        $this->helper->log(__CLASS__, __METHOD__, 'payment method before place-order', ['methodId'=>$this->checkoutHelper->checkout->getPaymentMethodId()]);
+        $this->helper->log(__CLASS__, __METHOD__, 'payment method before place-order', ['methodId' => $this->checkoutHelper->checkout->getPaymentMethodId()]);
+
         return $this->response->redirectTo('place-order');
     }
 

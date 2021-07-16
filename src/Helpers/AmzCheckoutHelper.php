@@ -12,6 +12,7 @@ use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 use Plenty\Modules\Frontend\Contracts\Checkout;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Plenty\Modules\Webshop\Contracts\SessionStorageRepositoryContract;
 
 class AmzCheckoutHelper
 {
@@ -133,6 +134,32 @@ class AmzCheckoutHelper
         return $addressObj;
     }
 
+    public function areAddressesValid()
+    {
+        if(!$this->checkout->getCustomerInvoiceAddressId()){
+            return false;
+        }
+        if(!$this->checkout->getCustomerShippingAddressId()){
+            return false;
+        }
+        /** @var AddressRepositoryContract $addressRepo */
+        $addressRepo = pluginApp(AddressRepositoryContract::class);
+
+        try{
+            $invoiceAddress = $addressRepo->findAddressById($this->checkout->getCustomerInvoiceAddressId());
+            if(!$invoiceAddress->town){
+                return false;
+            }
+            $shippingAddress = $addressRepo->findAddressById($this->checkout->getCustomerShippingAddressId());
+            if(!$shippingAddress->town){
+                return false;
+            }
+        }catch (\Exception $e){
+            return false;
+        }
+        return true;
+    }
+
     public function createAddress($data)
     {
         /** @var AddressRepositoryContract $addressRepo */
@@ -178,6 +205,14 @@ class AmzCheckoutHelper
                 $invoiceAddressObject = $this->createAddress($formattedInvoiceAddress);
             }
             $this->checkout->setCustomerInvoiceAddressId($invoiceAddressObject->id);
+
+            /** @var SessionStorageRepositoryContract $sessionStorageRepository */
+            $sessionStorageRepository = pluginApp(SessionStorageRepositoryContract::class);
+            $sessionStorageRepository->setSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL, $email);
+            $this->helper->log(__CLASS__, __METHOD__, 'guest email', [
+                'key'            => SessionStorageRepositoryContract::GUEST_EMAIL,
+                'value' => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL)
+            ]);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'set invoice address failed', [$e, $e->getMessage(), $fromShippingAddress], true);
             if (!$fromShippingAddress) {

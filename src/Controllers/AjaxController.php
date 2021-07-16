@@ -169,7 +169,75 @@ class AjaxController extends Controller
         $message     = json_decode($requestData->Message);
 
         $responseXml = simplexml_load_string($message->NotificationData);
-        $this->helper->log(__CLASS__, __METHOD__, 'ipn data', [$message, $responseXml]);
+        $this->helper->log(__CLASS__, __METHOD__, 'ipn data', [$requestData, $message, $responseXml]);
+
+        //CV2 compatibility start
+        if(!empty($message->ObjectType)){
+            switch ($message->ObjectType) {
+                case 'CHARGE':
+
+                    //authorization part
+                    $captureId =$message->ObjectId;
+                    $authorizationId = str_replace('-C', '-A', $captureId);
+                    $transaction = null;
+                    $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $authorizationId]]);
+                    $this->helper->log(__CLASS__, __METHOD__, 'ipn - auth', [$transactions]);
+                    if (empty($transactions)) {
+                        $details = $this->transactionHelper->call('getAuthorizationDetails', ['amazon_authorization_id' => $authorizationId]);
+                        if(!empty($details["GetAuthorizationDetailsResult"]["AuthorizationDetails"])) {
+                            /** @var AmzTransaction $transaction */
+                            $transaction                 = pluginApp(AmzTransaction::class);
+                            $transaction->amzId          = $authorizationId;
+                            $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
+                            $transaction->type           = 'auth';
+                            if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
+                                $transaction->order = $orderId;
+                            }
+                            $transaction = $repository->saveTransaction($transaction);
+                        }
+                    } else {
+                        $transaction = $transactions[0];
+                    }
+                    if (!empty($transaction)) {
+                        $this->transactionHelper->refreshAuthorization($transaction, empty($transaction->status));
+                    }
+
+                    $transaction = null;
+
+                    //capture part
+                    $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $captureId]]);
+                    $this->helper->log(__CLASS__, __METHOD__, 'ipn - cv2 capture', [$transactions]);
+                    if (empty($transactions)) {
+                        $details =  $this->transactionHelper->call('getCaptureDetails', ['amazon_capture_id' => $captureId]);
+                        if(!empty($details["GetCaptureDetailsResult"]["CaptureDetails"])) {
+                            /** @var AmzTransaction $transaction */
+                            $transaction                 = pluginApp(AmzTransaction::class);
+                            $transaction->amzId          = $captureId;
+                            $transaction->orderReference = $this->transactionHelper->getOrderRefFromAmzId($transaction->amzId);
+                            $transaction->type           = 'capture';
+                            if ($orderId = $this->transactionHelper->getOrderIdFromOrderRef($transaction->orderReference)) {
+                                $transaction->order = $orderId;
+                            }
+                            $transaction = $repository->saveTransaction($transaction);
+                        }
+                    } else {
+                        $transaction = $transactions[0];
+                    }
+                    if(!empty($transaction)){
+                        $this->transactionHelper->refreshCapture($transaction, empty($transaction->status));
+                    }
+                    break;
+
+                default:
+                    $this->helper->log(__CLASS__, __METHOD__, 'unknown ipn', [$message], true);
+                    break;
+
+            }
+            $output = 'done';
+            return $twig->render('AmazonLoginAndPay::content.custom-output', ['output' => $output]);
+        }
+        //CV2 compatibility end
+
         switch ($message->NotificationType) {
             case 'PaymentAuthorize':
                 $transactions = $this->amzTransactionRepo->getTransactions([['amzId', '=', $responseXml->AuthorizationDetails->AmazonAuthorizationId]]);

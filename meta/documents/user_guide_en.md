@@ -22,7 +22,7 @@ With the Amazon Pay extension merchants enable over 300 million Amazon customers
 - Multi-currency support
 - Multi-language support
 
-<hr>
+## Links
 [Information for installation and setup ](https://alkimmedia.github.io/AmazonPay_Plenty/)	   
 [Further information about Amazon Pay](https://pay.amazon.com/uk/merchant?ref=ml_de_ap_xx_sp_PAMP_xx_xx_xx_MPI)	 
 [Sign up for Amazon Pay](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=en_GB&source=SPMW)

@@ -1,5 +1,12 @@
 # Release Notes für Amazon Pay
 
+## 1.6.3
+- Zahlungseinzug nur bei vollständigen Orders
+
+## 1.6.2
+- mögliche Checkout-Fehler besser behandeln und loggen
+- Support für CV2 Shopware Plugin
+
 ## 1.6.1
 - PaymentMethodBaseService wieder entfernt, wegen Kompatiblitätsproblemen mit Ceres 4
 

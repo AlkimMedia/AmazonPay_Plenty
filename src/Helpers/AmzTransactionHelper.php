@@ -391,7 +391,7 @@ class AmzTransactionHelper
         }
         $this->amzTransactionRepository->updateTransaction($transaction);
         if ($transaction->status === 'Open') {
-            if ($this->helper->getFromConfig('captureMode') == 'after_auth') {
+            if ($this->helper->getFromConfig('captureMode') == 'after_auth' && $transaction->order) {
                 $this->capture($transaction->amzId, $transaction->amount);
             }
             $orderId = $this->getOrderIdFromOrderRef($transaction->orderReference);

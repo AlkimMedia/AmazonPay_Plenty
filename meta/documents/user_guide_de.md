@@ -35,7 +35,7 @@ Laura Garrity | E-Commerce Manager | DOMU
 - „Bei Amazon Pay müssen keine Zahlungsinformationen mehr angegeben werden, was die Zeit für den Bestellprozess von zwei oder drei Minuten auf 30 Sekunden oder weniger verkürzt."
 Andrew Kennedy | Commercial Manager | Flooring Superstore
 
-<hr>
+## Hilfreiche Links
 [Hinweise zur Installation und Einrichtung ](https://alkimmedia.github.io/AmazonPay_Plenty/)	   
 [Hilfeseite](https://pay.amazon.com/de/help)	 
 [Jetzt für Amazon Pay anmelden](https://sellercentral-europe.amazon.com/hz/me/sp/preregistration?solutionProviderId=A13SNST9X74Q8L&marketplaceId=A53RDEWN57UU5&ld=spexdeapa-promo-plenty-062018-ple&language=de_DE&source=SPMW)
