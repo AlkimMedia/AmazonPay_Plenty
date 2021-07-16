@@ -68,10 +68,10 @@
   "javaScriptFiles": [
     "main.js"
   ],
-  "require": [
-    "IO",
-    "Ceres"
-  ],
+  "require": {
+    "IO": ">=4.0.0",
+    "Ceres": ">=4.0.0"
+  },
   "dependencies": {
     "amzn/amazon-pay-sdk-php": "3.4.1"
   },
