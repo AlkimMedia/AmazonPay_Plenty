@@ -7,6 +7,7 @@ use AmazonLoginAndPay\Helpers\AmzCheckoutHelper;
 use AmazonLoginAndPay\Helpers\AmzTransactionHelper;
 use AmazonLoginAndPay\Services\AmzBasketService;
 use AmazonLoginAndPay\Services\AmzCustomerService;
+use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Webshop\Contracts\SessionStorageRepositoryContract;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
@@ -121,12 +122,28 @@ class AmzContentController extends Controller
 
         /** @var SessionStorageRepositoryContract $sessionStorageRepository */
         $sessionStorageRepository = pluginApp(SessionStorageRepositoryContract::class);
-        $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', [
+
+
+        /** @var AddressRepositoryContract $addressRepo */
+        $addressRepo = pluginApp(AddressRepositoryContract::class);
+        $invoiceAddress = null;
+        $shippingAddress = null;
+        try{
+            $invoiceAddress = $addressRepo->findAddressById($this->checkoutHelper->checkout->getCustomerInvoiceAddressId());
+            $shippingAddress = $addressRepo->findAddressById($this->checkoutHelper->checkout->getCustomerShippingAddressId());
+        }catch (\Exception $e){
+            //silence
+        }
+
+        $this->helper->log(__CLASS__, 'checkoutProceedInfo', 'checkout actions response', [
                 'return'           => $return,
                 'items'            => $this->checkoutHelper->getBasketItems(),
-                'invoice_address'  => $this->checkoutHelper->checkout->getCustomerInvoiceAddressId(),
-                'shipping_address' => $this->checkoutHelper->checkout->getCustomerShippingAddressId(),
-                'guest_mail'       => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL)
+                'invoice_address_id'  => $this->checkoutHelper->checkout->getCustomerInvoiceAddressId(),
+                'invoice_address'  => $invoiceAddress,
+                'shipping_address_id' => $this->checkoutHelper->checkout->getCustomerShippingAddressId(),
+                'shipping_address' => $shippingAddress,
+                'guest_mail'       => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL),
+                'are_addresses_valid'=>$this->checkoutHelper->areAddressesValid()
             ]
         );
 
@@ -142,10 +159,15 @@ class AmzContentController extends Controller
                     'guest_mail'       => $sessionStorageRepository->getSessionValue(SessionStorageRepositoryContract::GUEST_EMAIL)
                 ], true
             );
+            $this->helper->log(__CLASS__,'beforeBackToBasket', '', []);
             return $this->response->redirectTo('basket');
         }
 
         if (!empty($return["redirect"])) {
+            $this->helper->log(__CLASS__,'beforeRedirect', '', [
+                    'redirectTo'=>$return["redirect"],
+                ]
+            );
             return $this->response->redirectTo($return["redirect"]);
         }
 

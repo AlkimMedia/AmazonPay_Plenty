@@ -297,15 +297,29 @@ class AmzCheckoutHelper
                     }
                 }
             } else {
-                if (!empty($orderId)) {
-                    $this->cancelOrder($orderId);
-                    $this->restoreBasket();
-                }
-                $this->helper->setToSession('amazonCheckoutError', 'UnknownError');
-                $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
-                $return["redirect"] = 'basket';
+                if(isset($response['Error']['Code']) && $response['Error']['Code'] === 'TransactionAmountExceeded'){
+                    //prevent errors from duplicate calls
+                    $this->helper->log(__CLASS__, __METHOD__, 'duplicate call', [$response]);
+                    $existingAuths = $this->transactionHelper->amzTransactionRepository->getTransactions([
+                        ['orderReference', '=', $orderReferenceId],
+                        ['type', '=', 'auth']
+                    ]);
+                    $this->helper->log(__CLASS__, __METHOD__, 'duplicate call found authorizations', [$existingAuths]);
+                    if($existingAuths){
+                        $this->helper->log(__CLASS__, __METHOD__, 'duplicate call set to session', [$existingAuths[0]->amzId]);
+                        $this->helper->setToSession('amazonAuthId', $existingAuths[0]->amzId);
+                    }
+                }else {
+                    if (!empty($orderId)) {
+                        $this->cancelOrder($orderId);
+                        $this->restoreBasket();
+                    }
+                    $this->helper->setToSession('amazonCheckoutError', 'UnknownError');
+                    $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
+                    $return["redirect"] = 'basket';
 
-                return $return;
+                    return $return;
+                }
             }
         }
         $this->helper->setToSession('amzCheckoutOrderReference', $orderReferenceId);
