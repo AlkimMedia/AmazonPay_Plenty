@@ -25,7 +25,8 @@
           "required": false,
           "label": "Config.mwsSecretAccessKeyLabel",
           "options": {
-            "defaultValue": ""
+            "defaultValue": "",
+            "isPassword": true
           }
         },
         "accountCountry": {
@@ -289,6 +290,10 @@
               {
                 "value": "necessary",
                 "caption": "Config.consentGroupNecessary"
+              },
+              {
+                "value": "payment",
+                "caption": "Config.consentGroupPayment"
               },
               {
                 "value": "tracking",

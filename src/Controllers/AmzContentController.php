@@ -38,6 +38,7 @@ class AmzContentController extends Controller
 
     public function amazonCheckoutAction(Twig $twig)
     {
+        $this->checkoutHelper->removeUnavailableItems();
         $this->checkoutHelper->setPaymentMethod();
         $userData     = $this->helper->getFromSession('amzUserData');
         $basket       = $this->checkoutHelper->getBasketData();
@@ -110,6 +111,7 @@ class AmzContentController extends Controller
 
     public function amazonCheckoutProceedAction()
     {
+        $this->checkoutHelper->removeUnavailableItems();
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
         $walletOnly       = $this->helper->getFromSession('amzInvalidPaymentOrderReference') == $orderReferenceId;
         $this->helper->log(__CLASS__, __METHOD__, 'is wallet only?', $walletOnly);

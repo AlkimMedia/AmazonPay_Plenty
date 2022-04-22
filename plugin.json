@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.6.3",
+  "version": "1.6.4",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -73,7 +73,8 @@
     "Ceres": ">=4.0.0"
   },
   "dependencies": {
-    "amzn/amazon-pay-sdk-php": "3.4.1"
+    "amzn/amazon-pay-sdk-php": "3.4.1",
+    "aws/aws-php-sns-message-validator": "^1.6"
   },
   "runOnBuild": [
     "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable",

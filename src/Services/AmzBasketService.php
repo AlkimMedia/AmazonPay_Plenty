@@ -57,9 +57,17 @@ class AmzBasketService
 
     public function getBasketItemsForTemplate(): array
     {
+        /** @var \IO\Services\BasketService $basketServiceOriginal */
         $basketServiceOriginal = pluginApp(\IO\Services\BasketService::class);
 
         return $basketServiceOriginal->getBasketItems();
+    }
+
+    public function removeBasketItem($basketItemId)
+    {
+        /** @var BasketItemRepositoryContract $basketItemRepository */
+        $basketItemRepository = pluginApp(BasketItemRepositoryContract::class);
+        return $basketItemRepository->removeBasketItem($basketItemId);
     }
 
     /**

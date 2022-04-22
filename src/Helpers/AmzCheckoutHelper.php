@@ -37,6 +37,23 @@ class AmzCheckoutHelper
         $this->paymentMethodHelper  = $paymentMethodHelper;
     }
 
+    public function removeUnavailableItems(){
+        $items = $this->basketService->getBasketItemsForTemplate();
+        if(!is_array($items)){
+            return false;
+        }
+        $hasRemovedItems = false;
+        foreach($items as $item){
+            if(isset($item['variation']['data']['filter']['isSalable'])){
+                if($item['variation']['data']['filter']['isSalable'] === false){
+                    $this->basketService->removeBasketItem($item['id']);
+                    $hasRemovedItems = true;
+                }
+            }
+        }
+        return $hasRemovedItems;
+    }
+
     public function getShippingOptionsList()
     {
         $checkoutData = $this->getCheckoutData();

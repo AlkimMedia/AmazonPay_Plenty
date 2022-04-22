@@ -169,7 +169,7 @@ class AmzServiceProvider extends ServiceProvider
                 'provider' => 'AmazonLoginAndPay::AmazonPay.consentProvider',
                 'lifespan' => 'AmazonLoginAndPay::AmazonPay.consentLifespan',
                 'policyUrl' => 'https://pay.amazon.de/help/201212490',
-                'group' => $config->get('AmazonLoginAndPay.consentGroup', 'necessary'),
+                'group' => $config->get('AmazonLoginAndPay.consentGroup', 'payment'),
                 'necessary' => $config->get('AmazonLoginAndPay.consentNecessary') === 'true',
                 'isOptOut' => $config->get('AmazonLoginAndPay.consentOptOut') === 'true',
                 'cookieNames' => [

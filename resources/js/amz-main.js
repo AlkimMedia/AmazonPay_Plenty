@@ -291,7 +291,7 @@ var PlentyMarketsAmazonPay = {
         if (id) {
             var postData = {
                 variationId: id,
-                quantity: amz$('.articleCheckout').parent().parent().find('input[type="text"], input[type="number"]').first().val()
+                quantity: amz$('.add-to-basket-container').find('input[type="text"], input[type="number"]').first().val()
             };
             amz$.post(
                 '/rest/io/basket/items/',
