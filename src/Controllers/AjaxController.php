@@ -57,7 +57,7 @@ class AjaxController extends Controller
                 if (isset($header['cookie']) && is_array($header['cookie'])) {
                     $cookieStr = implode('', $header['cookie']);
                     if (strpos($cookieStr, 'amzLoginType=Login') !== false) {
-                        $redirect = '/my-account';
+                        $redirect = $this->helper->getUrl('/my-account');
                     }
                 }
                 $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->request->get('access_token')]);
@@ -66,7 +66,7 @@ class AjaxController extends Controller
                 if ($this->request->get('do_login')) {
                     $loginInfo = $this->customerService->loginWithAmazonUserData($userData);
                     if (!empty($loginInfo["redirect"])) {
-                        $redirect = $loginInfo["redirect"];
+                        $redirect = $this->helper->getUrl($loginInfo["redirect"]);
                     } elseif (!$loginInfo["success"]) {
                         $redirect = '/?amz_login_error';
                     }

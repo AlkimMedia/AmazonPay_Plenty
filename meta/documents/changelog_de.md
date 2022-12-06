@@ -1,5 +1,8 @@
 # Release Notes für Amazon Pay
 
+## 1.6.6
+- Bugfix: Sprachwechsel bei Checkout
+
 ## 1.6.5
 - keine Änderungen
 

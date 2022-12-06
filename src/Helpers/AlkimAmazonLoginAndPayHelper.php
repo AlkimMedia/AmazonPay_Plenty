@@ -26,7 +26,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
-    public $pluginVersion = '1.6.5';
+    public $pluginVersion = '1.6.6';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -495,6 +495,22 @@ class AlkimAmazonLoginAndPayHelper
         $urlQuery = pluginApp(UrlQuery::class, ['path' => $path, 'lang' => $lang]);
 
         return $urlQuery->toAbsoluteUrl($includeLanguage);
+    }
+
+    public function getRelativeUrl($path)
+    {
+        /** @var WebstoreConfigurationService $webstoreConfigurationService */
+        $webstoreConfigurationService = pluginApp(WebstoreConfigurationService::class);
+        /** @var SessionStorageService $sessionStorage */
+        $sessionStorage  = pluginApp(SessionStorageService::class);
+        $defaultLanguage = $webstoreConfigurationService->getDefaultLanguage();
+        $lang            = $sessionStorage->getLang();
+
+        $includeLanguage = $lang !== null && $lang !== $defaultLanguage;
+        /** @var UrlQuery $urlQuery */
+        $urlQuery = pluginApp(UrlQuery::class, ['path' => $path, 'lang' => $lang]);
+
+        return $urlQuery->toRelativeUrl($includeLanguage);
     }
 
     public function scheduleNotification($message, $type = 'error')
