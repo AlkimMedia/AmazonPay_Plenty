@@ -26,7 +26,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
-    public $pluginVersion = '1.6.3';
+    public $pluginVersion = '1.6.5';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;

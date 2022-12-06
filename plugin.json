@@ -12,7 +12,7 @@
   },
   "type": "payment",
   "categories":["3519"],
-  "version": "1.6.4",
+  "version": "1.6.5",
   "license": "AGPL-3.0",
   "pluginIcon": "icon_plugin_xs.png",
   "price": 0.0,
@@ -71,6 +71,9 @@
   "require": {
     "IO": ">=4.0.0",
     "Ceres": ">=4.0.0"
+  },
+  "platform": {
+    "php": ">=7.3 <8.1"
   },
   "dependencies": {
     "amzn/amazon-pay-sdk-php": "3.4.1",

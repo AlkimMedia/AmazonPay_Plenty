@@ -1,5 +1,12 @@
 # Release Notes für Amazon Pay
 
+## 1.6.5
+- keine Änderungen
+
+## 1.6.4
+- IPN Validierung
+- Berücksichtigung ausverkaufter Artikel
+
 ## 1.6.3
 - Zahlungseinzug nur bei vollständigen Orders
 

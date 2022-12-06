@@ -80,16 +80,6 @@ class AmzContentController extends Controller
     public function amazonLoginProcessingAction(Twig $twig)
     {
         return $twig->render('AmazonLoginAndPay::content.amazon-login-processing', []);
-        /*
-        //TODO: decide whether to login or not
-        $loginInfo = $this->customerService->loginWithAmazonUserData($userData);
-        if (!empty($loginInfo["redirect"])) {
-            return $this->response->redirectTo($loginInfo["redirect"]);
-        } else {
-            //TODO: decide where to go
-            return $this->response->redirectTo('amazon-checkout');
-        }
-        */
     }
 
     public function amazonConnectAccountsAction(Request $request, Twig $twig)
@@ -172,16 +162,6 @@ class AmzContentController extends Controller
             );
             return $this->response->redirectTo($return["redirect"]);
         }
-
-        /*
-        } else {
-
-            $basketItems = $this->basketService->getBasketItems();
-            $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session', $basketItems);
-            $this->helper->setToSession('amzCheckoutBasket', $basketItems);
-            $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session - done', $basketItems);
-        }
-        */
         $this->helper->log(__CLASS__, __METHOD__, 'payment method before place-order', ['methodId' => $this->checkoutHelper->checkout->getPaymentMethodId()]);
 
         return $this->response->redirectTo('place-order');

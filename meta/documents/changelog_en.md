@@ -1,5 +1,12 @@
 # Release notes for Amazon Pay
 
+## 1.6.5
+- no changes
+
+## 1.6.4
+- IPN validation
+- considering unavailable articles
+
 ## 1.6.3
 - capture only complete orders
 
