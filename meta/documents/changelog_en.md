@@ -1,5 +1,11 @@
 # Release notes for Amazon Pay
 
+## 1.6.7
+- SDK upgrade for currenty Plenty releases
+
+## 1.6.6
+- bugfix: language change during checkout
+
 ## 1.6.5
 - no changes
 

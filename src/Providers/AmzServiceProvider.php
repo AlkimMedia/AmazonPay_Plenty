@@ -120,7 +120,7 @@ class AmzServiceProvider extends ServiceProvider
             ProcedureEntry::PROCEDURE_GROUP_ORDER,
             [
                 'de' => 'Amazon Pay Zahlung autorisieren',
-                'en' => 'Auithorize with Amazon Pay'
+                'en' => 'Authorize with Amazon Pay'
             ],
             '\AmazonLoginAndPay\Procedures\AmzAuthorizeProcedure@run'
         );

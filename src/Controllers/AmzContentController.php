@@ -55,7 +55,7 @@ class AmzContentController extends Controller
                 case 'Failure':
                     $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.errorMfaFailed'));
 
-                    return $this->response->redirectTo('basket');
+                    return $this->response->redirectTo($this->helper->getRelativeUrl('basket'));
                     break;
             }
         }
@@ -89,7 +89,7 @@ class AmzContentController extends Controller
         if (($email = $request->get('email')) && ($password = $request->get('password'))) {
             $connectInfo = $this->customerService->connectAccounts($userData, $email, $password);
             if ($connectInfo["success"]) {
-                return $this->response->redirectTo('amazon-checkout');
+                return $this->response->redirectTo($this->helper->getRelativeUrl('amazon-checkout'));
             }
         }
         $templateData = [
@@ -152,7 +152,7 @@ class AmzContentController extends Controller
                 ], true
             );
             $this->helper->log(__CLASS__,'beforeBackToBasket', '', []);
-            return $this->response->redirectTo('basket');
+            return $this->response->redirectTo($this->helper->getRelativeUrl('basket'));
         }
 
         if (!empty($return["redirect"])) {
@@ -160,11 +160,11 @@ class AmzContentController extends Controller
                     'redirectTo'=>$return["redirect"],
                 ]
             );
-            return $this->response->redirectTo($return["redirect"]);
+            return $this->response->redirectTo($this->helper->getRelativeUrl($return["redirect"]));
         }
         $this->helper->log(__CLASS__, __METHOD__, 'payment method before place-order', ['methodId' => $this->checkoutHelper->checkout->getPaymentMethodId()]);
 
-        return $this->response->redirectTo('place-order');
+        return $this->response->redirectTo($this->helper->getRelativeUrl('place-order'));
     }
 
     public function amazonCronAction()

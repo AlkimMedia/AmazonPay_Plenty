@@ -431,7 +431,7 @@ class AmzCheckoutHelper
                 $this->restoreBasket();
             }
             $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
-            $return["redirect"] = 'amazon-checkout';
+            $return['redirect'] = $this->helper->getAbsoluteUrl('amazon-checkout');
 
             return $return;
         }

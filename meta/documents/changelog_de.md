@@ -1,5 +1,11 @@
 # Release Notes für Amazon Pay
 
+## 1.6.7
+- SDK Update für aktuelle Plenty-Version
+
+## 1.6.6
+- Bugfix: Sprachwechsel bei Checkout
+
 ## 1.6.5
 - keine Änderungen
 
